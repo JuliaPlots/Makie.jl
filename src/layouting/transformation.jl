@@ -1,35 +1,4 @@
 
-function Transformation(transform_func=identity)
-    flip = Node((false, false, false))
-    scale = Node(Vec3f0(1))
-    scale = lift(flip, scale) do f, s
-        map((f, s)-> f ? -s : s, Vec(f), s)
-    end
-    translation, rotation, align = (
-        Node(Vec3f0(0)),
-        Node(Quaternionf0(0, 0, 0, 1)),
-        Node(Vec2f0(0))
-    )
-    trans = nothing
-    model = map_once(scale, translation, rotation, align, flip) do s, o, q, a, flip
-        parent = if trans !== nothing && isassigned(trans.parent)
-            boundingbox(trans.parent[])
-        else
-            nothing
-        end
-        transformationmatrix(o, s, q, a, flip, parent)
-    end
-    return Transformation(
-        translation,
-        scale,
-        rotation,
-        model,
-        flip,
-        align,
-        Node{Any}(transform_func)
-    )
-end
-
 function Transformation(scene::SceneLike)
     flip = Node((false, false, false))
     scale = Node(Vec3f0(1))
@@ -89,7 +58,7 @@ end
 
 
 transformation(t::Scene) = t.transformation
-transformation(t::AbstractPlot) = t.transformation
+transformation(t::AbstractPlot) = t.basics.transformation
 transformation(t::Transformation) = t
 
 scale(t::Transformable) = transformation(t).scale

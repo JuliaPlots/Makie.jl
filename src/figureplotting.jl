@@ -18,16 +18,13 @@ function plot(P::PlotFunc, args...; axis = NamedTuple(), figure = NamedTuple(), 
     fig = Figure(; figure...)
 
     axis = Dict(pairs(axis))
-
+    plot = P(args...; kw_attributes...)
     if haskey(axis, :type)
         axtype = axis[:type]
         pop!(axis, :type)
         ax = axtype(fig; axis...)
     else
-        proxyscene = Scene()
-        plot!(proxyscene, P, Attributes(kw_attributes), args...; show_axis = false)
-
-        if is2d(proxyscene)
+        if is2d(data_limits(plot))
             ax = Axis(fig; axis...)
         else
             ax = LScene(fig; scenekw = (camera = automatic, show_axis = true, raw = false, axis...))
@@ -35,8 +32,8 @@ function plot(P::PlotFunc, args...; axis = NamedTuple(), figure = NamedTuple(), 
     end
 
     fig[1, 1] = ax
-    p = plot!(ax, P, Attributes(kw_attributes), args...)
-    FigureAxisPlot(fig, ax, p)
+    plot!(ax, plot)
+    FigureAxisPlot(fig, ax, plot)
 end
 
 # without scenelike, use current axis of current figure

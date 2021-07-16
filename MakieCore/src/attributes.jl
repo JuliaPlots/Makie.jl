@@ -185,15 +185,6 @@ Base.getindex(plot::AbstractPlot, idx::UnitRange{<:Integer}) = plot.converted[id
 Base.setindex!(plot::AbstractPlot, value, idx::Integer) = (plot.input_args[idx][] = value)
 Base.length(plot::AbstractPlot) = length(plot.converted)
 
-function Base.getindex(x::AbstractPlot, key::Symbol)
-    argnames = argument_names(typeof(x), length(x.converted))
-    idx = findfirst(isequal(key), argnames)
-    if idx === nothing
-        return x.attributes[key]
-    else
-        x.converted[idx]
-    end
-end
 
 function Base.getindex(x::AttributeOrPlot, key::Symbol, key2::Symbol, rest::Symbol...)
     dict = to_value(x[key])

@@ -359,10 +359,3 @@ function padded_vcat(arrs::AbstractVector{T}, fillvalue) where T <: AbstractVect
     end
     arr
 end
-
-function alignment2num(x::Symbol)
-    (x == :center) && return 0.5f0
-    (x in (:left, :bottom)) && return 0.0f0
-    (x in (:right, :top)) && return 1.0f0
-    return 0.0f0 # 0 default, or better to error?
-end

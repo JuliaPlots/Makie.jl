@@ -48,6 +48,13 @@ using MakieCore: ConversionTrait, NoConversion, PointBased, SurfaceLike, Continu
 export ConversionTrait, NoConversion, PointBased, SurfaceLike, ContinuousSurface, DiscreteSurface, VolumeLike
 using MakieCore: Key, @key_str, Automatic, automatic, @recipe
 using MakieCore: Pixel, px, Unit, Billboard
+using MakieCore: VecTypes, Quaternionf0, Quaternion, RGBAf0, RGBf0, NativeFont, RealVector
+import MakieCore: project_point2, project, to_world, transformationmatrix, orthographicprojection, perspectiveprojection, lookat, translationmatrix, scalematrix
+using MakieCore: Camera, Transformation, PlotFunc
+import MakieCore: to_colormap, to_color, to_font, to_rotation, FastPixel, Reverse
+import MakieCore: assetpath
+import MakieCore: el32convert, to_textsize, to_align, qrotation, available_gradients
+export to_colormap, to_color, to_font, to_rotation
 export Pixel, px, Unit, plotkey, attributes, used_attributes
 
 using StatsFuns: logit, logistic
@@ -58,14 +65,9 @@ using Base.Iterators: repeated, drop
 import Base: getindex, setindex!, push!, append!, parent, get, get!, delete!, haskey
 using Observables: listeners, to_value, notify
 
-const RealVector{T} = AbstractVector{T} where T <: Number
 const Node = Observable # shorthand
-const RGBAf0 = RGBA{Float32}
-const RGBf0 = RGB{Float32}
-const NativeFont = FreeTypeAbstraction.FTFont
 
 include("documentation/docstringextension.jl")
-include("utilities/quaternions.jl")
 include("interaction/PriorityObservable.jl")
 include("types.jl")
 include("utilities/utilities.jl")
@@ -85,11 +87,10 @@ include("themes/theme_light.jl")
 include("themes/theme_dark.jl")
 include("interfaces.jl")
 include("units.jl")
-include("conversions.jl")
+# include("conversions.jl")
 include("shorthands.jl")
 
 # camera types + functions
-include("camera/projection_math.jl")
 include("camera/camera.jl")
 include("camera/camera2d.jl")
 include("camera/camera3d.jl")

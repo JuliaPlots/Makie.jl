@@ -191,21 +191,6 @@ end
 function selection_rect!(scene, cam, key)
     rect = RefValue(FRect(NaN, NaN, NaN, NaN))
     lw = 2f0
-    scene_unscaled = Scene(
-        scene, transformation = Transformation(),
-        cam = copy(camera(scene)), clear = false, raw = true
-    )
-    scene_unscaled.clear = false
-    scene_unscaled.updated = Node(false)
-    rect_vis = lines!(
-        scene_unscaled,
-        rect[],
-        linestyle = :dot,
-        linewidth = 2f0,
-        color = (:black, 0.4),
-        visible = false,
-        raw = true
-    )
     waspressed = RefValue(false)
     on(camera(scene), events(scene).mousebutton, key) do event, key
         if ispressed(scene, key) && is_mouseinside(scene)
@@ -250,7 +235,7 @@ function selection_rect!(scene, cam, key)
 
     # TODO: this needs explicit cleanup?
     # why?
-    return rect_vis, rect
+    return nothing, rect
 end
 
 function reset!(cam, boundingbox, preserveratio = true)

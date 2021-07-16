@@ -186,11 +186,11 @@ function RectangleZoom(f::Function, ax::Axis; kw...)
     # manually specify correct faces for a rectangle with a rectangle hole inside
     faces = [1 2 5; 5 2 6; 2 3 6; 6 3 7; 3 4 7; 7 4 8; 4 1 8; 8 1 5]
     # fxaa false seems necessary for correct transparency
-    mesh = mesh!(ax.scene, selection_vertices, faces, color = (:black, 0.2), shading = false,
-                 fxaa = false, inspectable = false, visible=r.active, transparency=true)
+    # mesh = mesh!(ax.scene, selection_vertices, faces, color = (:black, 0.2), shading = false,
+                #  fxaa = false, inspectable = false, visible=r.active, transparency=true)
     # translate forward so selection mesh and frame are never behind data
-    translate!(mesh, 0, 0, 100)
-    return r
+    # translate!(mesh, 0, 0, 100)
+    return nothing
 end
 
 function RectangleZoom(ax::Axis; kw...)

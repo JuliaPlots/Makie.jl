@@ -229,39 +229,6 @@ function Base.getproperty(e::Events, field::Symbol)
     end
 end
 
-mutable struct Camera
-    pixel_space::Node{Mat4f0}
-    view::Node{Mat4f0}
-    projection::Node{Mat4f0}
-    projectionview::Node{Mat4f0}
-    resolution::Node{Vec2f0}
-    eyeposition::Node{Vec3f0}
-    steering_nodes::Vector{ObserverFunction}
-end
-
-"""
-Holds the transformations for Scenes.
-## Fields
-$(TYPEDFIELDS)
-"""
-struct Transformation <: Transformable
-    parent::RefValue{Transformable}
-    translation::Node{Vec3f0}
-    scale::Node{Vec3f0}
-    rotation::Node{Quaternionf0}
-    model::Node{Mat4f0}
-    flip::Node{NTuple{3, Bool}}
-    align::Node{Vec2f0}
-    # data conversion node, for e.g. log / log10 etc
-    transform_func::Node{Any}
-    function Transformation(translation, scale, rotation, model, flip, align, transform_func)
-        return new(
-            RefValue{Transformable}(),
-            translation, scale, rotation, model, flip, align, transform_func
-        )
-    end
-end
-
 """
 `PlotSpec{P<:AbstractPlot}(args...; kwargs...)`
 

@@ -56,23 +56,6 @@ function Observables.on(f::Function, camera::Camera, nodes::AbstractObservable..
     return f
 end
 
-function Camera(px_area)
-    pixel_space = lift(px_area) do window_size
-        nearclip = -10_000f0
-        farclip = 10_000f0
-        w, h = Float32.(widths(window_size))
-        return orthographicprojection(0f0, w, 0f0, h, nearclip, farclip)
-    end
-    Camera(
-        pixel_space,
-        Node(Mat4f0(I)),
-        Node(Mat4f0(I)),
-        Node(Mat4f0(I)),
-        lift(a-> Vec2f0(widths(a)), px_area),
-        Node(Vec3f0(1)),
-        ObserverFunction[]
-    )
-end
 
 function is_mouseinside(scene, target)
     scene === target && return false

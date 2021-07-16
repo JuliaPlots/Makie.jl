@@ -218,3 +218,105 @@ e.g.:
 ```
 """
 plottype(plot_args...) = Combined{Any, Tuple{typeof.(to_value.(plot_args))...}} # default to dispatch to type recipes!
+
+function extract_type(type_expr)
+    if Meta.isexpr(type_expr, :(<:))
+        type_name, inheritance = type_expr.args
+        if Meta.isexpr(type_name, :curly)
+            name, type_vars... = type_name.args
+            return name, type_vars
+        else
+            return type_name, ()
+        end
+    end
+    error("Type needs to inherit from e.g AbstractPlot")
+end
+
+"""
+    mutable struct Name{...} <: AbstractPlot
+        fields
+
+"""
+macro plottype(arg)
+    fields = arg.args[3].args
+    TypeName, typevars = extract_type(arg.args[2])
+    TypeName = esc(TypeName)
+    typevar_names = map(typevars) do var
+        var isa Symbol && return var
+        return var.args[1]
+    end
+
+    function to_field(expr)
+        expr isa Symbol && error("Field $(expr) needs a type! If no type applies use $(expr)::Any!")
+        expr.head == :(::) && return expr
+        expr.head == :(=) && return to_field(expr.args[1])
+        error("Not a field expr: $(expr), $(expr.head)")
+    end
+    keywords = []
+    arguments = []
+    struct_field_expr = map(fields) do expr
+        expr isa LineNumberNode && return expr
+        not_typed() = error("Field $(expr) needs a type! If no type applies use $(expr)::Any!")
+        expr isa Symbol && not_typed()
+        if expr.head == :(::)
+            push!(arguments, expr)
+            return expr
+        elseif expr.head == :(=)
+            field = expr.args[1]
+            default = expr.args[2]
+            if Meta.isexpr(field, :(::))
+                push!(keywords, field.args[1] => default)
+                return field
+            end
+        end
+        error("Not a field expr: $(expr), $(expr.head)")
+    end
+
+    kw_names = first.(keywords)
+    arg_names = map(arg-> arg.args[1], arguments)
+
+    set(argname) = :(obj.$(argname) = $(argname))
+
+    set_args = set.(arg_names)
+    set_kw = set.(kw_names)
+
+    inner_constructor = quote
+        function $(TypeName)($(arguments...), $(kw_names...)) where {$(typevars...)}
+            obj = new{$(typevar_names...)}()
+            setfield!(obj, :parent, nothing)
+            setfield!(obj, :basics, PlotBasics())
+            $(set_args...)
+            $(set_kw...)
+            return obj
+        end
+    end
+    kw = map(keywords) do (name, default)
+        return Expr(:kw, name, default)
+    end
+    all_fields = [f.args[1] for f in struct_field_expr if f isa Expr]
+    outer_constructor = quote
+        function $(TypeName)(args...; $(kw...))
+            ($(arg_names...),) = convert_arguments($(TypeName), to_value.(args)...)
+            obj = $(TypeName)(
+                $(all_fields...)
+            )
+            onany(args...) do args...
+                ($(arg_names...),) = convert_arguments($(TypeName), args...)
+                $(set_args...)
+            end
+            return obj
+        end
+    end
+    push!(struct_field_expr, :(basics::PlotBasics), :(parent::Any))
+
+    struct_body = quote
+        $(struct_field_expr...)
+        $(inner_constructor)
+    end
+    new_type = Expr(arg.head, arg.args[1], arg.args[2], struct_body)
+
+    return quote
+        $new_type
+        $outer_constructor
+    end
+end

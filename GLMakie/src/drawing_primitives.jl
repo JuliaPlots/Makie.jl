@@ -183,7 +183,41 @@ function Base.insert!(screen::GLScreen, scene::Scene, @nospecialize(x::Combined)
     end
 end
 
-function draw_atomic(screen::GLScreen, scene::Scene, @nospecialize(x::Union{Scatter, MeshScatter}))
+function Base.insert!(screen::GLScreen, scene::Scene, plot::AbstractPlot)
+    draw_atomic(screen, scene, plot)
+end
+
+function add_to_screen!(screen, scene, robj)
+    for key in (:pixel_space, :view, :projection, :eyeposition, :projectionview)
+        if !haskey(robj.uniforms, key)
+            robj[key] = getfield(scene.camera, key)
+        end
+    end
+    robj[:resolution] = map(x-> Vec2f0(widths(x)), scene.camera.pixel_area)
+    push!(screen, scene, robj)
+    return robj
+end
+
+function draw_atomic(screen::GLScreen, scene::Scene, plot::Scatter)
+    # signals not supported for shading yet
+    gl_attributes = Dict{Symbol, Any}()
+    gl_attributes[:color] = plot.color
+    gl_attributes[:scale] = plot.markersize
+    gl_attributes[:marker_offset] = plot.marker_offset
+    gl_attributes[:strokecolor] = plot.strokecolor
+    gl_attributes[:strokewidth] = plot.strokewidth
+    gl_attributes[:scale_primitive] = plot.transform_marker
+    gl_attributes[:billboard] = true
+    gl_attributes[:distancefield] = plot.distancefield
+    gl_attributes[:uv_offset_width] = Vec4f0(0)
+    gl_attributes[:use_pixel_marker] = lift(x-> x <: Pixel, plot.markerspace)
+    positions = apply_transform(plot.basics.transformation.transform_func, plot.position)
+    robj = visualize((plot[:marker], positions), Style(:default), gl_attributes)
+    add_to_screen!(screen, scene, robj)
+    return robj
+end
+
+function draw_atomic(screen::GLScreen, scene::Scene, x::MeshScatter)
     robj = cached_robj!(screen, scene, x) do gl_attributes
         # signals not supported for shading yet
         gl_attributes[:shading] = to_value(get(gl_attributes, :shading, true))
@@ -213,129 +247,124 @@ function draw_atomic(screen::GLScreen, scene::Scene, @nospecialize(x::Union{Scat
     end
 end
 
-function draw_atomic(screen::GLScreen, scene::Scene, @nospecialize(x::Lines))
-    robj = cached_robj!(screen, scene, x) do gl_attributes
-        linestyle = pop!(gl_attributes, :linestyle)
-        data = Dict{Symbol, Any}(gl_attributes)
-        ls = to_value(linestyle)
-        if isnothing(ls)
-            data[:pattern] = ls
-        else
-            linewidth = gl_attributes[:thickness]
-            data[:pattern] = ls .* (to_value(linewidth) * 0.25)
-        end
-        positions = handle_view(x[1], data)
-        positions = apply_transform(transform_func_obs(x), positions)
-        handle_intensities!(data)
-        visualize(positions, Style(:lines), data)
+function draw_atomic(screen::GLScreen, scene::Scene, plot::Lines)
+    gl_attributes = Dict{Symbol, Any}()
+    linestyle = plot.linestyle
+    linewidth = plot.linewidth
+    @show linestyle[]
+    if isnothing(linestyle[])
+        gl_attributes[:pattern] = linestyle[]
+    else
+        gl_attributes[:pattern] = map((ls, lw)-> ls .* (lw * 0.25), linestyle, linewidth)
     end
+    gl_attributes[:thickness] = linewidth
+    positions = apply_transform(plot.basics.transformation.transform_func, plot.position)
+    gl_attributes[:color] = el32convert(plot.color)
+    robj = visualize(positions, Style(:lines), gl_attributes)
+    add_to_screen!(screen, scene, robj)
+    return robj
 end
 
-function draw_atomic(screen::GLScreen, scene::Scene, @nospecialize(x::LineSegments))
-    robj = cached_robj!(screen, scene, x) do gl_attributes
-        linestyle = pop!(gl_attributes, :linestyle)
-        data = Dict{Symbol, Any}(gl_attributes)
-        ls = to_value(linestyle)
-        if isnothing(ls)
-            data[:pattern] = ls
-        else
-            linewidth = gl_attributes[:thickness]
-            data[:pattern] = ls .* (to_value(linewidth) * 0.25)
-        end
-        positions = handle_view(x.converted[1], data)
-        positions = apply_transform(transform_func_obs(x), positions)
-        if haskey(data, :color) && data[:color][] isa AbstractVector{<: Number}
-            c = pop!(data, :color)
-            data[:color] = el32convert(c)
-        else
-            delete!(data, :color_map)
-            delete!(data, :color_norm)
-        end
-        visualize(positions, Style(:linesegment), data)
+function draw_atomic(screen::GLScreen, scene::Scene, plot::LineSegments)
+    gl_attributes = Dict{Symbol, Any}()
+    linestyle = plot.linestyle
+    linewidth = plot.linewidth
+    @show linestyle[]
+    if isnothing(linestyle[])
+        gl_attributes[:pattern] = linestyle[]
+    else
+        gl_attributes[:pattern] = map((ls, lw)-> ls .* (lw * 0.25), linestyle, linewidth)
     end
+    gl_attributes[:thickness] = linewidth
+    positions = apply_transform(plot.basics.transformation.transform_func, plot.position)
+    gl_attributes[:color] = el32convert(plot.color)
+    robj = visualize(positions, Style(:linesegment), gl_attributes)
+    add_to_screen!(screen, scene, robj)
+    return robj
 end
 
 value_or_first(x::AbstractArray) = first(x)
 value_or_first(x::StaticArray) = x
 value_or_first(x) = x
 
-function draw_atomic(screen::GLScreen, scene::Scene,
-        x::Text{<:Tuple{<:Union{<:Makie.GlyphCollection, <:AbstractVector{<:Makie.GlyphCollection}}}})
+function draw_atomic(screen::GLScreen, scene::Scene, x::Text)
 
-    robj = cached_robj!(screen, scene, x) do gl_attributes
-        glyphcollection = x[1]
-        liftkeys = (:position, :rotation, :model, :space, :offset)
-        args = getindex.(Ref(gl_attributes), liftkeys)
-        function collect_glyph_data(projview, transfunc, pos, rotation, model, space, offset)
-            gcollection = glyphcollection[]
-            res = Vec2f0(widths(pixelarea(scene)[]))
-            positions, offset, uv_offset_width, scale = preprojected_glyph_arrays(pos, gcollection, space, projview, res, offset, transfunc)
-        end
+    # robj = cached_robj!(screen, scene, x) do gl_attributes
+    #     glyphcollection = x[1]
+    #     liftkeys = (:position, :rotation, :model, :space, :offset)
+    #     args = getindex.(Ref(gl_attributes), liftkeys)
+    #     function collect_glyph_data(projview, transfunc, pos, rotation, model, space, offset)
+    #         gcollection = glyphcollection[]
+    #         res = Vec2f0(widths(pixelarea(scene)[]))
+    #         positions, offset, uv_offset_width, scale = preprojected_glyph_arrays(pos, gcollection, space, projview, res, offset, transfunc)
+    #     end
 
-        glyph_data = lift(collect_glyph_data, scene.camera.projectionview, Makie.transform_func_obs(scene), args...)
+    #     glyph_data = lift(collect_glyph_data, scene.camera.projectionview, Makie.transform_func_obs(scene), args...)
 
-        # unpack values from the one signal:
-        positions, offset, uv_offset_width, scale = map((1, 2, 3, 4)) do i
-            lift(getindex, glyph_data, i)
-        end
+    #     # unpack values from the one signal:
+    #     positions, offset, uv_offset_width, scale = map((1, 2, 3, 4)) do i
+    #         lift(getindex, glyph_data, i)
+    #     end
 
-        atlas = get_texture_atlas()
-        keys = (:color, :strokecolor, :rotation)
+    #     atlas = get_texture_atlas()
+    #     keys = (:color, :strokecolor, :rotation)
 
-        signals = map(keys) do key
-            Makie.get_attribute(x, key)
-        end
+    #     signals = map(keys) do key
+    #         Makie.get_attribute(x, key)
+    #     end
 
-        filter!(gl_attributes) do (k, v)
-            # These are liftkeys without model
-            !(k in (
-                :position, :space, :font,
-                :textsize, :rotation, :justification
-            ))
-        end
+    #     filter!(gl_attributes) do (k, v)
+    #         # These are liftkeys without model
+    #         !(k in (
+    #             :position, :space, :font,
+    #             :textsize, :rotation, :justification
+    #         ))
+    #     end
 
-        gl_attributes[:color] = lift(glyphcollection) do gc
-            if gc isa AbstractArray
-                reduce(vcat, (Makie.collect_vector(g.colors, length(g.glyphs)) for g in gc),
-                    init = RGBAf0[])
-            else
-                Makie.collect_vector(gc.colors, length(gc.glyphs))
-            end
-        end
-        gl_attributes[:stroke_color] = lift(glyphcollection) do gc
-            if gc isa AbstractArray
-                reduce(vcat, (Makie.collect_vector(g.strokecolors, length(g.glyphs)) for g in gc),
-                    init = RGBAf0[])
-            else
-                Makie.collect_vector(gc.strokecolors, length(gc.glyphs))
-            end
-        end
-        gl_attributes[:rotation] = lift(glyphcollection) do gc
-            if gc isa AbstractArray
-                reduce(vcat, (Makie.collect_vector(g.rotations, length(g.glyphs)) for g in gc),
-                    init = Quaternionf0[])
-            else
-                Makie.collect_vector(gc.rotations, length(gc.glyphs))
-            end
-        end
+    #     gl_attributes[:color] = lift(glyphcollection) do gc
+    #         if gc isa AbstractArray
+    #             reduce(vcat, (Makie.collect_vector(g.colors, length(g.glyphs)) for g in gc),
+    #                 init = RGBAf0[])
+    #         else
+    #             Makie.collect_vector(gc.colors, length(gc.glyphs))
+    #         end
+    #     end
+    #     gl_attributes[:stroke_color] = lift(glyphcollection) do gc
+    #         if gc isa AbstractArray
+    #             reduce(vcat, (Makie.collect_vector(g.strokecolors, length(g.glyphs)) for g in gc),
+    #                 init = RGBAf0[])
+    #         else
+    #             Makie.collect_vector(gc.strokecolors, length(gc.glyphs))
+    #         end
+    #     end
+    #     gl_attributes[:rotation] = lift(glyphcollection) do gc
+    #         if gc isa AbstractArray
+    #             reduce(vcat, (Makie.collect_vector(g.rotations, length(g.glyphs)) for g in gc),
+    #                 init = Quaternionf0[])
+    #         else
+    #             Makie.collect_vector(gc.rotations, length(gc.glyphs))
+    #         end
+    #     end
 
-        gl_attributes[:scale] = scale
-        gl_attributes[:offset] = offset
-        gl_attributes[:uv_offset_width] = uv_offset_width
-        gl_attributes[:distancefield] = get_texture!(atlas)
-        gl_attributes[:visible] = x.visible
 
-        robj = visualize((DISTANCEFIELD, positions), Style(:default), gl_attributes)
-        # Draw text in screenspace
-        if x.space[] == :screen
-            robj[:view] = Observable(Mat4f0(I))
-            robj[:projection] = scene.camera.pixel_space
-            robj[:projectionview] = scene.camera.pixel_space
-        end
+    #     gl_attributes[:scale] = scale
+    #     gl_attributes[:offset] = offset
+    #     gl_attributes[:uv_offset_width] = uv_offset_width
+    #     gl_attributes[:distancefield] = get_texture!(atlas)
 
-        return robj
-    end
-    return robj
+
+    #     robj = visualize((DISTANCEFIELD, positions), Style(:default), gl_attributes)
+
+    #     # Draw text in screenspace
+    #     if x.space[] == :screen
+    #         robj[:view] = Observable(Mat4f0(I))
+    #         robj[:projection] = scene.camera.pixel_space
+    #         robj[:projectionview] = scene.camera.pixel_space
+    #     end
+
+    #     return robj
+    # end
+    return nothing
 end
 
 # el32convert doesn't copy for array of Float32

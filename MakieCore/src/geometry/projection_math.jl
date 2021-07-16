@@ -273,16 +273,14 @@ function rotation(u::Vec{3, T}, v::Vec{3, T}) where T
     return Quaternion(cross(u, half)..., dot(u, half))
 end
 
-
-
-function to_world(scene::Scene, point::T) where T <: StaticVector
+function to_world(scene::AbstractScene, point::T) where T <: StaticVector
     cam = scene.camera
     x = to_world(
         point,
         inv(transformationmatrix(scene)[]) *
         inv(cam.view[]) *
         inv(cam.projection[]),
-        T(widths(pixelarea(scene)[]))
+        T(widths(scene.px_area[]))
     )
     Point2f0(x[1], x[2])
 end
@@ -314,7 +312,7 @@ function to_world(
         to_world(zeros(Point{N, T}), prj_view_inv, cam_res)
 end
 
-function project(scene::Scene, point::T) where T<:StaticVector
+function project(scene::AbstractScene, point::T) where T<:StaticVector
     cam = scene.camera
     project(
         cam.projection[] *

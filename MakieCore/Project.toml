@@ -1,10 +1,18 @@
-authors = ["Simon Danisch"]
 name = "MakieCore"
 uuid = "20f20a25-4f0e-4fdf-b5d1-57303727442b"
+authors = ["Simon Danisch"]
 version = "0.1.3"
 
 [deps]
+ColorTypes = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
+FreeTypeAbstraction = "663a7486-cb36-511b-a19d-713bb74d65c9"
+GeometryBasics = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
+IntervalSets = "8197267c-284f-5f27-9208-e0e47529a953"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Observables = "510215fc-4207-5dde-b226-833fc4488ee2"
+Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
 Observables = "0.4"
