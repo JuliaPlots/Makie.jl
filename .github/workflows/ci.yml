@@ -1,15 +1,15 @@
 name: Makie CI
 on:
   pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - '*.md'
+    paths:
+      - MakieCore/**
+      - src/**
     branches:
       - master
   push:
-    paths-ignore:
-      - 'docs/**'
-      - '*.md'
+    paths:
+      - MakieCore/**
+      - src/**
     branches:
       - master
     tags: '*'

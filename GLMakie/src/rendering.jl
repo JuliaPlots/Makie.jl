@@ -56,7 +56,8 @@ function renderloop(screen; framerate=WINDOW_CONFIG.framerate[])
     end
 end
 
-const WINDOW_CONFIG = (renderloop = Ref{Function}(renderloop),
+const WINDOW_CONFIG = (
+    renderloop = Ref{Function}(renderloop),
     vsync = Ref(false),
     framerate = Ref(30.0),
     float = Ref(false),
@@ -64,7 +65,9 @@ const WINDOW_CONFIG = (renderloop = Ref{Function}(renderloop),
     focus_on_show = Ref(false),
     decorated = Ref(true),
     title = Ref("Makie"),
-    exit_renderloop = Ref(false),)
+    exit_renderloop = Ref(false),
+    osx_retina_scaling = Ref(false)
+)
 
 """
     set_window_config!(;
@@ -75,14 +78,21 @@ const WINDOW_CONFIG = (renderloop = Ref{Function}(renderloop),
         pause_rendering = false,
         focus_on_show = false,
         decorated = true,
-        title = "Makie"
+        title = "Makie",
+        # Disables OSX doubling the amount of pixels on high dpi screens
+        # and preserves the mapping 1 makie px -> 1 screen px
+        osx_retina_scaling = false
     )
 Updates the screen configuration, will only go into effect after closing the current
 window and opening a new one!
 """
 function set_window_config!(; kw...)
     for (key, value) in kw
-        getfield(WINDOW_CONFIG, key)[] = value
+        if hasproperty(WINDOW_CONFIG, key)
+            getfield(WINDOW_CONFIG, key)[] = value
+        else
+            error("$key is not a valid window config. Call ?set_window_config!, to see applicable options")
+        end
     end
 end
 

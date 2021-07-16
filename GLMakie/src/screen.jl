@@ -304,8 +304,9 @@ function Screen(;
         end
         empty!(gl_screens)
     end
-    # Somehow this constant isn't wrapped by glfw
+    # Somehow these constants aren't wrapped by glfw
     GLFW_FOCUS_ON_SHOW = 0x0002000C
+    GLFW_COCOA_RETINA_FRAMEBUFFER = 0x00023001
     windowhints = [
         (GLFW.SAMPLES,      0),
         (GLFW.DEPTH_BITS,   0),
@@ -319,9 +320,10 @@ function Screen(;
 
         (GLFW.STENCIL_BITS, 0),
         (GLFW.AUX_BUFFERS,  0),
-        (GLFW_FOCUS_ON_SHOW, WINDOW_CONFIG.focus_on_show[]),
         (GLFW.DECORATED, WINDOW_CONFIG.decorated[]),
         (GLFW.FLOATING, WINDOW_CONFIG.float[]),
+        (GLFW_FOCUS_ON_SHOW, WINDOW_CONFIG.focus_on_show[]),
+        (GLFW_COCOA_RETINA_FRAMEBUFFER, WINDOW_CONFIG.osx_retina_scaling[]),
     ]
 
     window = try

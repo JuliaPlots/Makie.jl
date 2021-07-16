@@ -1,15 +1,15 @@
-name: GLMakie CI
+name: GLMakie
 on:
   pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - '*.md'
+    paths:
+      - GLMakie/**
+      - src/**
     branches:
       - master
   push:
-    paths-ignore:
-      - 'docs/**'
-      - '*.md'
+    paths:
+      - GLMakie/**
+      - src/**
     branches:
       - master
     tags: '*'

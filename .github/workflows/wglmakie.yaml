@@ -1,15 +1,15 @@
-name: WGLMakie CI
+name: WGLMakie
 on:
   pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - '*.md'
+    paths:
+      - WGLMakie/**
+      - src/**
     branches:
       - master
   push:
-    paths-ignore:
-      - 'docs/**'
-      - '*.md'
+    paths:
+      - WGLMakie/**
+      - src/**
     branches:
       - master
     tags: '*'
