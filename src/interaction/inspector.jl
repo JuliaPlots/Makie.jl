@@ -364,6 +364,10 @@ end
 
 
 
+struct PersistentTooltip
+    plots::Vector{AbstractPlot}
+end
+
 # TODO destructor?
 mutable struct DataInspector
     root::Scene
@@ -371,11 +375,12 @@ mutable struct DataInspector
     plot::_Inspector
     selection::AbstractPlot
     obsfuncs::Vector{Any}
+    persistent::Vector{PersistentTooltip}
 end
 
 
 function DataInspector(scene::Scene, plot::AbstractPlot)
-    x = DataInspector(scene, AbstractPlot[], plot, plot, Any[])
+    x = DataInspector(scene, AbstractPlot[], plot, plot, Any[], PersistentTooltip[])
     # finalizer(cleanup, x) # doesn't get triggered when this is dereferenced
     x
 end
@@ -445,13 +450,69 @@ function DataInspector(scene::Scene; priority = 100, kwargs...)
     inspector = DataInspector(parent, plot)
 
     e = events(parent)
-    f1 = on(_ -> on_hover(inspector), e.mouseposition, priority = priority)
-    f2 = on(_ -> on_hover(inspector), e.scroll, priority = priority)
+    of1 = on(_ -> on_hover(inspector), e.mouseposition, priority = priority)
+    of2 = on(_ -> on_hover(inspector), e.scroll, priority = priority)
+    of3 = on(event -> on_click(inspector, event), e.mousebutton, priority=priority)
+    of4 = on(event -> on_key(inspector, event), e.keyboardbutton, priority=priority)
 
-    push!(inspector.obsfuncs, f1, f2)
+    push!(inspector.obsfuncs, of1, of2, of3, of4)
 
     inspector
 end
+
+function on_click(inspector, event)
+    root = inspector.root
+    if event.button == Mouse.left && event.action == Mouse.press && (
+            ispressed(root, Keyboard.left_alt) || ispressed(root, Keyboard.right_alt)
+        )
+
+        # This copies all the data from the existing tooltip into new fully
+        # detached plots. For some attributes/inputs it makes sense to 
+        # create a disconnected copy because they're adjusted on mousemovement,
+        # but some others should probably get copied directly...
+        detached_copy = map(inspector.plot.attributes) do (key, node)
+            key => node[]
+        end |> Attributes
+
+        base = _inspector!(root, 1; detached_copy...)
+        all_plots = [base]
+        for p in inspector.temp_plots
+            p.visible[] || continue
+            
+            scene = parent_scene(p)
+            plot_type = typeof(p)
+            detached_attr = map(p.attributes) do (key, node)
+                key => node[]
+            end |> Attributes
+            input_args = map(x -> Node(x[]), p.input_args)
+            converted = Node(p.converted[])
+
+            new_p = plot!(scene, plot_type, static_attr, detached_args, converted)
+            push!(all_plots, new_p)
+        end
+
+        push!(inspector.persistent, PersistentTooltip(all_plots))
+        
+        # Blocking to avoid triggering axis interaction?
+        return true
+    end
+
+    return false
+end
+
+function on_key(inspector, event)
+    if event.key == Keyboard.escape && event.action == Keyboard.press
+        for tooltip in inspector.persistent
+            for p in tooltip.plots
+                delete!(parent_scene(p), p)
+            end
+        end
+        empty!(inspector.persistent)
+    end
+
+    return false
+end
+
 
 function on_hover(inspector)
     parent = inspector.root
@@ -500,7 +561,7 @@ end
 # clears temporary plots (i.e. bboxes) and update selection
 function clear_temporary_plots!(inspector::DataInspector, plot)
     inspector.selection = plot
-    for i in length(inspector.obsfuncs):-1:3
+    for i in length(inspector.obsfuncs):-1:5
         off(pop!(inspector.obsfuncs))
     end
     for p in inspector.temp_plots
