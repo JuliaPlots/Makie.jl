@@ -265,7 +265,7 @@ function draw_axis3d(textbuffer, linebuffer, scale, limits, ranges_labels, args.
                 if length(labels) >= j
                     str = labels[j]
                     if !isempty(str)
-                        startpos = (origin .+ ((Float32(tick - origin[i]) * axis_vec)) .+ offset2)
+                        startpos = (origin .+ ((Float32(tick - origin[i]) * axis_vec)) .+ offset2) .* scale
                         push!(
                             textbuffer, str, startpos,
                             color = ttextcolor[i], rotation = trotation[i],
@@ -279,7 +279,7 @@ function draw_axis3d(textbuffer, linebuffer, scale, limits, ranges_labels, args.
                 tick_widths = maximum(ticklabels[i]) do label
                     widths(text_bb(label, font, ttextsize[i]))[1]
                 end / scale[j]
-                pos = labelposition(ranges, i, tickdir, titlegap[i] + tick_widths, origin) .+ offset2
+                pos = (labelposition(ranges, i, tickdir, titlegap[i] + tick_widths, origin) .+ offset2) .* scale
                 push!(
                     textbuffer, to_latex(axisnames[i]), pos,
                     textsize = axisnames_size[i], color = axisnames_color[i],
