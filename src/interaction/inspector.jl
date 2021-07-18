@@ -983,3 +983,76 @@ function show_poly(inspector, plot, idx, source)
 
     return idx, ext
 end
+
+function show_data(inspector::DataInspector, plot::VolumeSlices, idx, child::Heatmap)
+    a = inspector.plot.attributes
+    scene = parent_scene(plot)
+
+    proj_pos = Point2f0(mouseposition_px(inspector.root))
+    update_tooltip_alignment!(inspector, proj_pos)
+
+    qs = extrema(child[1][])
+    ps = extrema(child[2][])
+    data = child[3][]
+    trans = child.transformation.translation[]
+
+    child_idx = findfirst(isequal(child), plot.plots)
+    if child_idx == 2
+        vs = [ # clockwise
+            Point3f0(trans[1], qs[1], ps[1]),
+            Point3f0(trans[1], qs[1], ps[2]),
+            Point3f0(trans[1], qs[2], ps[2]),
+            Point3f0(trans[1], qs[2], ps[1])
+        ]
+    elseif child_idx == 3
+        vs = [ # clockwise
+            Point3f0(qs[1], trans[2], ps[1]),
+            Point3f0(qs[1], trans[2], ps[2]),
+            Point3f0(qs[2], trans[2], ps[2]),
+            Point3f0(qs[2], trans[2], ps[1])
+        ]
+    else
+        vs = [ # clockwise
+            Point3f0(qs[1], ps[1], trans[3]),
+            Point3f0(qs[1], ps[2], trans[3]),
+            Point3f0(qs[2], ps[2], trans[3]),
+            Point3f0(qs[2], ps[1], trans[3])
+        ]
+    end
+
+    origin, dir = view_ray(scene)
+    pos = Point3f0(NaN)
+    pos = ray_triangle_intersection(vs[1], vs[2], vs[3], origin, dir)
+    if isnan(pos)
+        pos = ray_triangle_intersection(vs[3], vs[4], vs[1], origin, dir)
+    end
+
+    if !isnan(pos)
+        if child_idx == 2
+            x = pos[2]; y = pos[3]
+        elseif child_idx == 3
+            x = pos[1]; y = pos[3]
+        else
+            x = pos[1]; y = pos[2]
+        end
+        i = clamp(round(Int, (x - qs[1]) / (qs[2] - qs[1]) * size(data, 1) + 0.5), 1, size(data, 1))
+        j = clamp(round(Int, (y - ps[1]) / (ps[2] - ps[1]) * size(data, 2) + 0.5), 1, size(data, 2))
+        val = data[i, j]
+
+        a._display_text[] = @sprintf(
+            "x: %0.6f\ny: %0.6f\nz: %0.6f\n%0.6f0", 
+            pos[1], pos[2], pos[3], val
+        )
+        a._text_position[] = proj_pos
+        a._bbox2D[] = FRect2D(proj_pos .- Vec2f0(5), Vec2f0(10))
+        a._bbox_visible[] = false
+        a._px_bbox_visible[] = true
+        a._visible[] = true
+    else
+        a._bbox_visible[] = false
+        a._px_bbox_visible[] = false
+        a._visible[] = false
+    end
+
+    return true 
+end
