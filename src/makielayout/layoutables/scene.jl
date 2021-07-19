@@ -28,7 +28,7 @@ function layoutable(::Type{LScene}, fig_or_scene; bbox = nothing, scenekw = Name
     # We also set `raw = false` because otherwise the scene will not automatically
     # pick a camera and draw axis.
     scenekw = merge((raw = false, clear = false), scenekw)
-    scene = Scene(topscene, lift(round_to_IRect2D, layoutobservables.computedbbox); scenekw...)
+    scene = Scene(topscene, lift(round_to_Rect2i, layoutobservables.computedbbox); scenekw...)
 
     ls = LScene(fig_or_scene, layoutobservables, attrs, Dict{Symbol, Any}(), scene)
 

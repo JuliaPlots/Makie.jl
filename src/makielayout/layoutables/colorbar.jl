@@ -99,7 +99,7 @@ function layoutable(::Type{<:Colorbar}, fig_or_scene; bbox = nothing, kwargs...)
     layoutobservables = LayoutObservables{Colorbar}(_width, _height, attrs.tellwidth, attrs.tellheight,
         halign, valign, attrs.alignmode; suggestedbbox = bbox, protrusions = protrusions)
 
-    framebox = @lift(round_to_IRect2D($(layoutobservables.computedbbox)))
+    framebox = @lift(round_to_Rect2i($(layoutobservables.computedbbox)))
 
     highclip_tri_visible = lift(x -> !(isnothing(x) || to_color(x) == to_color(:transparent)), highclip)
     lowclip_tri_visible = lift(x -> !(isnothing(x) || to_color(x) == to_color(:transparent)), lowclip)

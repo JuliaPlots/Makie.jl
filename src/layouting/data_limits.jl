@@ -109,15 +109,15 @@ function text_limits(x::AbstractVector)
     return Rect3f(x)
 end
 
-FRect3D_from_point(p::VecTypes{2}) = Rect3f(Point3f(p..., 0), Point3f(0, 0, 0))
-FRect3D_from_point(p::VecTypes{3}) = Rect3f(Point3f(p...), Point3f(0, 0, 0))
+Rect3f_from_point(p::VecTypes{2}) = Rect3f(Point3f(p..., 0), Point3f(0, 0, 0))
+Rect3f_from_point(p::VecTypes{3}) = Rect3f(Point3f(p...), Point3f(0, 0, 0))
 
 
 function atomic_limits(x::Text{<:Tuple{<:GlyphCollection}})
     if x.space[] == :data
         boundingbox(x)
     elseif x.space[] == :screen
-        FRect3D_from_point(x.position[])
+        Rect3f_from_point(x.position[])
     else
         error()
     end
@@ -130,9 +130,9 @@ function atomic_limits(x::Text{<:Tuple{<:AbstractArray{<:GlyphCollection}}})
         if isempty(x.position[])
             Rect3f()
         else
-            bb = FRect3D_from_point(x.position[][1])
+            bb = Rect3f_from_point(x.position[][1])
             for p in x.position[][2:end]
-                bb = union(bb, FRect3D_from_point(p))
+                bb = union(bb, Rect3f_from_point(p))
             end
             bb
         end

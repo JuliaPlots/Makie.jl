@@ -138,7 +138,7 @@ function layoutable(::Type{Menu}, fig_or_scene; bbox = nothing, kwargs...)
     end
 
     scenearea = lift(layoutobservables.computedbbox, sceneheight, _direction) do bbox, h, d
-        round_to_IRect2D(BBox(
+        round_to_Rect2i(BBox(
             left(bbox),
             right(bbox),
             d == :down ? top(bbox) - h : bottom(bbox),

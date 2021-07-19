@@ -28,7 +28,7 @@ function layoutable(::Type{Legend},
     layoutobservables = LayoutObservables{Legend}(attrs.width, attrs.height, attrs.tellwidth, attrs.tellheight,
         halign, valign, attrs.alignmode; suggestedbbox = bbox)
 
-    scenearea = lift(round_to_IRect2D, layoutobservables.computedbbox)
+    scenearea = lift(round_to_Rect2i, layoutobservables.computedbbox)
 
     scene = Scene(topscene, scenearea, raw = true, camera = campixel!)
 

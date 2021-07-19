@@ -16,7 +16,7 @@ function layoutable(::Type{Box}, fig_or_scene; bbox = nothing, kwargs...)
         vis ? col : RGBAf(0, 0, 0, 0)
     end
 
-    ibbox = @lift(round_to_IRect2D($(layoutobservables.computedbbox)))
+    ibbox = @lift(round_to_Rect2i($(layoutobservables.computedbbox)))
 
     r = poly!(topscene, ibbox, color = color, visible = visible, raw = true,
         strokecolor = strokecolor_with_visibility, strokewidth = strokewidth, 

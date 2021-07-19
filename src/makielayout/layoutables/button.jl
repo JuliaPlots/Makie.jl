@@ -19,7 +19,7 @@ function layoutable(::Type{Button}, fig_or_scene::FigureLike; bbox = nothing, kw
     textpos = Node(Point2f(0, 0))
 
     subarea = lift(layoutobservables.computedbbox) do bbox
-        round_to_IRect2D(bbox)
+        round_to_Rect2i(bbox)
     end
     subscene = Scene(scene, subarea, camera=campixel!)
 

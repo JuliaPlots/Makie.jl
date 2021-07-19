@@ -3,7 +3,7 @@ Shorthand for `isnothing(optional) ? fallback : optional`
 """
 @inline ifnothing(optional, fallback) = isnothing(optional) ? fallback : optional
 
-function round_to_IRect2D(r::Rect{2})
+function round_to_Rect2i(r::Rect{2})
     newori = round.(Int, minimum(r))
     othercorner = round.(Int, maximum(r))
     newwidth = othercorner .- newori
@@ -50,7 +50,7 @@ function sceneareanode!(finalbbox, limits, aspect)
         newbbox = BBox(l, l + mw, b, b + mh)
 
         # only update scene if pixel positions change
-        new_scenearea = round_to_IRect2D(newbbox)
+        new_scenearea = round_to_Rect2i(newbbox)
         if new_scenearea != scenearea[]
             scenearea[] = new_scenearea
         end
