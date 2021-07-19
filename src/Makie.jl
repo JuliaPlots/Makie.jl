@@ -60,8 +60,8 @@ using Observables: listeners, to_value, notify
 
 const RealVector{T} = AbstractVector{T} where T <: Number
 const Node = Observable # shorthand
-const RGBAf0 = RGBA{Float32}
-const RGBf0 = RGB{Float32}
+const RGBAf = RGBA{Float32}
+const RGBf = RGB{Float32}
 const NativeFont = FreeTypeAbstraction.FTFont
 
 include("documentation/docstringextension.jl")
@@ -217,11 +217,11 @@ export Billboard
 
 # Reexports of
 # Color/Vector types convenient for 3d/2d graphics
-export Quaternion, Quaternionf0, qrotation
-export RGBAf0, RGBf0, VecTypes, RealVector, FRect, FRect2D, IRect2D
-export FRect3D, IRect3D, Rect3D, Transformation
-export IRect, FRect, Rect, Rect2D, Sphere, Circle
-export Vec4f0, Vec3f0, Vec2f0, Point4f0, Point3f0, Point2f0
+export Quaternion, Quaternionf, qrotation
+export RGBAf, RGBf, VecTypes, RealVector, Rectf, Rect2f, Rect2i
+export Rect3f, Rect3i, Rect3, Transformation
+export Recti, Rectf, Rect, Rect2, Sphere, Circle
+export Vec4f, Vec3f, Vec2f, Point4f, Point3f, Point2f
 export Vec, Vec2, Vec3, Vec4, Point, Point2, Point3, Point4
 export (..), GLNormalUVMesh
 

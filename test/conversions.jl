@@ -164,16 +164,16 @@ end
     Makie.convert_single_argument(v::MyNestedVector) = v.v
     Makie.convert_single_argument(v::MyVector) = v.v
 
-    @test convert_arguments(Lines, myvector, mynestedvector) == (Point2f0.(1:10, 11:20),)
+    @test convert_arguments(Lines, myvector, mynestedvector) == (Point2f.(1:10, 11:20),)
 
     @test isequal(
         convert_arguments(Lines, [1, missing, 2]),
-        (Point2f0[(1, 1), (2, NaN), (3, 2)],)
+        (Point2f[(1, 1), (2, NaN), (3, 2)],)
     )
 
     @test isequal(
         convert_arguments(Lines, [Point(1, 2), missing, Point(3, 4)]),
-        (Point2f0[(1.0, 2.0), (NaN, NaN), (3.0, 4.0)],)
+        (Point2f[(1.0, 2.0), (NaN, NaN), (3.0, 4.0)],)
     )
 end
 
@@ -185,7 +185,7 @@ end
 end
 
 @testset "colors" begin
-    @test to_color(["red", "green"]) isa Vector{RGBAf0}
+    @test to_color(["red", "green"]) isa Vector{RGBAf}
     @test to_color(["red", "green"]) == [to_color("red"), to_color("green")]
 end
 

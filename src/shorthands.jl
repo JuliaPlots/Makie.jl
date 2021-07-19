@@ -72,7 +72,7 @@ function setlims!(scene::Scene, min_max::NTuple{2, Real}, dim=1)
         ```
         or code like:
         ```julia
-        scene = Scene(limits=FRect2D(0,0,5, 5))
+        scene = Scene(limits=Rect2f(0,0,5, 5))
         plot!(scene, ...)
         ```
         """
@@ -84,7 +84,7 @@ function setlims!(scene::Scene, min_max::NTuple{2, Real}, dim=1)
     n_origin = convert(Vector, o_origin)         # convert to mutable form
     n_origin[dim] = min_max[1]                      # set the new origin in dim
     n_widths[dim] = min_max[2] - min_max[1]            # set the new width in dim
-    scene.limits[] = FRect3D(n_origin, n_widths) # set the limits of the scene
+    scene.limits[] = Rect3f(n_origin, n_widths) # set the limits of the scene
     center!(scene)
     return
 end

@@ -65,11 +65,11 @@ function Camera(px_area)
     end
     Camera(
         pixel_space,
-        Node(Mat4f0(I)),
-        Node(Mat4f0(I)),
-        Node(Mat4f0(I)),
-        lift(a-> Vec2f0(widths(a)), px_area),
-        Node(Vec3f0(1)),
+        Node(Mat4f(I)),
+        Node(Mat4f(I)),
+        Node(Mat4f(I)),
+        lift(a-> Vec2f(widths(a)), px_area),
+        Node(Vec3f(1)),
         ObserverFunction[]
     )
 end

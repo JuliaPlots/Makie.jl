@@ -18,7 +18,7 @@ raw_boundingbox(x::Combined) = raw_boundingbox(x.plots)
 boundingbox(x) = raw_boundingbox(x)
 
 function combined_modelmatrix(x)
-    m = Mat4f0(I)
+    m = Mat4f(I)
     while true
         m = modelmatrix(x) * m
         if parent(x) !== nothing && parent(x) isa Combined
@@ -59,9 +59,9 @@ function raw_boundingbox(scene::Scene)
 end
 
 function raw_boundingbox(plots::Vector)
-    isempty(plots) && return FRect3D()
+    isempty(plots) && return Rect3f()
     plot_idx = iterate(plots)
-    bb = FRect3D()
+    bb = Rect3f()
     while plot_idx !== nothing
         plot, idx = plot_idx
         plot_idx = iterate(plots, idx)
@@ -80,38 +80,38 @@ function project_widths(matrix, vec)
     return pr - zero
 end
 
-function rotate_bbox(bb::FRect3D, rot)
-    points = decompose(Point3f0, bb)
-    FRect3D(Ref(rot) .* points)
+function rotate_bbox(bb::Rect3f, rot)
+    points = decompose(Point3f, bb)
+    Rect3f(Ref(rot) .* points)
 end
 
 function gl_bboxes(gl::GlyphCollection)
-    scales = gl.scales.sv isa Vec2f0 ? (gl.scales.sv for _ in gl.extents) : gl.scales.sv
+    scales = gl.scales.sv isa Vec2f ? (gl.scales.sv for _ in gl.extents) : gl.scales.sv
     map(gl.extents, gl.fonts, scales) do ext, font, scale
         unscaled_hi_bb = height_insensitive_boundingbox(ext, font)
-        hi_bb = FRect2D(
+        hi_bb = Rect2f(
             Makie.origin(unscaled_hi_bb) * scale,
             widths(unscaled_hi_bb) * scale
         )
     end
 end
 
-function boundingbox(glyphcollection::GlyphCollection, position::Point3f0, rotation::Quaternion)
+function boundingbox(glyphcollection::GlyphCollection, position::Point3f, rotation::Quaternion)
 
     if isempty(glyphcollection.glyphs)
-        return FRect3D(position, Vec3f0(0, 0, 0))
+        return Rect3f(position, Vec3f(0, 0, 0))
     end
 
     chars = glyphcollection.glyphs
     glyphorigins = glyphcollection.origins
     glyphbbs = gl_bboxes(glyphcollection)
 
-    bb = FRect3D()
+    bb = Rect3f()
     for (char, charo, glyphbb) in zip(chars, glyphorigins, glyphbbs)
         # ignore line breaks
         # char in ('\r', '\n') && continue
 
-        charbb = rotate_bbox(FRect3D(glyphbb), rotation) + charo + position
+        charbb = rotate_bbox(Rect3f(glyphbb), rotation) + charo + position
         if !isfinite_rect(bb)
             bb = charbb
         else
@@ -125,9 +125,9 @@ end
 function boundingbox(layouts::AbstractArray{<:GlyphCollection}, positions, rotations)
 
     if isempty(layouts)
-        FRect3D((0, 0, 0), (0, 0, 0))
+        Rect3f((0, 0, 0), (0, 0, 0))
     else
-        bb = FRect3D()
+        bb = Rect3f()
         broadcast_foreach(layouts, positions, rotations) do layout, pos, rot
             if !isfinite_rect(bb)
                 bb = boundingbox(layout, pos, rot)
@@ -143,7 +143,7 @@ end
 function boundingbox(x::Text{<:Tuple{<:GlyphCollection}})
     boundingbox(
         to_value(x[1]),
-        to_ndim(Point3f0, to_value(x[:position]), 0),
+        to_ndim(Point3f, to_value(x[:position]), 0),
         convert_attribute(to_value(x[:rotation]), key"rotation"())
     )
 end
@@ -151,7 +151,7 @@ end
 function boundingbox(x::Text{<:Tuple{<:AbstractArray{<:GlyphCollection}}})
     boundingbox(
         to_value(x[1]),
-        to_ndim.(Point3f0, to_value(x[:position]), 0),
+        to_ndim.(Point3f, to_value(x[:position]), 0),
         convert_attribute(to_value(x[:rotation]), key"rotation"())
     )
 end
@@ -159,7 +159,7 @@ end
 
 #     if x.space[] == :data
 #         if x[1][] isa AbstractArray
-#             bb = FRect3D()
+#             bb = Rect3f()
 #             for
 #         else
 #             boundingbox(x, to_value(x[1]))
@@ -204,7 +204,7 @@ function rotatedrect(rect::Rect{2}, angle)
     rmins = minimum(rotated, dims = 2)
     rmaxs = maximum(rotated, dims = 2)
 
-    return Rect2D(rmins..., (rmaxs .- rmins)...)
+    return Rect2(rmins..., (rmaxs .- rmins)...)
 end
 
 function quaternion_to_2d_angle(quat)
@@ -225,7 +225,7 @@ function boundingbox(
     atlas = get_texture_atlas()
     N = length(text)
     ctext_state1 = iterate(text)
-    ctext_state1 === nothing && return FRect3D()
+    ctext_state1 === nothing && return Rect3f()
 
     # call the layouting algorithm to find out where all the glyphs end up
     # this is kind of a doubling, maybe it could be avoided if at creation all
@@ -233,10 +233,10 @@ function boundingbox(
     if position isa VecTypes
         glyph_offsets = layout_text(text, textsize, font, align,
             rotation, model, justification, lineheight)
-        position = [go .+ to_ndim(Point3f0, position, 0) for go in glyph_offsets]
+        position = [go .+ to_ndim(Point3f, position, 0) for go in glyph_offsets]
     end
 
-    bbox = Ref(FRect3D())            # use ref to avoid julia#15276
+    bbox = Ref(Rect3f())            # use ref to avoid julia#15276
     ctext_state = Ref{Union{Nothing,typeof(ctext_state1)}}(ctext_state1)
 
     let position = position
@@ -259,7 +259,7 @@ function boundingbox(
                 rotated_bb = rotatedrect(scaled_bb, rot_2d_radians)
 
                 # bb = rectdiv(bb, 1.5)
-                shifted_bb = FRect3D(rotated_bb) + position[i]
+                shifted_bb = Rect3f(rotated_bb) + position[i]
                 bboxc = bbox[]
                 if !isfinite_rect(bboxc)
                     bbox[] = shifted_bb

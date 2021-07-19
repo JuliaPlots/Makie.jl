@@ -7,7 +7,7 @@ mutable struct TextureAtlas
     index::Int
     data::Matrix{Float16}
     # rectangles we rendered our glyphs into in normalized uv coordinates
-    uv_rectangles::Vector{Vec4f0}
+    uv_rectangles::Vector{Vec4f}
 end
 
 Base.size(atlas::TextureAtlas) = size(atlas.data)
@@ -36,11 +36,11 @@ end
 
 function TextureAtlas(initial_size = TEXTURE_RESOLUTION[])
     return TextureAtlas(
-        RectanglePacker(Rect2D(0, 0, initial_size...)),
+        RectanglePacker(Rect2(0, 0, initial_size...)),
         Dict{Tuple{Char, String}, Int}(),
         1,
         zeros(Float16, initial_size...),
-        Vec4f0[],
+        Vec4f[],
     )
 end
 
@@ -194,7 +194,7 @@ function insert_glyph!(atlas::TextureAtlas, glyph::Char, font::NativeFont)
         downsample = 5 # render font 5x larger, and then downsample back to desired pixelsize
         pad = 8 # padd rendered font by 6 pixel in each direction
         uv_pixel = render(atlas, glyph, font, downsample, pad)
-        tex_size = Vec2f0(size(atlas.data) .- 1) # starts at 1
+        tex_size = Vec2f(size(atlas.data) .- 1) # starts at 1
 
         idx_left_bottom = minimum(uv_pixel)# 0 based!!!
         idx_right_top = maximum(uv_pixel)
@@ -208,7 +208,7 @@ function insert_glyph!(atlas::TextureAtlas, glyph::Char, font::NativeFont)
         uv_left_bottom_pad = (left_bottom_pad) ./ tex_size
         uv_right_top_pad =  (right_top_pad) ./ tex_size
 
-        uv_offset_rect = Vec4f0(uv_left_bottom_pad..., uv_right_top_pad...)
+        uv_offset_rect = Vec4f(uv_left_bottom_pad..., uv_right_top_pad...)
         i = atlas.index
         push!(atlas.uv_rectangles, uv_offset_rect)
         atlas.index = i + 1
@@ -268,7 +268,7 @@ function render(atlas::TextureAtlas, glyph::Char, font, downsample=5, pad=6)
     bitmap, extent = renderface(font, glyph, pixelsize * downsample)
     # Our downsampeld & padded distancefield
     sd = sdistancefield(bitmap, downsample, pad)
-    rect = Rect2D(0, 0, size(sd)...)
+    rect = Rect2(0, 0, size(sd)...)
     uv = push!(atlas.rectangle_packer, rect) # find out where to place the rectangle
     uv == nothing && error("texture atlas is too small. Resizing not implemented yet. Please file an issue at Makie if you encounter this") #TODO resize surface
     # write distancefield into texture

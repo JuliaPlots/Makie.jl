@@ -44,18 +44,18 @@ function plot!(plot::Pie)
 
             # curve points
             points = map(LinRange(sta, en, nvertices)) do rad
-                Point2f0(cos(rad + offset), sin(rad + offset)) .* radius
+                Point2f(cos(rad + offset), sin(rad + offset)) .* radius
             end
 
             # add inner points (either curve or one point)
             if inner_radius != 0
                 inner_points = map(LinRange(en, sta, nvertices)) do rad
-                    Point2f0(cos(rad + offset), sin(rad + offset)) .* inner_radius
+                    Point2f(cos(rad + offset), sin(rad + offset)) .* inner_radius
                 end
 
                 append!(points, inner_points)
             else
-                push!(points, Point2f0(0, 0))
+                push!(points, Point2f(0, 0))
             end
 
             points

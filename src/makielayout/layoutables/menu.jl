@@ -25,11 +25,11 @@ function default_attributes(::Type{Menu}, scene)
         "Cell color when active"
         cell_color_active = COLOR_ACCENT[]
         "Cell color when inactive even"
-        cell_color_inactive_even = RGBf0(0.97, 0.97, 0.97)
+        cell_color_inactive_even = RGBf(0.97, 0.97, 0.97)
         "Cell color when inactive odd"
-        cell_color_inactive_odd = RGBf0(0.97, 0.97, 0.97)
+        cell_color_inactive_odd = RGBf(0.97, 0.97, 0.97)
         "Selection cell color when inactive"
-        selection_cell_color_inactive = RGBf0(0.94, 0.94, 0.94)
+        selection_cell_color_inactive = RGBf(0.94, 0.94, 0.94)
         "Color of the dropdown arrow"
         dropdown_arrow_color = (:black, 0.2)
         "Size of the dropdown arrow"
@@ -138,7 +138,7 @@ function layoutable(::Type{Menu}, fig_or_scene; bbox = nothing, kwargs...)
     end
 
     scenearea = lift(layoutobservables.computedbbox, sceneheight, _direction) do bbox, h, d
-        round_to_IRect2D(BBox(
+        round_to_Rect2i(BBox(
             left(bbox),
             right(bbox),
             d == :down ? top(bbox) - h : bottom(bbox),
@@ -150,7 +150,7 @@ function layoutable(::Type{Menu}, fig_or_scene; bbox = nothing, kwargs...)
     translate!(scene, 0, 0, 21)
 
     contentgrid = GridLayout(
-        bbox = lift(x -> FRect2D(Makie.zero_origin(x)), scenearea),
+        bbox = lift(x -> Rect2f(Makie.zero_origin(x)), scenearea),
         valign = @lift($_direction == :down ? :top : :bottom))
 
     selectionrect = Box(scene, width = nothing, height = nothing,
@@ -217,7 +217,7 @@ function layoutable(::Type{Menu}, fig_or_scene; bbox = nothing, kwargs...)
 
 
     dropdown_arrow = scatter!(scene,
-        lift(x -> [Point2f0(width(x) - 20, (top(x) + bottom(x)) / 2)], selectionrect.layoutobservables.computedbbox),
+        lift(x -> [Point2f(width(x) - 20, (top(x) + bottom(x)) / 2)], selectionrect.layoutobservables.computedbbox),
         marker = @lift($is_open ? '▴' : '▾'),
         markersize = dropdown_arrow_size,
         color = dropdown_arrow_color,

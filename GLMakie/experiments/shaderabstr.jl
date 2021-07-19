@@ -1,15 +1,15 @@
 using ShaderAbstractions: Buffer, Sampler, VertexArray
 
 # Mesh
-mesh(Sphere(Point3f0(0), 1f0)) |> display
-mesh(Sphere(Point3f0(0), 1f0), color=:red, ambient=Vec3f0(0.9))
+mesh(Sphere(Point3f(0), 1f0)) |> display
+mesh(Sphere(Point3f(0), 1f0), color=:red, ambient=Vec3f(0.9))
 
-tocolor(x) = RGBf0(x...)
-positions = Observable(decompose(Point3f0, Sphere(Point3f0(0), 1f0)))
-triangles = Observable(decompose(GLTriangleFace, Sphere(Point3f0(0), 1f0)))
-uv = Observable(GeometryBasics.decompose_uv(Sphere(Point3f0(0), 1f0)))
+tocolor(x) = RGBf(x...)
+positions = Observable(decompose(Point3f, Sphere(Point3f(0), 1f0)))
+triangles = Observable(decompose(GLTriangleFace, Sphere(Point3f(0), 1f0)))
+uv = Observable(GeometryBasics.decompose_uv(Sphere(Point3f(0), 1f0)))
 xyz_vertex_color = Observable(tocolor.(positions[]))
-texture = Observable(rand(RGBAf0, 10, 10))
+texture = Observable(rand(RGBAf, 10, 10))
 
 pos_buff = Buffer(positions)
 triangles_buff = Buffer(triangles)
@@ -32,7 +32,7 @@ struct OGLContext <: ShaderAbstractions.AbstractContext end
 
 instance = ShaderAbstractions.VertexArray(posmeta, triangles_buff)
 
-ShaderAbstractions.type_string(OGLContext(), Vec2f0)
+ShaderAbstractions.type_string(OGLContext(), Vec2f)
 
 p = ShaderAbstractions.Program(
     OGLContext(),
@@ -44,7 +44,7 @@ p = ShaderAbstractions.Program(
 println(p.vertex_source)
 
 uniforms = Dict{Symbol, Any}(
-    :texturecoordinates => Vec2f0(0),
+    :texturecoordinates => Vec2f(0),
     :image => nothing
 )
 rshader = GLMakie.GLAbstraction.gl_convert(shader, uniforms)
@@ -112,7 +112,7 @@ function getter_function(io::IO, ::Vertex, ::AbstractVector{T}, name) where T
     """)
 end
 
-texsampler = Makie.sampler(rand(RGBf0, 4, 4), uv)
+texsampler = Makie.sampler(rand(RGBf, 4, 4), uv)
 coords = meta(positions, color=texsampler, normals=mesh_normals)
 texture_mesh = GeometryBasics.Mesh(coords, triangles)
 

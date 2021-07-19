@@ -2,7 +2,7 @@ using Makie: get_texture_atlas, glyph_uv_width!, transform_func_obs, apply_trans
 using Makie: attribute_per_char, FastPixel, el32convert, Pixel
 using Makie: convert_arguments, preprojected_glyph_arrays
 
-convert_attribute(s::ShaderAbstractions.Sampler{RGBAf0}, k::key"color") = s
+convert_attribute(s::ShaderAbstractions.Sampler{RGBAf}, k::key"color") = s
 function convert_attribute(s::ShaderAbstractions.Sampler{T, N}, k::key"color") where {T, N}
     ShaderAbstractions.Sampler(
         el32convert(s.data), minfilter = s.minfilter, magfilter = s.magfilter,
@@ -129,8 +129,8 @@ function lift_convert_inner(value, key, plot_key, plot)
     end
 end
 
-to_vec4(val::RGB) = RGBAf0(val, 1.0)
-to_vec4(val::RGBA) = RGBAf0(val)
+to_vec4(val::RGB) = RGBAf(val, 1.0)
+to_vec4(val::RGBA) = RGBAf(val)
 
 function lift_convert_inner(value, ::key"highclip", plot_key, plot)
     return lift(value, plot.colormap) do value, cmap
@@ -146,12 +146,12 @@ function lift_convert_inner(value, ::key"lowclip", plot_key, plot)
     end
 end
 
-pixel2world(scene, msize::Number) = pixel2world(scene, Point2f0(msize))[1]
+pixel2world(scene, msize::Number) = pixel2world(scene, Point2f(msize))[1]
 
 function pixel2world(scene, msize::StaticVector{2})
     # TODO figure out why Vec(x, y) doesn't work correctly
-    p0 = Makie.to_world(scene, Point2f0(0.0))
-    p1 = Makie.to_world(scene, Point2f0(msize))
+    p0 = Makie.to_world(scene, Point2f(0.0))
+    p1 = Makie.to_world(scene, Point2f(msize))
     diff = p1 - p0
     return diff
 end
@@ -191,7 +191,7 @@ function draw_atomic(screen::GLScreen, scene::Scene, @nospecialize(x::Union{Scat
         if isa(x, Scatter)
             gl_attributes[:billboard] = map(rot-> isa(rot, Billboard), x.rotations)
             gl_attributes[:distancefield][] == nothing && delete!(gl_attributes, :distancefield)
-            gl_attributes[:uv_offset_width][] == Vec4f0(0) && delete!(gl_attributes, :uv_offset_width)
+            gl_attributes[:uv_offset_width][] == Vec4f(0) && delete!(gl_attributes, :uv_offset_width)
         end
 
         positions = handle_view(x[1], gl_attributes)
@@ -276,7 +276,7 @@ function draw_atomic(screen::GLScreen, scene::Scene,
         if glyphcollection[] isa Makie.GlyphCollection
             # here we lift the glyph collection
             collect_glyph_data = (gcollection, projview, transfunc, pos, rotation, model, space, offset) -> begin
-                res = Vec2f0(widths(pixelarea(scene)[]))
+                res = Vec2f(widths(pixelarea(scene)[]))
                 preprojected_glyph_arrays(pos, gcollection, space, projview, res, offset, transfunc)
             end
             glyph_data = lift(collect_glyph_data, glyphcollection, scene.camera.projectionview, Makie.transform_func_obs(scene), args...)
@@ -284,7 +284,7 @@ function draw_atomic(screen::GLScreen, scene::Scene,
             # and here we don't because it triggers dimension mismatches
             collect_glyph_data = (projview, transfunc, pos, rotation, model, space, offset) -> begin
                 gcollection = glyphcollection[]
-                res = Vec2f0(widths(pixelarea(scene)[]))
+                res = Vec2f(widths(pixelarea(scene)[]))
                 preprojected_glyph_arrays(pos, gcollection, space, projview, res, offset, transfunc)
             end
             glyph_data = lift(collect_glyph_data, scene.camera.projectionview, Makie.transform_func_obs(scene), args...)
@@ -314,7 +314,7 @@ function draw_atomic(screen::GLScreen, scene::Scene,
         gl_attributes[:color] = lift(glyphcollection) do gc
             if gc isa AbstractArray
                 reduce(vcat, (Makie.collect_vector(g.colors, length(g.glyphs)) for g in gc),
-                    init = RGBAf0[])
+                    init = RGBAf[])
             else
                 Makie.collect_vector(gc.colors, length(gc.glyphs))
             end
@@ -322,7 +322,7 @@ function draw_atomic(screen::GLScreen, scene::Scene,
         gl_attributes[:stroke_color] = lift(glyphcollection) do gc
             if gc isa AbstractArray
                 reduce(vcat, (Makie.collect_vector(g.strokecolors, length(g.glyphs)) for g in gc),
-                    init = RGBAf0[])
+                    init = RGBAf[])
             else
                 Makie.collect_vector(gc.strokecolors, length(gc.glyphs))
             end
@@ -330,7 +330,7 @@ function draw_atomic(screen::GLScreen, scene::Scene,
         gl_attributes[:rotation] = lift(glyphcollection) do gc
             if gc isa AbstractArray
                 reduce(vcat, (Makie.collect_vector(g.rotations, length(g.glyphs)) for g in gc),
-                    init = Quaternionf0[])
+                    init = Quaternionf[])
             else
                 Makie.collect_vector(gc.rotations, length(gc.glyphs))
             end
@@ -345,7 +345,7 @@ function draw_atomic(screen::GLScreen, scene::Scene,
         robj = visualize((DISTANCEFIELD, positions), Style(:default), gl_attributes)
         # Draw text in screenspace
         if x.space[] == :screen
-            robj[:view] = Observable(Mat4f0(I))
+            robj[:view] = Observable(Mat4f(I))
             robj[:projection] = scene.camera.pixel_space
             robj[:projectionview] = scene.camera.pixel_space
         end
@@ -553,13 +553,13 @@ function draw_atomic(screen::GLScreen, scene::Scene, vol::Volume)
             mi = minimum.(xyz)
             maxi = maximum.(xyz)
             w = maxi .- mi
-            m2 = Mat4f0(
+            m2 = Mat4f(
                 w[1], 0, 0, 0,
                 0, w[2], 0, 0,
                 0, 0, w[3], 0,
                 mi[1], mi[2], mi[3], 1
             )
-            return convert(Mat4f0, m) * m2
+            return convert(Mat4f, m) * m2
         end
         return visualize(vol[4], Style(:default), gl_attributes)
     end

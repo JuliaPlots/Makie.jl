@@ -27,7 +27,7 @@ end
     )
 end
 
-signal2point(signal::Number, start) = Point2f0(time() - start, signal)
+signal2point(signal::Number, start) = Point2f(time() - start, signal)
 signal2point(signal::Point2, start) = signal
 signal2point(signal, start) = error(""" Signal needs to be of type Number or Point.
 Found: $(typeof(signal))
@@ -37,7 +37,7 @@ Found: $(typeof(signal))
 function Makie.plot!(plot::TimeSeries)
     # normal plotting code, building on any previously defined recipes
     # or atomic plotting operations, and adding to the combined `plot`:
-    points = Node(fill(Point2f0(NaN), plot.history[]))
+    points = Node(fill(Point2f(NaN), plot.history[]))
     buffer = copy(points[])
     lines!(plot, points)
     start = time()

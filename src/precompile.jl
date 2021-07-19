@@ -14,24 +14,24 @@ function _precompile_()
     @warnpcfail precompile(Scene, ())
     @warnpcfail precompile(update_limits!, (Scene,))
     @warnpcfail precompile(update_limits!, (Scene, Automatic))
-    @warnpcfail precompile(update_limits!, (Scene, FRect3D))
+    @warnpcfail precompile(update_limits!, (Scene, Rect3f))
 
     @warnpcfail precompile(boundingbox, (Scene,))
-    Ngonf0 = GeometryBasics.Ngon{2, Float32, 3, Point2f0}
+    Ngonf0 = GeometryBasics.Ngon{2, Float32, 3, Point2f}
     # @warnpcfail precompile(boundingbox, (Mesh{Tuple{Vector{GeometryBasics.Mesh{2, Float32, Ngonf0, FaceView{Ngonf0}}}}},))  # doesn't seem to work
-    @warnpcfail precompile(boundingbox, (Poly{Tuple{Vector{Vector{Point2f0}}}},))
-    @warnpcfail precompile(boundingbox, (String, Vector{Point3f0}, Vector{Float32}, Vector{FTFont}, Vec2f0, Vector{Quaternionf0}, SMatrix{4, 4, Float32, 16}, Float64, Float64))
+    @warnpcfail precompile(boundingbox, (Poly{Tuple{Vector{Vector{Point2f}}}},))
+    @warnpcfail precompile(boundingbox, (String, Vector{Point3f}, Vector{Float32}, Vector{FTFont}, Vec2f, Vector{Quaternionf}, SMatrix{4, 4, Float32, 16}, Float64, Float64))
 
-    @warnpcfail precompile(poly_convert, (Vector{Vector{Point2f0}},))
-    @warnpcfail precompile(rotatedrect, (FRect2D, Float32))
+    @warnpcfail precompile(poly_convert, (Vector{Vector{Point2f}},))
+    @warnpcfail precompile(rotatedrect, (Rect2f, Float32))
 
-    @warnpcfail precompile(plot!, (Scene, Type{Poly{Tuple{IRect2D}}}, Attributes, Tuple{Observable{IRect2D}}, Observable{Tuple{Vector{Vector{Point2f0}}}}))
+    @warnpcfail precompile(plot!, (Scene, Type{Poly{Tuple{Rect2i}}}, Attributes, Tuple{Observable{Rect2i}}, Observable{Tuple{Vector{Vector{Point2f}}}}))
     @warnpcfail precompile(plot!, (Mesh{Tuple{Vector{GeometryBasics.Mesh{2, Float32, Ngonf0, FaceView{Ngonf0}}}}},))
-    @warnpcfail precompile(plot!, (Scene, Type{Annotations{Tuple{Vector{Tuple{String, Point2f0}}}}}, Attributes, Tuple{Observable{Vector{Tuple{String, Point2f0}}}}, Observable{Tuple{Vector{Tuple{String, Point2f0}}}}))
+    @warnpcfail precompile(plot!, (Scene, Type{Annotations{Tuple{Vector{Tuple{String, Point2f}}}}}, Attributes, Tuple{Observable{Vector{Tuple{String, Point2f}}}}, Observable{Tuple{Vector{Tuple{String, Point2f}}}}))
 
     # A big dump from SnoopCompile. These will go stale rapidly, but until work is done on inferrability this is probably the best we can do
-    isdefined(Makie, Symbol("#303#305")) && Base.precompile(Tuple{getfield(Makie, Symbol("#303#305")),Int64,FTFont,Tuple{String, Point{2, Float32}},RGBA{Float32},Float32,Vec{2, Float32},Quaternionf0,Float64,Float64})   # time: 0.8072854
-    Base.precompile(Tuple{typeof(transformationmatrix),Vec{3, Float32},Vec{3, Float32},Quaternionf0,Observable{Vec{2, Float32}},Tuple{Bool, Bool, Bool},GeometryBasics.HyperRectangle{3, Float32}})   # time: 0.70518523
+    isdefined(Makie, Symbol("#303#305")) && Base.precompile(Tuple{getfield(Makie, Symbol("#303#305")),Int64,FTFont,Tuple{String, Point{2, Float32}},RGBA{Float32},Float32,Vec{2, Float32},Quaternionf,Float64,Float64})   # time: 0.8072854
+    Base.precompile(Tuple{typeof(transformationmatrix),Vec{3, Float32},Vec{3, Float32},Quaternionf,Observable{Vec{2, Float32}},Tuple{Bool, Bool, Bool},GeometryBasics.HyperRectangle{3, Float32}})   # time: 0.70518523
     Base.precompile(Tuple{typeof(update_cam!),Scene,Camera2D,GeometryBasics.HyperRectangle{3, Float32}})   # time: 0.44654787
     Base.precompile(Tuple{typeof(scatter),Vector{Float64},Vararg{Vector{Float64}, 100}})   # time: 0.32425407
     isdefined(Makie, Symbol("#302#304")) && Base.precompile(Tuple{getfield(Makie, Symbol("#302#304")),SMatrix{4, 4, Float32, 16},Vector{FTFont},Vector{Tuple{String, Point{2, Float32}}},Vector{RGBA{Float32}},Vararg{Any, 100}})   # time: 0.23708302
@@ -45,7 +45,7 @@ function _precompile_()
     Base.precompile(Tuple{typeof(plot!),Scene,Type{Scatter{Tuple{Vector{Float64}, Vector{Float64}}}},Attributes,Tuple{Observable{Vector{Float64}}, Observable{Vector{Float64}}},Observable{Tuple{Vector{Point{2, Float32}}}}})   # time: 0.096797995
     Base.precompile(Tuple{typeof(data_limits),Text{Tuple{String}}})   # time: 0.09453959
     Base.precompile(Tuple{typeof(convert_arguments),Type{Annotations{ArgType} where ArgType},Vector{String},Vector{Point{2, Float32}}})   # time: 0.09197935
-    isdefined(Makie, Symbol("#719#720")) && Base.precompile(Tuple{getfield(Makie, Symbol("#719#720")),Int64,Quaternionf0,FTFont,Float32})   # time: 0.081979275
+    isdefined(Makie, Symbol("#719#720")) && Base.precompile(Tuple{getfield(Makie, Symbol("#719#720")),Int64,Quaternionf,FTFont,Float32})   # time: 0.081979275
     let fbody = try Base.bodyfunction(which(convert_arguments, (Type{Scatter{Tuple{Vector{Float64}, Vector{Float64}}}},Vector{Float64},Vararg{Vector{Float64}, 100},))) catch missing end
         if !ismissing(fbody)
             precompile(fbody, (Base.Iterators.Pairs{Union{}, Union{}, Tuple{}, NamedTuple{(), Tuple{}}},typeof(convert_arguments),Type{Scatter{Tuple{Vector{Float64}, Vector{Float64}}}},Vector{Float64},Vararg{Vector{Float64}, 100},))
@@ -72,7 +72,7 @@ function _precompile_()
     end   # time: 0.029508112
     Base.precompile(Tuple{Type{Text{ArgType} where ArgType},Annotations{Tuple{Vector{Tuple{String, Point{2, Float32}}}}},Attributes,Tuple{Observable{String}},Observable{Tuple{String}}})   # time: 0.028124427
     Base.precompile(Tuple{Core.kwftype(typeof(Type)),NamedTuple{(:ranges_labels, :formatter, :gap, :title_gap, :linewidth, :linecolor, :linestyle, :textcolor, :textsize, :rotation, :align, :font), Tuple{Tuple{Automatic, Automatic}, typeof(Makie.Formatters.plain), Int64, Int64, Tuple{Int64, Int64}, Tuple{Tuple{Symbol, Float64}, Tuple{Symbol, Float64}}, Tuple{Nothing, Nothing}, Tuple{Symbol, Symbol}, Tuple{Int64, Int64}, Tuple{Float64, Float64}, Tuple{Tuple{Symbol, Symbol}, Tuple{Symbol, Symbol}}, Observable{Tuple{String, String}}}},Type{Attributes}})   # time: 0.028094089
-    Base.precompile(Tuple{Core.kwftype(typeof(text!)),NamedTuple{(:align, :model, :position, :color, :visible, :textsize, :font, :rotation), Tuple{Vec{2, Float32}, SMatrix{4, 4, Float32, 16}, Vector{Point{3, Float32}}, Vector{RGBA{Float32}}, Observable{Any}, Vector{Float32}, Vector{FTFont}, Vector{Quaternionf0}}},typeof(text!),Annotations{Tuple{Vector{Tuple{String, Point{2, Float32}}}}},Vararg{Any, 100}})   # time: 0.027778953
+    Base.precompile(Tuple{Core.kwftype(typeof(text!)),NamedTuple{(:align, :model, :position, :color, :visible, :textsize, :font, :rotation), Tuple{Vec{2, Float32}, SMatrix{4, 4, Float32, 16}, Vector{Point{3, Float32}}, Vector{RGBA{Float32}}, Observable{Any}, Vector{Float32}, Vector{FTFont}, Vector{Quaternionf}}},typeof(text!),Annotations{Tuple{Vector{Tuple{String, Point{2, Float32}}}}},Vararg{Any, 100}})   # time: 0.027778953
     Base.precompile(Tuple{typeof(selection_rect!),Scene,Camera2D,Observable{Any}})   # time: 0.02611231
     Base.precompile(Tuple{typeof(map_once),Function,Observable{Annotations{Tuple{Vector{Tuple{String, Point{2, Float32}}}}}},Observable{LineSegments{Tuple{Vector{Point{2, Float32}}}}},Vararg{Observable, 100}})   # time: 0.024804583
     let fbody = try Base.bodyfunction(which(map_once, (Function,Observable{Vec{3, Float32}},Observable{Vec{3, Float32}},Vararg{Observable, 100},))) catch missing end
@@ -100,7 +100,7 @@ function _precompile_()
             precompile(fbody, (Nothing,Type,typeof(map_once),Function,Observable{Annotations{Tuple{Vector{Tuple{String, Point{2, Float32}}}}}},Observable{LineSegments{Tuple{Vector{Point{2, Float32}}}}},Vararg{Observable, 100},))
         end
     end   # time: 0.012269881
-    Base.precompile(Tuple{typeof(lift),Function,Observable{Any},Observable{Union{Nothing, FRect3D, FRect{3}, Rect3D{Float32}}}})   # time: 0.012067013
+    Base.precompile(Tuple{typeof(lift),Function,Observable{Any},Observable{Union{Nothing, Rect3f, Rectf{3}, Rect3{Float32}}}})   # time: 0.012067013
     isdefined(Makie, Symbol("#89#92")) && Base.precompile(Tuple{getfield(Makie, Symbol("#89#92")),Tuple{Int64, Int64}})   # time: 0.010871829
     let fbody = try Base.bodyfunction(which(lift, (Function,Observable{Tuple{Vector{Tuple{String, Point{2, Float32}}}}},))) catch missing end
         if !ismissing(fbody)
@@ -143,9 +143,9 @@ function _precompile_()
     Base.precompile(Tuple{typeof(lift),Function,Observable{Vector{Float64}},Observable{Vector{Float64}}})   # time: 0.006378372
     Base.precompile(Tuple{typeof(setindex!),LineSegments{Tuple{Vector{Point{2, Float32}}}},Observable{Vector{RGBA{Float32}}},Symbol})   # time: 0.006341601
     Base.precompile(Tuple{typeof(convert_attribute),Vector{Float32},Key{:textsize}})   # time: 0.006148856
-    isdefined(Makie, Symbol("#634#635")) && Base.precompile(Tuple{getfield(Makie, Symbol("#634#635")),Vec{3, Float32},Vec{3, Float32},Quaternionf0,Vec{2, Float32},SMatrix{4, 4, Float32, 16},Tuple{Bool, Bool, Bool}})   # time: 0.006117055
+    isdefined(Makie, Symbol("#634#635")) && Base.precompile(Tuple{getfield(Makie, Symbol("#634#635")),Vec{3, Float32},Vec{3, Float32},Quaternionf,Vec{2, Float32},SMatrix{4, 4, Float32, 16},Tuple{Bool, Bool, Bool}})   # time: 0.006117055
     Base.precompile(Tuple{typeof(default_labels),Automatic,Tuple{Vector{Float64}, Vector{Float64}},Function})   # time: 0.005572814
-    Base.precompile(Tuple{Core.kwftype(typeof(plot!)),NamedTuple{(:align, :model, :position, :color, :visible, :textsize, :font, :rotation), Tuple{Vec{2, Float32}, SMatrix{4, 4, Float32, 16}, Vector{Point{3, Float32}}, Vector{RGBA{Float32}}, Observable{Any}, Vector{Float32}, Vector{FTFont}, Vector{Quaternionf0}}},typeof(plot!),Type{Text{ArgType} where ArgType},Annotations{Tuple{Vector{Tuple{String, Point{2, Float32}}}}},String})   # time: 0.005202268
+    Base.precompile(Tuple{Core.kwftype(typeof(plot!)),NamedTuple{(:align, :model, :position, :color, :visible, :textsize, :font, :rotation), Tuple{Vec{2, Float32}, SMatrix{4, 4, Float32, 16}, Vector{Point{3, Float32}}, Vector{RGBA{Float32}}, Observable{Any}, Vector{Float32}, Vector{FTFont}, Vector{Quaternionf}}},typeof(plot!),Type{Text{ArgType} where ArgType},Annotations{Tuple{Vector{Tuple{String, Point{2, Float32}}}}},String})   # time: 0.005202268
     let fbody = try Base.bodyfunction(which(lift, (Function,Observable{GeometryBasics.HyperRectangle{2, Int64}},))) catch missing end
         if !ismissing(fbody)
             precompile(fbody, (Vec{2, Float32},Type,Symbol,typeof(lift),Function,Observable{GeometryBasics.HyperRectangle{2, Int64}},))
@@ -206,7 +206,7 @@ function _precompile_()
         end
     end   # time: 0.002528649
     Base.precompile(Tuple{typeof(setindex!),Attributes,Observable{Tuple{Tuple{Vector{Float64}, Vector{Float64}}, Tuple{Vector{String}, Vector{String}}}},Symbol})   # time: 0.00244883
-    Base.precompile(Tuple{typeof(safe_off),Observable{Quaternionf0},Function})   # time: 0.002366797
+    Base.precompile(Tuple{typeof(safe_off),Observable{Quaternionf},Function})   # time: 0.002366797
     Base.precompile(Tuple{typeof(to_ndim),Type{Point{3, Float32}},Vec2{Float64},Int64})   # time: 0.002294592
     let fbody = try Base.bodyfunction(which(current_default_theme, ())) catch missing end
         if !ismissing(fbody)
@@ -214,9 +214,9 @@ function _precompile_()
         end
     end   # time: 0.002075753
     Base.precompile(Tuple{typeof(safe_off),Observable{Tuple{LineSegments{Tuple{Vector{Point{2, Float32}}}}, LineSegments{Tuple{Vector{Point{2, Float32}}}}}},Function})   # time: 0.001949723
-    let fbody = try Base.bodyfunction(which(lift, (Function,Observable{Any},Observable{Union{Nothing, FRect3D, FRect{3}, Rect3D{Float32}}},))) catch missing end
+    let fbody = try Base.bodyfunction(which(lift, (Function,Observable{Any},Observable{Union{Nothing, Rect3f, Rectf{3}, Rect3{Float32}}},))) catch missing end
         if !ismissing(fbody)
-            precompile(fbody, (GeometryBasics.HyperRectangle{3, Float32},Type,Symbol,typeof(lift),Function,Observable{Any},Observable{Union{Nothing, FRect3D, FRect{3}, Rect3D{Float32}}},))
+            precompile(fbody, (GeometryBasics.HyperRectangle{3, Float32},Type,Symbol,typeof(lift),Function,Observable{Any},Observable{Union{Nothing, Rect3f, Rectf{3}, Rect3{Float32}}},))
         end
     end   # time: 0.001892332
     Base.precompile(Tuple{typeof(lift),Function,Observable{Vector{Point{2, Float32}}}})   # time: 0.001853503
@@ -247,13 +247,13 @@ function _precompile_()
     # DataInspector
     @warnpcfail precompile(on_hover, (DataInspector, ))
     for PT in (
-            Scatter{Tuple{Vector{Point2f0}}},
-            Scatter{Tuple{Vector{Point3f0}}},
-            MeshScatter{Tuple{Vector{Point3f0}}},
-            Lines{Tuple{Vector{Point2f0}}},
-            Lines{Tuple{Vector{Point3f0}}},
-            LineSegments{Tuple{Vector{Point2f0}}},
-            LineSegments{Tuple{Vector{Point3f0}}},
+            Scatter{Tuple{Vector{Point2f}}},
+            Scatter{Tuple{Vector{Point3f}}},
+            MeshScatter{Tuple{Vector{Point3f}}},
+            Lines{Tuple{Vector{Point2f}}},
+            Lines{Tuple{Vector{Point3f}}},
+            LineSegments{Tuple{Vector{Point2f}}},
+            LineSegments{Tuple{Vector{Point3f}}},
             # Mesh,
             Surface{Tuple{IntervalSets.ClosedInterval{Float32}, IntervalSets.ClosedInterval{Float32}, Matrix{Float32}}},
             Surface{Tuple{Vector{Float32}, Vector{Float32}, Matrix{Float32}}},

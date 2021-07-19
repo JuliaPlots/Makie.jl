@@ -28,7 +28,7 @@ function layoutable(::Type{Legend},
     layoutobservables = LayoutObservables{Legend}(attrs.width, attrs.height, attrs.tellwidth, attrs.tellheight,
         halign, valign, attrs.alignmode; suggestedbbox = bbox)
 
-    scenearea = lift(round_to_IRect2D, layoutobservables.computedbbox)
+    scenearea = lift(round_to_Rect2i, layoutobservables.computedbbox)
 
     scene = Scene(topscene, scenearea, raw = true, camera = campixel!)
 
@@ -258,7 +258,7 @@ function layoutable(::Type{Legend},
 end
 
 
-function legendelement_plots!(scene, element::MarkerElement, bbox::Node{FRect2D}, defaultattrs::Attributes)
+function legendelement_plots!(scene, element::MarkerElement, bbox::Node{Rect2f}, defaultattrs::Attributes)
     merge!(element.attributes, defaultattrs)
     attrs = element.attributes
 
@@ -271,7 +271,7 @@ function legendelement_plots!(scene, element::MarkerElement, bbox::Node{FRect2D}
     [scat]
 end
 
-function legendelement_plots!(scene, element::LineElement, bbox::Node{FRect2D}, defaultattrs::Attributes)
+function legendelement_plots!(scene, element::LineElement, bbox::Node{Rect2f}, defaultattrs::Attributes)
     merge!(element.attributes, defaultattrs)
     attrs = element.attributes
 
@@ -283,7 +283,7 @@ function legendelement_plots!(scene, element::LineElement, bbox::Node{FRect2D}, 
     [lin]
 end
 
-function legendelement_plots!(scene, element::PolyElement, bbox::Node{FRect2D}, defaultattrs::Attributes)
+function legendelement_plots!(scene, element::PolyElement, bbox::Node{Rect2f}, defaultattrs::Attributes)
     merge!(element.attributes, defaultattrs)
     attrs = element.attributes
 

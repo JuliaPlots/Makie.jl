@@ -54,7 +54,7 @@ function create_shader(scene::Scene, plot::MeshScatter)
     instance = convert_attribute(plot.marker[], key"marker"(), key"meshscatter"())
 
     if !hasproperty(instance, :uv)
-        uniform_dict[:uv] = Vec2f0(0)
+        uniform_dict[:uv] = Vec2f(0)
     end
 
     return InstancedProgram(WebGL(), lasset("particles.vert"), lasset("particles.frag"),
@@ -66,7 +66,7 @@ end
 primitive_shape(::Union{String,Char,Vector{Char}}) = Cint(DISTANCEFIELD)
 primitive_shape(x::X) where {X} = Cint(primitive_shape(X))
 primitive_shape(::Type{<:Circle}) = Cint(CIRCLE)
-primitive_shape(::Type{<:Rect2D}) = Cint(RECTANGLE)
+primitive_shape(::Type{<:Rect2}) = Cint(RECTANGLE)
 primitive_shape(::Type{T}) where {T} = error("Type $(T) not supported")
 primitive_shape(x::Shape) = Cint(x)
 
@@ -121,7 +121,7 @@ function scatter_shader(scene::Scene, attributes)
                 lift(x -> Makie.glyph_uv_width!(to_spritemarker(x)),
                      attributes[:marker])
             else
-                Vec4f0(0)
+                Vec4f(0)
             end
         end
     end
@@ -132,7 +132,7 @@ function scatter_shader(scene::Scene, attributes)
     end
     handle_color!(uniform_dict, per_instance)
 
-    instance = uv_mesh(Rect2D(-0.5f0, -0.5f0, 1f0, 1f0))
+    instance = uv_mesh(Rect2(-0.5f0, -0.5f0, 1f0, 1f0))
     uniform_dict[:resolution] = scene.camera.resolution
     return InstancedProgram(WebGL(), lasset("simple.vert"), lasset("sprites.frag"),
                             instance, VertexArray(; per_instance...); uniform_dict...)
@@ -175,7 +175,7 @@ function create_shader(scene::Scene, plot::Makie.Text{<:Tuple{<:Union{<:Makie.Gl
     if glyphcollection[] isa Makie.GlyphCollection
         # here we lift the glyph collection
         collect_glyph_data = (gcollection, projview, transfunc, pos, rotation, model, space, offset) -> begin
-            res = Vec2f0(widths(pixelarea(scene)[]))
+            res = Vec2f(widths(pixelarea(scene)[]))
             Makie.preprojected_glyph_arrays(pos, gcollection, space, projview, res, offset, transfunc)
         end
         glyph_data = lift(collect_glyph_data, glyphcollection, scene.camera.projectionview, Makie.transform_func_obs(scene), args...)
@@ -183,7 +183,7 @@ function create_shader(scene::Scene, plot::Makie.Text{<:Tuple{<:Union{<:Makie.Gl
         # and here we don't because it triggers dimension mismatches
         collect_glyph_data = (projview, transfunc, pos, rotation, model, space, offset) -> begin
             gcollection = glyphcollection[]
-            res = Vec2f0(widths(pixelarea(scene)[]))
+            res = Vec2f(widths(pixelarea(scene)[]))
             Makie.preprojected_glyph_arrays(pos, gcollection, space, projview, res, offset, transfunc)
         end
         glyph_data = lift(collect_glyph_data, scene.camera.projectionview, Makie.transform_func_obs(scene), args...)
@@ -204,7 +204,7 @@ function create_shader(scene::Scene, plot::Makie.Text{<:Tuple{<:Union{<:Makie.Gl
     uniform_color = lift(glyphcollection) do gc
         if gc isa AbstractArray
             reduce(vcat, (Makie.collect_vector(g.colors, length(g.glyphs)) for g in gc),
-                init = RGBAf0[])
+                init = RGBAf[])
         else
             Makie.collect_vector(gc.colors, length(gc.glyphs))
         end
@@ -212,7 +212,7 @@ function create_shader(scene::Scene, plot::Makie.Text{<:Tuple{<:Union{<:Makie.Gl
     uniform_stroke_color = lift(glyphcollection) do gc
         if gc isa AbstractArray
             reduce(vcat, (Makie.collect_vector(g.strokecolors, length(g.glyphs)) for g in gc),
-                init = RGBAf0[])
+                init = RGBAf[])
         else
             Makie.collect_vector(gc.strokecolors, length(gc.glyphs))
         end
@@ -220,7 +220,7 @@ function create_shader(scene::Scene, plot::Makie.Text{<:Tuple{<:Union{<:Makie.Gl
     uniform_rotation = lift(glyphcollection) do gc
         if gc isa AbstractArray
             reduce(vcat, (Makie.collect_vector(g.rotations, length(g.glyphs)) for g in gc),
-                init = Quaternionf0[])
+                init = Quaternionf[])
         else
             Makie.collect_vector(gc.rotations, length(gc.glyphs))
         end

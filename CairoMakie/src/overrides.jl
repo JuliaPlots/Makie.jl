@@ -58,9 +58,9 @@ function draw_poly(scene::Scene, screen::CairoScreen, poly, points_list::Vector{
 end
 
 
-draw_poly(scene::Scene, screen::CairoScreen, poly, rect::Rect2D) = draw_poly(scene, screen, poly, [rect])
+draw_poly(scene::Scene, screen::CairoScreen, poly, rect::Rect2) = draw_poly(scene, screen, poly, [rect])
 
-function draw_poly(scene::Scene, screen::CairoScreen, poly, rects::Vector{<:Rect2D})
+function draw_poly(scene::Scene, screen::CairoScreen, poly, rects::Vector{<:Rect2})
     model = poly.model[]
     projected_rects = project_rect.(Ref(scene), rects, Ref(model))
 
@@ -90,14 +90,14 @@ function draw_poly(scene::Scene, screen::CairoScreen, poly, rects::Vector{<:Rect
 end
 
 function polypath(ctx, polygon)
-    ext = decompose(Point2f0, polygon.exterior)
+    ext = decompose(Point2f, polygon.exterior)
     Cairo.move_to(ctx, ext[1]...)
     for point in ext[2:end]
         Cairo.line_to(ctx, point...)
     end
     Cairo.close_path(ctx)
 
-    interiors = decompose.(Point2f0, polygon.interiors)
+    interiors = decompose.(Point2f, polygon.interiors)
     for interior in interiors
         Cairo.move_to(ctx, interior[1]...)
         for point in interior[2:end]

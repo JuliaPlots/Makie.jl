@@ -418,7 +418,7 @@ end
 
 
 
-function pick_native(screen::Screen, rect::IRect2D)
+function pick_native(screen::Screen, rect::Rect2i)
     isopen(screen) || return Matrix{SelectionID{Int}}(undef, 0, 0)
     window_size = widths(screen)
     fb = screen.framebuffer
@@ -469,7 +469,7 @@ function Makie.pick(scene::SceneLike, screen::Screen, xy::Vec{2, Float64})
     end
 end
 
-function Makie.pick(scene::SceneLike, screen::Screen, rect::IRect2D)
+function Makie.pick(scene::SceneLike, screen::Screen, rect::Rect2i)
     map(pick_native(screen, rect)) do sid
         if haskey(screen.cache2plot, sid.id)
             (screen.cache2plot[sid.id], sid.index)
@@ -489,11 +489,11 @@ function Makie.pick_closest(scene::SceneLike, screen::Screen, xy, range)
     x0, y0 = max.(1, floor.(Int, xy .- range))
     x1, y1 = min.((w, h), floor.(Int, xy .+ range))
     dx = x1 - x0; dy = y1 - y0
-    sid = pick_native(screen, IRect2D(x0, y0, dx, dy))
+    sid = pick_native(screen, Rect2i(x0, y0, dx, dy))
 
     min_dist = range^2
     id = SelectionID{Int}(0, 0)
-    x, y =  xy .+ 1 .- Vec2f0(x0, y0)
+    x, y =  xy .+ 1 .- Vec2f(x0, y0)
     for i in 1:dx, j in 1:dy
         d = (x-i)^2 + (y-j)^2
         if (d < min_dist) && (sid[i, j][1] > 0x00000000) &&
@@ -521,11 +521,11 @@ function Makie.pick_sorted(scene::SceneLike, screen::Screen, xy, range)
     x1, y1 = min.([w, h], floor.(Int, xy .+ range))
     dx = x1 - x0; dy = y1 - y0
 
-    picks = pick_native(screen, IRect2D(x0, y0, dx, dy))
+    picks = pick_native(screen, Rect2i(x0, y0, dx, dy))
 
     selected = filter(x -> x[1] > 0 && haskey(screen.cache2plot, x[1]), unique(vec(picks)))
     distances = [range^2 for _ in selected]
-    x, y =  xy .+ 1 .- Vec2f0(x0, y0)
+    x, y =  xy .+ 1 .- Vec2f(x0, y0)
     for i in 1:dx, j in 1:dy
         if picks[i, j][1] > 0
             d = (x-i)^2 + (y-j)^2

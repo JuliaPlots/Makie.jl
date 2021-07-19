@@ -168,7 +168,7 @@ export NativeMesh
 NativeMesh(m::T) where {T <: GeometryBasics.Mesh} = NativeMesh{T}(m)
 NativeMesh(m::Observable{T}) where {T <: GeometryBasics.Mesh} = NativeMesh{T}(m)
 
-convert_texcoordinates(uv::AbstractVector{Vec2f0}) = uv
+convert_texcoordinates(uv::AbstractVector{Vec2f}) = uv
 convert_texcoordinates(x::AbstractVector{<:Number}) = convert(Vector{Float32}, x)
 
 function NativeMesh{T}(mesh::T) where T <: GeometryBasics.Mesh
@@ -185,7 +185,7 @@ function NativeMesh{T}(mesh::T) where T <: GeometryBasics.Mesh
             result[:image] = Texture(val.colors)
             result[:texturecoordinates] = GLBuffer(convert_texcoordinates(val.values))
             if val.scaling.range !== nothing
-                result[:color_norm] = Observable(Vec2f0(val.scaling.range))
+                result[:color_norm] = Observable(Vec2f(val.scaling.range))
             end
         elseif field in (:position, :uv, :uvw, :normals, :attribute_id, :color)
             if field == :color
@@ -225,7 +225,7 @@ function NativeMesh{T}(m::Node{T}) where T <: GeometryBasics.Mesh
                 update!(result.data[:image], val.colors)
                 update!(result.data[:texturecoordinates], convert_texcoordinates(val.values))
                 if val.scaling.range !== nothing
-                    result.data[:color_norm][] = Vec2f0(val.scaling.range)
+                    result.data[:color_norm][] = Vec2f(val.scaling.range)
                 end
             else
                 field == :color && (field = :vertex_color)

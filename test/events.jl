@@ -69,31 +69,31 @@ end
         cc = cameracontrols(scene)
 
         # Verify initial camera state
-        @test cc.lookat[]       == Vec3f0(0)
-        @test cc.eyeposition[]  == Vec3f0(3)
-        @test cc.upvector[]     == Vec3f0(0, 0, 1)
+        @test cc.lookat[]       == Vec3f(0)
+        @test cc.eyeposition[]  == Vec3f(3)
+        @test cc.upvector[]     == Vec3f(0, 0, 1)
 
         # Rotation
         # 1) In scene, in drag
         e.mouseposition[] = (400, 250)
         e.mousebutton[] = MouseButtonEvent(Mouse.left, Mouse.press)
         e.mouseposition[] = (600, 250)
-        @test cc.lookat[]       ≈ Vec3f0(0)
-        @test cc.eyeposition[]  ≈ Vec3f0(4.14532, -0.9035063, 3.0)
-        @test cc.upvector[]     ≈ Vec3f0(0, 0, 1)
+        @test cc.lookat[]       ≈ Vec3f(0)
+        @test cc.eyeposition[]  ≈ Vec3f(4.14532, -0.9035063, 3.0)
+        @test cc.upvector[]     ≈ Vec3f(0, 0, 1)
 
         # 2) Outside scene, in drag
         e.mouseposition[] = (1000, 450)
-        @test cc.lookat[]       ≈ Vec3f0(0)
-        @test cc.eyeposition[]  ≈ Vec3f0(-2.8912058, -3.8524969, -1.9491522)
-        @test cc.upvector[]     ≈ Vec3f0(-0.5050875, -0.6730229, 0.5403024)
+        @test cc.lookat[]       ≈ Vec3f(0)
+        @test cc.eyeposition[]  ≈ Vec3f(-2.8912058, -3.8524969, -1.9491522)
+        @test cc.upvector[]     ≈ Vec3f(-0.5050875, -0.6730229, 0.5403024)
 
         # 3) not in drag
         e.mousebutton[] = MouseButtonEvent(Mouse.left, Mouse.release)
         e.mouseposition[] = (400, 250)
-        @test cc.lookat[]       ≈ Vec3f0(0)
-        @test cc.eyeposition[]  ≈ Vec3f0(-2.8912058, -3.8524969, -1.9491522)
-        @test cc.upvector[]     ≈ Vec3f0(-0.5050875, -0.6730229, 0.5403024)
+        @test cc.lookat[]       ≈ Vec3f(0)
+        @test cc.eyeposition[]  ≈ Vec3f(-2.8912058, -3.8524969, -1.9491522)
+        @test cc.upvector[]     ≈ Vec3f(-0.5050875, -0.6730229, 0.5403024)
 
 
 
@@ -104,30 +104,30 @@ end
         cc = cameracontrols(scene)
 
         # Verify initial camera state
-        @test cc.lookat[]       == Vec3f0(0)
-        @test cc.eyeposition[]  == Vec3f0(3)
-        @test cc.upvector[]     == Vec3f0(0, 0, 1)
+        @test cc.lookat[]       == Vec3f(0)
+        @test cc.eyeposition[]  == Vec3f(3)
+        @test cc.upvector[]     == Vec3f(0, 0, 1)
 
         # translation
         # 1) In scene, in drag
         e.mousebutton[] = MouseButtonEvent(Mouse.right, Mouse.press)
         e.mouseposition[] = (600, 250)
-        @test cc.lookat[]       ≈ Vec3f0(4.409082, -4.409082, -2.598076)
-        @test cc.eyeposition[]  ≈ Vec3f0(7.409082, -1.4090819, 0.4019239)
-        @test cc.upvector[]     ≈ Vec3f0(0.0, 0.0, 1.0)
+        @test cc.lookat[]       ≈ Vec3f(4.409082, -4.409082, -2.598076)
+        @test cc.eyeposition[]  ≈ Vec3f(7.409082, -1.4090819, 0.4019239)
+        @test cc.upvector[]     ≈ Vec3f(0.0, 0.0, 1.0)
 
         # 2) Outside scene, in drag
         e.mouseposition[] = (1000, 450)
-        @test cc.lookat[]       ≈ Vec3f0(7.3484697, -7.3484697, -4.676537)
-        @test cc.eyeposition[]  ≈ Vec3f0(10.34847, -4.3484697, -1.676537)
-        @test cc.upvector[]     ≈ Vec3f0(0.0, 0.0, 1.0)
+        @test cc.lookat[]       ≈ Vec3f(7.3484697, -7.3484697, -4.676537)
+        @test cc.eyeposition[]  ≈ Vec3f(10.34847, -4.3484697, -1.676537)
+        @test cc.upvector[]     ≈ Vec3f(0.0, 0.0, 1.0)
 
         # 3) not in drag
         e.mousebutton[] = MouseButtonEvent(Mouse.right, Mouse.release)
         e.mouseposition[] = (400, 250)
-        @test cc.lookat[]       ≈ Vec3f0(7.3484697, -7.3484697, -4.676537)
-        @test cc.eyeposition[]  ≈ Vec3f0(10.34847, -4.3484697, -1.676537)
-        @test cc.upvector[]     ≈ Vec3f0(0.0, 0.0, 1.0)
+        @test cc.lookat[]       ≈ Vec3f(7.3484697, -7.3484697, -4.676537)
+        @test cc.eyeposition[]  ≈ Vec3f(10.34847, -4.3484697, -1.676537)
+        @test cc.upvector[]     ≈ Vec3f(0.0, 0.0, 1.0)
 
 
 
@@ -138,31 +138,31 @@ end
         cc = cameracontrols(scene)
 
         # Verify initial camera state
-        @test cc.lookat[]       == Vec3f0(0)
-        @test cc.eyeposition[]  == Vec3f0(3)
-        @test cc.upvector[]     == Vec3f0(0, 0, 1)
+        @test cc.lookat[]       == Vec3f(0)
+        @test cc.eyeposition[]  == Vec3f(3)
+        @test cc.upvector[]     == Vec3f(0, 0, 1)
         @test cc.zoom_mult[]    == 1f0
 
         # Zoom
         e.scroll[] = (0.0, 4.0)
-        @test cc.lookat[]       ≈ Vec3f0(0)
-        @test cc.eyeposition[]  ≈ Vec3f0(3)
-        @test cc.upvector[]     ≈ Vec3f0(0.0, 0.0, 1.0)
+        @test cc.lookat[]       ≈ Vec3f(0)
+        @test cc.eyeposition[]  ≈ Vec3f(3)
+        @test cc.upvector[]     ≈ Vec3f(0.0, 0.0, 1.0)
         @test cc.zoom_mult[]    ≈ 0.6830134f0
 
         # should not work outside the scene
         e.mouseposition[] = (1000, 450)
         e.scroll[] = (0.0, 4.0)
-        @test cc.lookat[]       ≈ Vec3f0(0)
-        @test cc.eyeposition[]  ≈ Vec3f0(3)
-        @test cc.upvector[]     ≈ Vec3f0(0.0, 0.0, 1.0)
+        @test cc.lookat[]       ≈ Vec3f(0)
+        @test cc.eyeposition[]  ≈ Vec3f(3)
+        @test cc.upvector[]     ≈ Vec3f(0.0, 0.0, 1.0)
         @test cc.zoom_mult[]    ≈ 0.6830134f0
     end
 
     @testset "mouse state machine" begin
         scene = Scene(resolution=(800, 600));
         e = events(scene)
-        bbox = Node(Rect2D(200, 200, 400, 300))
+        bbox = Node(Rect2(200, 200, 400, 300))
         msm = addmouseevents!(scene, bbox, priority=typemax(Int8))
         eventlog = MouseEvent[]
         on(x -> begin push!(eventlog, x); false end, msm.obs)
@@ -174,16 +174,16 @@ end
         e.mouseposition[] = (300, 200)
         @test length(eventlog) == 1
         @test eventlog[1].type == MouseEventTypes.enter
-        @test eventlog[1].px == Point2f0(300, 200)
-        @test eventlog[1].prev_px == Point2f0(0, 200)
+        @test eventlog[1].px == Point2f(300, 200)
+        @test eventlog[1].prev_px == Point2f(0, 200)
         empty!(eventlog)
 
         # over
         e.mouseposition[] = (300, 300)
         @test length(eventlog) == 1
         @test eventlog[1].type == MouseEventTypes.over
-        @test eventlog[1].px == Point2f0(300, 300)
-        @test eventlog[1].prev_px == Point2f0(300, 200)
+        @test eventlog[1].px == Point2f(300, 300)
+        @test eventlog[1].prev_px == Point2f(300, 200)
         empty!(eventlog)
 
         for button in (:left, :middle, :right)
@@ -197,8 +197,8 @@ end
                     getfield(MouseEventTypes, Symbol(button, :up))
                 ))
                 @test eventlog[i].type == t
-                @test eventlog[i].px == Point2f0(300, 300)
-                @test eventlog[i].prev_px == Point2f0(300, 300)
+                @test eventlog[i].px == Point2f(300, 300)
+                @test eventlog[i].prev_px == Point2f(300, 300)
             end
             empty!(eventlog)
 
@@ -212,8 +212,8 @@ end
                     getfield(MouseEventTypes, Symbol(button, :up))
                 ))
                 @test eventlog[i].type == t
-                @test eventlog[i].px == Point2f0(300, 300)
-                @test eventlog[i].prev_px == Point2f0(300, 300)
+                @test eventlog[i].px == Point2f(300, 300)
+                @test eventlog[i].prev_px == Point2f(300, 300)
             end
             empty!(eventlog)
 
@@ -227,8 +227,8 @@ end
                     getfield(MouseEventTypes, Symbol(button, :up))
                 ))
                 @test eventlog[i].type == t
-                @test eventlog[i].px == Point2f0(300, 300)
-                @test eventlog[i].prev_px == Point2f0(300, 300)
+                @test eventlog[i].px == Point2f(300, 300)
+                @test eventlog[i].prev_px == Point2f(300, 300)
             end
             empty!(eventlog)
 
@@ -238,8 +238,8 @@ end
             e.mouseposition[] = (700, 200)
             e.mousebutton[] = MouseButtonEvent(getfield(Mouse, button), Mouse.release)
             @test length(eventlog) == 6
-            prev_px = Point2f0[(300, 300), (300, 300), (300, 300), (500, 300), (700, 200), (700, 200)]
-            px      = Point2f0[(300, 300), (500, 300), (500, 300), (700, 200), (700, 200), (700, 200)]
+            prev_px = Point2f[(300, 300), (300, 300), (300, 300), (500, 300), (700, 200), (700, 200)]
+            px      = Point2f[(300, 300), (500, 300), (500, 300), (700, 200), (700, 200), (700, 200)]
             for (i, t) in enumerate((
                     getfield(MouseEventTypes, Symbol(button, :down)),
                     getfield(MouseEventTypes, Symbol(button, :dragstart)),
@@ -299,13 +299,13 @@ end
         @test eventlog[5].type == MouseEventTypes.over
         @test eventlog[6].type == MouseEventTypes.leftdragstop
         @test eventlog[7].type == MouseEventTypes.leftup
-        @test eventlog[1].px == Point2f0(300, 300)
-        @test eventlog[2].px == Point2f0(350, 350)
-        @test eventlog[3].px == Point2f0(350, 350)
-        @test eventlog[4].px == Point2f0(350, 400)
-        @test eventlog[5].px == Point2f0(400, 400)
-        @test eventlog[6].px == Point2f0(400, 400)
-        @test eventlog[7].px == Point2f0(400, 400)
+        @test eventlog[1].px == Point2f(300, 300)
+        @test eventlog[2].px == Point2f(350, 350)
+        @test eventlog[3].px == Point2f(350, 350)
+        @test eventlog[4].px == Point2f(350, 400)
+        @test eventlog[5].px == Point2f(400, 400)
+        @test eventlog[6].px == Point2f(400, 400)
+        @test eventlog[7].px == Point2f(400, 400)
         empty!(eventlog)
     end
 end

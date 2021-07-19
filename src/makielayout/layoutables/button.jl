@@ -16,10 +16,10 @@ function layoutable(::Type{Button}, fig_or_scene::FigureLike; bbox = nothing, kw
     layoutobservables = LayoutObservables{Button}(attrs.width, attrs.height, attrs.tellwidth, attrs.tellheight,
         halign, valign, attrs.alignmode; suggestedbbox = bbox)
 
-    textpos = Node(Point2f0(0, 0))
+    textpos = Node(Point2f(0, 0))
 
     subarea = lift(layoutobservables.computedbbox) do bbox
-        round_to_IRect2D(bbox)
+        round_to_Rect2i(bbox)
     end
     subscene = Scene(scene, subarea, camera=campixel!)
 
@@ -31,7 +31,7 @@ function layoutable(::Type{Button}, fig_or_scene::FigureLike; bbox = nothing, kw
     end
 
     on(buttonrect) do rect
-        textpos[] = Point2f0(left(rect) + 0.5f0 * width(rect), bottom(rect) + 0.5f0 * height(rect))
+        textpos[] = Point2f(left(rect) + 0.5f0 * width(rect), bottom(rect) + 0.5f0 * height(rect))
     end
 
     roundedrectpoints = lift(roundedrectvertices, buttonrect, cornerradius, cornersegments)
@@ -58,7 +58,7 @@ function layoutable(::Type{Button}, fig_or_scene::FigureLike; bbox = nothing, kw
 
 
     onany(label, textsize, font, padding) do label, textsize, font, padding
-        textbb = FRect2D(boundingbox(labeltext))
+        textbb = Rect2f(boundingbox(labeltext))
         autowidth = width(textbb) + padding[1] + padding[2]
         autoheight = height(textbb) + padding[3] + padding[4]
         layoutobservables.autosize[] = (autowidth, autoheight)

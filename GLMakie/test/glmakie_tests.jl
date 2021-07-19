@@ -22,7 +22,7 @@ using ReferenceTests.RNG
             y = r*[-sin(angle/2),0,sin(angle/2)]
 
             linewidth = 40 * 2.0^j
-            lines!(scene, x .+ sep*i, y .+ sep*j, color=RGBAf0(0,0,0,0.5), linewidth=linewidth)
+            lines!(scene, x .+ sep*i, y .+ sep*j, color=RGBAf(0,0,0,0.5), linewidth=linewidth)
             lines!(scene, x .+ sep*i, y .+ sep*j, color=:red)
         end
     end
@@ -46,16 +46,16 @@ end
 # Test for resizing of TextureBuffer
 @cell "Dynamically adjusting number of particles in a meshscatter" begin
 
-    pos = Node(RNG.rand(Point3f0, 2))
-    rot = Node(RNG.rand(Vec3f0, 2))
-    color = Node(RNG.rand(RGBf0, 2))
+    pos = Node(RNG.rand(Point3f, 2))
+    rot = Node(RNG.rand(Vec3f, 2))
+    color = Node(RNG.rand(RGBf, 2))
     size = Node(0.1*RNG.rand(2))
 
     makenew = Node(1)
     on(makenew) do i
-        pos[] = RNG.rand(Point3f0, i)
-        rot[] = RNG.rand(Vec3f0, i)
-        color[] = RNG.rand(RGBf0, i)
+        pos[] = RNG.rand(Point3f, i)
+        rot[] = RNG.rand(Vec3f, i)
+        color[] = RNG.rand(RGBf, i)
         size[] = 0.1*RNG.rand(i)
     end
 
@@ -63,7 +63,7 @@ end
         rotations=rot,
         color=color,
         markersize=size,
-        limits=FRect3D(Point3(0), Point3(1))
+        limits=Rect3f(Point3(0), Point3(1))
     )
 
     Record(scene, [10, 5, 100, 60, 177]) do i
@@ -76,16 +76,16 @@ end
     function update_loop(m, buff, screen)
         for i = 1:20
             GLFW.PollEvents()
-            buff .= RNG.rand.(Point3f0) .* 20f0
+            buff .= RNG.rand.(Point3f) .* 20f0
             m[1] = buff
             GLMakie.render_frame(screen)
             GLFW.SwapBuffers(GLMakie.to_native(screen))
             glFinish()
         end
     end
-    fig, ax, meshplot = meshscatter(RNG.rand(Point3f0, 10^4) .* 20f0)
+    fig, ax, meshplot = meshscatter(RNG.rand(Point3f, 10^4) .* 20f0)
     screen = Makie.backend_display(GLMakie.GLBackend(), fig.scene)
-    buff = RNG.rand(Point3f0, 10^4) .* 20f0;
+    buff = RNG.rand(Point3f, 10^4) .* 20f0;
     update_loop(meshplot, buff, screen)
     set_window_config!(renderloop=GLMakie.renderloop)
     fig

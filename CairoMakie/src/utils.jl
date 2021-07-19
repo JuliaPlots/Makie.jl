@@ -8,13 +8,13 @@ function project_position(scene, point, model)
     point = Makie.apply_transform(scene.transformation.transform_func[], point)
 
     res = scene.camera.resolution[]
-    p4d = to_ndim(Vec4f0, to_ndim(Vec3f0, point, 0f0), 1f0)
+    p4d = to_ndim(Vec4f, to_ndim(Vec3f, point, 0f0), 1f0)
     clip = scene.camera.projectionview[] * model * p4d
     @inbounds begin
     # between -1 and 1
         p = (clip ./ clip[4])[Vec(1, 2)]
         # flip y to match cairo
-        p_yflip = Vec2f0(p[1], -p[2])
+        p_yflip = Vec2f(p[1], -p[2])
         # normalize to between 0 and 1
         p_0_to_1 = (p_yflip .+ 1f0) / 2f0
     end
@@ -22,10 +22,10 @@ function project_position(scene, point, model)
     return p_0_to_1 .* res
 end
 
-project_scale(scene::Scene, s::Number, model = Mat4f0(I)) = project_scale(scene, Vec2f0(s), model)
+project_scale(scene::Scene, s::Number, model = Mat4f(I)) = project_scale(scene, Vec2f(s), model)
 
-function project_scale(scene::Scene, s, model = Mat4f0(I))
-    p4d = to_ndim(Vec4f0, s, 0f0)
+function project_scale(scene::Scene, s, model = Mat4f(I))
+    p4d = to_ndim(Vec4f, s, 0f0)
     p = @inbounds (scene.camera.projectionview[] * model * p4d)[Vec(1, 2)] ./ 2f0
     return p .* scene.camera.resolution[]
 end
@@ -37,11 +37,11 @@ function project_rect(scene, rect::Rect, model)
 end
 
 function project_polygon(scene, poly::P, model) where P <: Polygon
-    ext = decompose(Point2f0, poly.exterior)
-    interiors = decompose.(Point2f0, poly.interiors)
+    ext = decompose(Point2f, poly.exterior)
+    interiors = decompose.(Point2f, poly.interiors)
     Polygon(
-        Point2f0.(project_position.(Ref(scene), ext, Ref(model))),
-        [Point2f0.(project_position.(Ref(scene), interior, Ref(model))) for interior in interiors],
+        Point2f.(project_position.(Ref(scene), ext, Ref(model))),
+        [Point2f.(project_position.(Ref(scene), interior, Ref(model))) for interior in interiors],
     )
 end
 
@@ -73,7 +73,7 @@ to_2d_rotation(quat::Makie.Quaternion) = -Makie.quaternion_to_2d_angle(quat)
 # Since I don't know how to fix this in GLMakie,
 # I've reversed the order of arguments to atan,
 # such that our behaviour is consistent with GLMakie's.
-to_2d_rotation(vec::Vec2f0) = atan(vec[1], vec[2])
+to_2d_rotation(vec::Vec2f) = atan(vec[1], vec[2])
 
 to_2d_rotation(n::Real) = n
 
@@ -130,19 +130,19 @@ function to_rgba_image(img::AbstractMatrix{<: AbstractFloat}, attributes)
     [get_rgba_pixel(pixel, colormap, colorrange, nan_color, lowclip, highclip) for pixel in img]
 end
 
-to_rgba_image(img::AbstractMatrix{<: Colorant}, attributes) = RGBAf0.(img)
+to_rgba_image(img::AbstractMatrix{<: Colorant}, attributes) = RGBAf.(img)
 
 function get_rgba_pixel(pixel, colormap, colorrange, nan_color, lowclip, highclip)
     vmin, vmax = colorrange
 
     if isnan(pixel)
-        RGBAf0(nan_color)
+        RGBAf(nan_color)
     elseif pixel < vmin && !isnothing(lowclip)
-        RGBAf0(lowclip)
+        RGBAf(lowclip)
     elseif pixel > vmax && !isnothing(highclip)
-        RGBAf0(highclip)
+        RGBAf(highclip)
     else
-        RGBAf0(Makie.interpolated_getindex(colormap, pixel, colorrange))
+        RGBAf(Makie.interpolated_getindex(colormap, pixel, colorrange))
     end
 end
 
@@ -199,7 +199,7 @@ function per_face_colors(
         wsize = reverse(size(matcap))
         wh = wsize .- 1
         cvec = map(normals) do n
-            muv = 0.5n[Vec(1,2)] .+ Vec2f0(0.5)
+            muv = 0.5n[Vec(1,2)] .+ Vec2f(0.5)
             x, y = clamp.(round.(Int, Tuple(muv) .* wh) .+ 1, 1, wh)
             return matcap[end - (y - 1), x]
         end

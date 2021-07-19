@@ -28,13 +28,13 @@ tlength(T) = length(T)
 tlength(::Type{<:Real}) = 1
 
 serialize_three(val::Number) = val
-serialize_three(val::Vec2f0) = convert(Vector{Float32}, val)
-serialize_three(val::Vec3f0) = convert(Vector{Float32}, val)
-serialize_three(val::Vec4f0) = convert(Vector{Float32}, val)
+serialize_three(val::Vec2f) = convert(Vector{Float32}, val)
+serialize_three(val::Vec3f) = convert(Vector{Float32}, val)
+serialize_three(val::Vec4f) = convert(Vector{Float32}, val)
 serialize_three(val::Quaternion) = convert(Vector{Float32}, collect(val.data))
 serialize_three(val::RGB) = Float32[red(val), green(val), blue(val)]
 serialize_three(val::RGBA) = Float32[red(val), green(val), blue(val), alpha(val)]
-serialize_three(val::Mat4f0) = vec(val)
+serialize_three(val::Mat4f) = vec(val)
 serialize_three(val::Mat3) = vec(val)
 
 function serialize_three(observable::Observable)
@@ -301,8 +301,8 @@ function serialize_three(scene::Scene, plot::AbstractPlot)
 
     if haskey(plot, :lightposition)
         eyepos = scene.camera.eyeposition
-        lightpos = lift(Vec3f0, plot.lightposition, eyepos) do pos, eyepos
-            return ifelse(pos == :eyeposition, eyepos, pos)::Vec3f0
+        lightpos = lift(Vec3f, plot.lightposition, eyepos) do pos, eyepos
+            return ifelse(pos == :eyeposition, eyepos, pos)::Vec3f
         end
         uniforms[:lightposition] = serialize_three(lightpos[])
         on(lightpos) do value

@@ -104,9 +104,9 @@ function default_attributes(::Type{Axis}, scene)
         "The width of the ytick marks."
         ytickwidth = 1f0
         "The color of the xtick marks."
-        xtickcolor = RGBf0(0, 0, 0)
+        xtickcolor = RGBf(0, 0, 0)
         "The color of the ytick marks."
-        ytickcolor = RGBf0(0, 0, 0)
+        ytickcolor = RGBf(0, 0, 0)
         "Locks interactive panning in the x direction."
         xpanlock = false
         "Locks interactive panning in the y direction."
@@ -130,9 +130,9 @@ function default_attributes(::Type{Axis}, scene)
         "The width of the y grid lines."
         ygridwidth = 1f0
         "The color of the x grid lines."
-        xgridcolor = RGBAf0(0, 0, 0, 0.12)
+        xgridcolor = RGBAf(0, 0, 0, 0.12)
         "The color of the y grid lines."
-        ygridcolor = RGBAf0(0, 0, 0, 0.12)
+        ygridcolor = RGBAf(0, 0, 0, 0.12)
         "The linestyle of the x grid lines."
         xgridstyle = nothing
         "The linestyle of the y grid lines."
@@ -146,9 +146,9 @@ function default_attributes(::Type{Axis}, scene)
         "The width of the y minor grid lines."
         yminorgridwidth = 1f0
         "The color of the x minor grid lines."
-        xminorgridcolor = RGBAf0(0, 0, 0, 0.05)
+        xminorgridcolor = RGBAf(0, 0, 0, 0.05)
         "The color of the y minor grid lines."
-        yminorgridcolor = RGBAf0(0, 0, 0, 0.05)
+        yminorgridcolor = RGBAf(0, 0, 0, 0.05)
         "The linestyle of the x minor grid lines."
         xminorgridstyle = nothing
         "The linestyle of the y minor grid lines."
@@ -309,7 +309,7 @@ function default_attributes(::Type{Colorbar}, scene)
         "The line width of the tick marks."
         tickwidth = 1f0
         "The color of the tick marks."
-        tickcolor = RGBf0(0, 0, 0)
+        tickcolor = RGBf(0, 0, 0)
         "The horizontal and vertical alignment of the tick labels."
         ticklabelalign = Makie.automatic
         "The rotation of the ticklabels"
@@ -325,13 +325,13 @@ function default_attributes(::Type{Colorbar}, scene)
         "Controls if the bottom spine is visible."
         bottomspinevisible = true
         "The color of the top spine."
-        topspinecolor = RGBf0(0, 0, 0)
+        topspinecolor = RGBf(0, 0, 0)
         "The color of the left spine."
-        leftspinecolor = RGBf0(0, 0, 0)
+        leftspinecolor = RGBf(0, 0, 0)
         "The color of the right spine."
-        rightspinecolor = RGBf0(0, 0, 0)
+        rightspinecolor = RGBf(0, 0, 0)
         "The color of the bottom spine."
-        bottomspinecolor = RGBf0(0, 0, 0)
+        bottomspinecolor = RGBf(0, 0, 0)
         "The vertical alignment of the colorbar in its suggested bounding box."
         valign = :center
         "The horizontal alignment of the colorbar in its suggested bounding box."
@@ -450,7 +450,7 @@ function default_attributes(::Type{Box}, scene)
         "Controls if the rectangle is visible."
         visible = true
         "The color of the rectangle."
-        color = RGBf0(0.9, 0.9, 0.9)
+        color = RGBf(0.9, 0.9, 0.9)
         "The vertical alignment of the rectangle in its suggested boundingbox"
         valign = :center
         "The horizontal alignment of the rectangle in its suggested boundingbox"
@@ -462,7 +462,7 @@ function default_attributes(::Type{Box}, scene)
         "Controls if the border of the rectangle is visible."
         strokevisible = true
         "The color of the border."
-        strokecolor = RGBf0(0, 0, 0)
+        strokecolor = RGBf(0, 0, 0)
         "The width setting of the rectangle."
         width = nothing
         "The height setting of the rectangle."
@@ -519,7 +519,7 @@ function default_attributes(::Type{Button}, scene)
         "The color of the button border."
         strokecolor = :transparent
         "The color of the button."
-        buttoncolor = RGBf0(0.94, 0.94, 0.94)
+        buttoncolor = RGBf(0.94, 0.94, 0.94)
         "The color of the label."
         labelcolor = lift_parent_attribute(scene, :textcolor, :black)
         "The color of the label when the mouse hovers over the button."
@@ -550,14 +550,14 @@ Button
 
 function default_attributes(::Type{LineAxis})
     Attributes(
-        endpoints = (Point2f0(0, 0), Point2f0(100, 0)),
+        endpoints = (Point2f(0, 0), Point2f(100, 0)),
         trimspine = false,
         limits = (0f0, 100f0),
         flipped = false,
         flip_vertical_label = false,
         ticksize = 6f0,
         tickwidth = 1f0,
-        tickcolor = RGBf0(0, 0, 0),
+        tickcolor = RGBf(0, 0, 0),
         tickalign = 0f0,
         ticks = Makie.automatic,
         tickformat = Makie.automatic,
@@ -565,12 +565,12 @@ function default_attributes(::Type{LineAxis})
         ticksvisible = true,
         ticklabelrotation = 0f0,
         ticklabelsize = 20f0,
-        ticklabelcolor = RGBf0(0, 0, 0),
+        ticklabelcolor = RGBf(0, 0, 0),
         ticklabelsvisible = true,
         spinewidth = 1f0,
         label = "label",
         labelsize = 20f0,
-        labelcolor = RGBf0(0, 0, 0),
+        labelcolor = RGBf(0, 0, 0),
         labelvisible = true,
         ticklabelspace = Makie.automatic,
         ticklabelpad = 3f0,
@@ -613,7 +613,7 @@ function default_attributes(::Type{Slider}, scene)
         "The color of the slider when the mouse clicks and drags the slider."
         color_active = COLOR_ACCENT[]
         "The color of the slider when it is not interacted with."
-        color_inactive = RGBf0(0.94, 0.94, 0.94)
+        color_inactive = RGBf(0.94, 0.94, 0.94)
         "Controls if the slider has a horizontal orientation or not."
         horizontal = true
         "The align mode of the slider in its parent GridLayout."
@@ -661,7 +661,7 @@ function default_attributes(::Type{IntervalSlider}, scene)
         "The color of the slider when the mouse clicks and drags the slider."
         color_active = COLOR_ACCENT[]
         "The color of the slider when it is not interacted with."
-        color_inactive = RGBf0(0.94, 0.94, 0.94)
+        color_inactive = RGBf(0.94, 0.94, 0.94)
         "Controls if the slider has a horizontal orientation or not."
         horizontal = true
         "The align mode of the slider in its parent GridLayout."
@@ -702,10 +702,10 @@ function default_attributes(::Type{Toggle}, scene)
         # strokewidth = 2f0
         # strokecolor = :transparent
         "The color of the border when the toggle is inactive."
-        framecolor_inactive = RGBf0(0.94, 0.94, 0.94)
+        framecolor_inactive = RGBf(0.94, 0.94, 0.94)
         "The color of the border when the toggle is hovered."
         framecolor_active = COLOR_ACCENT_DIMMED[]
-        # buttoncolor = RGBf0(0.2, 0.2, 0.2)
+        # buttoncolor = RGBf(0.2, 0.2, 0.2)
         "The color of the toggle button."
         buttoncolor = COLOR_ACCENT[]
         "Indicates if the toggle is active or not."
@@ -800,7 +800,7 @@ function default_attributes(::Type{Legend}, scene)
         "The gap between the patch and the label of each legend entry."
         patchlabelgap = 5
         "The default points used for LineElements in normalized coordinates relative to each label patch."
-        linepoints = [Point2f0(0, 0.5), Point2f0(1, 0.5)]
+        linepoints = [Point2f(0, 0.5), Point2f(1, 0.5)]
         "The default line width used for LineElements."
         linewidth = theme(scene, :linewidth)
         "The default line color used for LineElements"
@@ -812,7 +812,7 @@ function default_attributes(::Type{Legend}, scene)
         "The default marker for MarkerElements"
         marker = theme(scene, :marker)
         "The default marker points used for MarkerElements in normalized coordinates relative to each label patch."
-        markerpoints = [Point2f0(0.5, 0.5)]
+        markerpoints = [Point2f(0.5, 0.5)]
         "The default marker size used for MarkerElements."
         markersize = theme(scene, :markersize)
         "The default marker stroke width used for MarkerElements."
@@ -820,7 +820,7 @@ function default_attributes(::Type{Legend}, scene)
         "The default marker stroke color used for MarkerElements."
         markerstrokecolor = theme(scene, :markerstrokecolor)
         "The default poly points used for PolyElements in normalized coordinates relative to each label patch."
-        polypoints = [Point2f0(0, 0), Point2f0(1, 0), Point2f0(1, 1), Point2f0(0, 1)]
+        polypoints = [Point2f(0, 0), Point2f(1, 0), Point2f(1, 1), Point2f(0, 1)]
         "The default poly stroke width used for PolyElements."
         polystrokewidth = theme(scene, :patchstrokewidth)
         "The default poly color used for PolyElements."
@@ -936,7 +936,7 @@ function default_attributes(::Type{Textbox}, scene)
         "Text color."
         textcolor = lift_parent_attribute(scene, :textcolor, :black)
         "Text color for the placeholder."
-        textcolor_placeholder = RGBf0(0.5, 0.5, 0.5)
+        textcolor_placeholder = RGBf(0.5, 0.5, 0.5)
         "Font family."
         font = lift_parent_attribute(scene, :font, "DejaVu Sans")
         "Color of the box."
@@ -944,17 +944,17 @@ function default_attributes(::Type{Textbox}, scene)
         "Color of the box when focused."
         boxcolor_focused = :transparent
         "Color of the box when focused."
-        boxcolor_focused_invalid = RGBAf0(1, 0, 0, 0.3)
+        boxcolor_focused_invalid = RGBAf(1, 0, 0, 0.3)
         "Color of the box when hovered."
         boxcolor_hover = :transparent
         "Color of the box border."
-        bordercolor = RGBf0(0.80, 0.80, 0.80)
+        bordercolor = RGBf(0.80, 0.80, 0.80)
         "Color of the box border when hovered."
         bordercolor_hover = COLOR_ACCENT_DIMMED[]
         "Color of the box border when focused."
         bordercolor_focused = COLOR_ACCENT[]
         "Color of the box border when focused and invalid."
-        bordercolor_focused_invalid = RGBf0(1, 0, 0)
+        bordercolor_focused_invalid = RGBf(1, 0, 0)
         "Width of the box border."
         borderwidth = 2f0
         "Padding of the text against the box."
@@ -1102,11 +1102,11 @@ function default_attributes(::Type{Axis3}, scene)
         "The z ticklabel font"
         zticklabelfont = lift_parent_attribute(scene, :font, "DejaVu Sans")
         "The x grid color"
-        xgridcolor = RGBAf0(0, 0, 0, 0.12)
+        xgridcolor = RGBAf(0, 0, 0, 0.12)
         "The y grid color"
-        ygridcolor = RGBAf0(0, 0, 0, 0.12)
+        ygridcolor = RGBAf(0, 0, 0, 0.12)
         "The z grid color"
-        zgridcolor = RGBAf0(0, 0, 0, 0.12)
+        zgridcolor = RGBAf(0, 0, 0, 0.12)
         "The x grid width"
         xgridwidth = 1
         "The y grid width"
@@ -1202,7 +1202,7 @@ function default_attributes(::Type{Axis3}, scene)
         "Controls if the xz panel is visible"
         xzpanelvisible = true
         "The limits that the axis tries to set given other constraints like aspect. Don't set this directly, use `xlims!`, `ylims!` or `limits!` instead."
-        targetlimits = FRect3D(Vec3f0(0, 0, 0), Vec3f0(1, 1, 1))
+        targetlimits = Rect3f(Vec3f(0, 0, 0), Vec3f(1, 1, 1))
         "The limits that the user has manually set. They are reinstated when calling `reset_limits!` and are set to nothing by `autolimits!`. Can be either a tuple (xlow, xhigh, ylow, high, zlow, zhigh) or a tuple (nothing_or_xlims, nothing_or_ylims, nothing_or_zlims). Are set by `xlims!`, `ylims!`, `zlims!` and `limits!`."
         limits = (nothing, nothing, nothing)
         "The relative margins added to the autolimits in x direction."

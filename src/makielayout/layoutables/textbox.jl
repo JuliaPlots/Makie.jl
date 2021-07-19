@@ -31,7 +31,7 @@ function layoutable(::Type{Textbox}, fig_or_scene; bbox = nothing, kwargs...)
 
 
 
-    bbox = lift(FRect2D ∘ Makie.zero_origin, scenearea)
+    bbox = lift(Rect2f ∘ Makie.zero_origin, scenearea)
 
     roundedrectpoints = lift(roundedrectvertices, scenearea, cornerradius, cornersegments)
 
@@ -111,7 +111,7 @@ function layoutable(::Type{Textbox}, fig_or_scene; bbox = nothing, kwargs...)
         elseif ci == 0
             [leftline(bbs[1])...]
         else
-            [leftline(bbs[ci])...] .+ Point2f0(hadvances[ci], 0)
+            [leftline(bbs[ci])...] .+ Point2f(hadvances[ci], 0)
         end
     end
 
@@ -274,11 +274,11 @@ function charbbs(text)
     if !(gc isa Makie.GlyphCollection)
         error("Expected a single GlyphCollection from the textbox string, got a $(typeof(gc)).")
     end
-    pos = Point2f0(text.position[])
-    bbs = FRect2D[]
+    pos = Point2f(text.position[])
+    bbs = Rect2f[]
     broadcast_foreach(gc.extents, gc.scales, gc.origins, gc.fonts) do ext, sc, ori, font
         bb = Makie.FreeTypeAbstraction.height_insensitive_boundingbox(ext, font) * sc
-        fr = FRect2D(Point2f0(ori) + bb.origin + pos, bb.widths)
+        fr = Rect2f(Point2f(ori) + bb.origin + pos, bb.widths)
         push!(bbs, fr)
     end
     bbs

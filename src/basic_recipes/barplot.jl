@@ -49,11 +49,11 @@ function bar_rectangle(x, y, width, fillto, in_y_direction)
     ymin = min(fillto, y)
     ymax = max(fillto, y)
     w = abs(width)
-    rect = FRect(x - (w / 2f0), ymin, w, ymax - ymin)
+    rect = Rectf(x - (w / 2f0), ymin, w, ymax - ymin)
     return in_y_direction ? rect : flip(rect)
 end
 
-flip(r::Rect2D) = Rect2D(reverse(origin(r)), reverse(widths(r)))
+flip(r::Rect2) = Rect2(reverse(origin(r)), reverse(widths(r)))
 
 function xw_from_dodge(x, width, minimum_distance, x_gap, dodge, n_dodge, dodge_gap)
     width === automatic && (width = (1 - x_gap) * minimum_distance)
@@ -118,9 +118,9 @@ function stack_grouped_from_to(i_stack, y, grp)
 end
 
 function text_attributes(values, in_y_direction, flip_labels_at, color_over_background, color_over_bar, label_offset)
-    aligns = Vec2f0[]
-    offsets = Vec2f0[]
-    text_colors = RGBAf0[]
+    aligns = Vec2f[]
+    offsets = Vec2f[]
+    text_colors = RGBAf[]
     swap(x, y) = in_y_direction ? (x, y) : (y, x)
     geti(x::AbstractArray, i) = x[i]
     geti(x, i) = x
@@ -164,7 +164,7 @@ function barplot_labels(xpositions, ypositions, bar_labels, in_y_direction, flip
         if length(bar_labels) == length(xpositions)
             attributes = text_attributes(ypositions, in_y_direction, flip_labels_at, color_over_background, color_over_bar, label_offset)
             label_pos = map(xpositions, ypositions, bar_labels) do x, y, l
-                return (string(l), in_y_direction ? Point2f0(x, y) : Point2f0(y, x))
+                return (string(l), in_y_direction ? Point2f(x, y) : Point2f(y, x))
             end
             return (label_pos, attributes...)
         else
@@ -176,10 +176,10 @@ function barplot_labels(xpositions, ypositions, bar_labels, in_y_direction, flip
 end
 
 function Makie.plot!(p::BarPlot)
-    labels = Observable(Tuple{String, Point2f0}[])
-    label_aligns = Observable(Vec2f0[])
-    label_offsets = Observable(Vec2f0[])
-    label_colors = Observable(RGBAf0[])
+    labels = Observable(Tuple{String, Point2f}[])
+    label_aligns = Observable(Vec2f[])
+    label_offsets = Observable(Vec2f[])
+    label_colors = Observable(RGBAf[])
     function calculate_bars(xy, fillto, width, dodge, n_dodge, x_gap, dodge_gap, stack,
                             dir, bar_labels, flip_labels_at, label_color, color_over_background,
                             color_over_bar, label_formatter, label_offset)

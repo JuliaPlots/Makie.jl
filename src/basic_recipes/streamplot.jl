@@ -7,7 +7,7 @@ f must return a Point2.
 
 Example:
 ```julia
-v(x::Point2{T}) where T = Point2f0(x[2], 4*x[1])
+v(x::Point2{T}) where T = Point2f(x[2], 4*x[1])
 streamplot(v, -2..2, -2..2)
 ```
 ## Attributes
@@ -42,8 +42,8 @@ function convert_arguments(::Type{<: StreamPlot}, f::Function, xrange, yrange, z
     xmin, xmax = extrema(xrange)
     ymin, ymax = extrema(yrange)
     zmin, zmax = extrema(zrange)
-    mini = Vec3f0(xmin, ymin, zmin)
-    maxi = Vec3f0(xmax, ymax, zmax)
+    mini = Vec3f(xmin, ymin, zmin)
+    maxi = Vec3f(xmax, ymax, zmax)
     return (f, Rect(mini, maxi .- mini))
 end
 
@@ -159,7 +159,7 @@ end
 
 function plot!(p::StreamPlot)
     data = lift(p.f, p.limits, p.gridsize, p.stepsize, p.maxsteps, p.density) do f, limits, resolution, stepsize, maxsteps, density
-        P = if applicable(f, Point2f0(0)) || applicable(f, Point3f0(0))
+        P = if applicable(f, Point2f(0)) || applicable(f, Point3f(0))
             Point
         else
             Number

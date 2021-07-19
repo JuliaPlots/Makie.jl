@@ -15,7 +15,7 @@ function layoutable(::Type{Label}, fig_or_scene; bbox = nothing, kwargs...)
     layoutobservables = LayoutObservables{Label}(attrs.width, attrs.height, attrs.tellwidth, attrs.tellheight,
         halign, valign, attrs.alignmode; suggestedbbox = bbox)
 
-    textpos = Node(Point3f0(0, 0, 0))
+    textpos = Node(Point3f(0, 0, 0))
 
     # this is just a hack until boundingboxes in Makie are perfect
     alignnode = lift(halign, rotation) do h, rot
@@ -33,7 +33,7 @@ function layoutable(::Type{Label}, fig_or_scene; bbox = nothing, kwargs...)
     textbb = Ref(BBox(0, 1, 0, 1))
 
     onany(text, textsize, font, rotation, padding) do text, textsize, font, rotation, padding
-        textbb[] = FRect2D(boundingbox(t))
+        textbb[] = Rect2f(boundingbox(t))
         autowidth = width(textbb[]) + padding[1] + padding[2]
         autoheight = height(textbb[]) + padding[3] + padding[4]
         layoutobservables.autosize[] = (autowidth, autoheight)
@@ -56,7 +56,7 @@ function layoutable(::Type{Label}, fig_or_scene; bbox = nothing, kwargs...)
         end
         ty = boy + padding[3] + 0.5 * th
 
-        textpos[] = Point3f0(tx, ty, 0)
+        textpos[] = Point3f(tx, ty, 0)
     end
 
 

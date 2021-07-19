@@ -36,7 +36,7 @@ function plot!(plot::VolumeSlices)
         v[4], v[6], v[4], v[7], v[6], v[8], v[7], v[8],
     ]
     # bounding box
-    col = RGBAf0(.5, .5, .5, .5)
+    col = RGBAf(.5, .5, .5, .5)
     linesegments!(plot, getindex.(s, 1), getindex.(s, 2), getindex.(s, 3), color=col)
 
     axes = :x, :y, :z

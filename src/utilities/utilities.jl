@@ -68,7 +68,7 @@ function nan_extrema(array)
         mini = min(mini, elem)
         maxi = max(maxi, elem)
     end
-    Vec2f0(mini, maxi)
+    Vec2f(mini, maxi)
 end
 
 function extract_expr(extract_func, dictlike, args)
@@ -316,9 +316,9 @@ function surface_normals(x, y, z)
         of = (ci(-1, -1), ci(1, -1), ci(-1, 1), ci(1, 1))
         function offsets(off)
             s = size(z)
-            return Vec3f0(get_dim(x, off, 1, s), get_dim(y, off, 2, s), z[off])
+            return Vec3f(get_dim(x, off, 1, s), get_dim(y, off, 2, s), z[off])
         end
-        return normalize(mapreduce(offsets, +, init=Vec3f0(0), of))
+        return normalize(mapreduce(offsets, +, init=Vec3f(0), of))
     end
     return vec(map(normal, CartesianIndices(z)))
 end

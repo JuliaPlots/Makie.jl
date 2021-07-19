@@ -20,12 +20,12 @@ function layoutable(::Type{Toggle}, fig_or_scene; bbox = nothing, kwargs...)
 
     button_endpoint_inactive = lift(markersize) do ms
         bbox = layoutobservables.computedbbox[]
-        Point2f0(left(bbox) + ms / 2, bottom(bbox) + ms / 2)
+        Point2f(left(bbox) + ms / 2, bottom(bbox) + ms / 2)
     end
 
     button_endpoint_active = lift(markersize) do ms
         bbox = layoutobservables.computedbbox[]
-        Point2f0(right(bbox) - ms / 2, bottom(bbox) + ms / 2)
+        Point2f(right(bbox) - ms / 2, bottom(bbox) + ms / 2)
     end
 
     buttonvertices = lift(markersize, cornersegments) do ms, cs

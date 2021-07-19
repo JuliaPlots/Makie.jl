@@ -8,9 +8,9 @@ arrows
 
 - `arrowhead = automatic`: Defines the marker (2D) or mesh (3D) that is used as
   the arrow head. The default for is `'▲'` in 2D and a cone mesh in 3D. For the
-  latter the mesh should start at `Point3f0(0)` and point in positive z-direction.
+  latter the mesh should start at `Point3f(0)` and point in positive z-direction.
 - `arrowtail = automatic`: Defines the mesh used to draw the arrow tail in 3D.
-  It should start at `Point3f0(0)` and extend in negative z-direction. The default
+  It should start at `Point3f(0)` and extend in negative z-direction. The default
   is a cylinder. This has no effect on the 2D plot.
 - `quality = 32`: Defines the number of angle subdivisions used when generating
   the arrow head and tail meshes. Consider lowering this if you have performance
@@ -19,7 +19,7 @@ arrows
   represented by a line in 2D.
 - `arrowcolor = linecolor`: Sets the color of the arrow head.
 - `arrowsize = automatic`: Scales the size of the arrow head. This defaults to
-  `0.3` in the 2D case and `Vec3f0(0.2, 0.2, 0.3)` in the 3D case. For the latter
+  `0.3` in the 2D case and `Vec3f(0.2, 0.2, 0.3)` in the 3D case. For the latter
   the first two components scale the radius (in x/y direction) and the last scales
   the length of the cone. If the arrowsize is set to 1, the cone will have a
   diameter and length of 1.
@@ -63,12 +63,12 @@ using GLMakie
 GLMakie.activate!() # hide
 Makie.inline!(true) # hide
 
-ps = [Point3f0(x, y, z) for x in -5:2:5 for y in -5:2:5 for z in -5:2:5]
-ns = map(p -> 0.1 * Vec3f0(p[2], p[3], p[1]), ps)
+ps = [Point3f(x, y, z) for x in -5:2:5 for y in -5:2:5 for z in -5:2:5]
+ns = map(p -> 0.1 * Vec3f(p[2], p[3], p[1]), ps)
 arrows(
     ps, ns, fxaa=true, # turn on anti-aliasing
     linecolor = :gray, arrowcolor = :black,
-    linewidth = 0.1, arrowsize = Vec3f0(0.3, 0.3, 0.4),
+    linewidth = 0.1, arrowsize = Vec3f(0.3, 0.3, 0.4),
     align = :center, axis=(type=Axis3,)
 )
 ```
@@ -79,7 +79,7 @@ lengths = norm.(ns)
 arrows(
     ps, ns, fxaa=true, # turn on anti-aliasing
     color=lengths,
-    linewidth = 0.1, arrowsize = Vec3f0(0.3, 0.3, 0.4),
+    linewidth = 0.1, arrowsize = Vec3f(0.3, 0.3, 0.4),
     align = :center, axis=(type=Axis3,)
 )
 ```

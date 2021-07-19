@@ -16,7 +16,7 @@ mutable struct Scene <: AbstractScene
     events::Events
 
     "The current pixel area of the Scene."
-    px_area::Node{IRect2D}
+    px_area::Node{Rect2i}
 
     "Whether the scene should be cleared."
     clear::Bool
@@ -31,7 +31,7 @@ mutable struct Scene <: AbstractScene
     The limits of the data plotted in this scene.
     Can't be set by user and is only used to store calculated data bounds.
     """
-    data_limits::Node{Union{Nothing,FRect3D}}
+    data_limits::Node{Union{Nothing,Rect3f}}
 
     "The [`Transformation`](@ref) of the Scene."
     transformation::Transformation
@@ -87,7 +87,7 @@ end
 
 function Scene(
         events::Events,
-        px_area::Node{IRect2D},
+        px_area::Node{Rect2i},
         clear::Bool,
         camera::Camera,
         camera_controls::RefValue,
@@ -107,7 +107,7 @@ function Scene(
 
     scene = Scene(
         parent, events, px_area, clear, camera, camera_controls,
-        Node{Union{Nothing,FRect3D}}(scene_limits),
+        Node{Union{Nothing,Rect3f}}(scene_limits),
         transformation, plots, theme, attributes,
         children, current_screens, updated
     )
@@ -136,7 +136,7 @@ function Scene(;clear=true, transform_func=identity, scene_attributes...)
     theme = current_default_theme(; scene_attributes...)
     attributes = deepcopy(theme)
     px_area = lift(attributes.resolution) do res
-        IRect(0, 0, res)
+        Recti(0, 0, res)
     end
     on(events.window_area, priority = typemax(Int8)) do w_area
         if !any(x -> x ≈ 0.0, widths(w_area)) && px_area[] != w_area
@@ -199,7 +199,7 @@ function Scene(parent::Scene, area; clear=false, transform_func=identity, attrib
     events = parent.events
     px_area = lift(pixelarea(parent), convert(Node, area)) do p, a
         # make coordinates relative to parent
-        IRect2D(minimum(p) .+ minimum(a), widths(a))
+        Rect2i(minimum(p) .+ minimum(a), widths(a))
     end
     child = Scene(
         events,
@@ -246,10 +246,10 @@ parent_or_self(scene::Scene) = isroot(scene) ? scene : parent(scene)
 Base.size(x::Scene) = pixelarea(x) |> to_value |> widths |> Tuple
 Base.size(x::Scene, i) = size(x)[i]
 function Base.resize!(scene::Scene, xy::Tuple{Number,Number})
-    resize!(scene, IRect(0, 0, xy))
+    resize!(scene, Recti(0, 0, xy))
 end
 Base.resize!(scene::Scene, x::Number, y::Number) = resize!(scene, (x, y))
-function Base.resize!(scene::Scene, rect::Rect2D)
+function Base.resize!(scene::Scene, rect::Rect2)
     pixelarea(scene)[] = rect
 end
 
@@ -306,7 +306,7 @@ getindex(scene::Scene, idx::Integer) = scene.plots[idx]
 GeometryBasics.widths(scene::Scene) = widths(to_value(pixelarea(scene)))
 struct OldAxis end
 
-zero_origin(area) = IRect(0, 0, widths(area))
+zero_origin(area) = Recti(0, 0, widths(area))
 
 function child(scene::Scene; attributes...)
     Scene(scene, lift(zero_origin, pixelarea(scene)); attributes...)
@@ -349,7 +349,7 @@ function scene_limits(scene::Scene)
     if scene.limits[] === automatic
         return scene.data_limits[]
     else
-        return FRect3D(scene.limits[])
+        return Rect3f(scene.limits[])
     end
 end
 
@@ -486,7 +486,7 @@ function center!(scene::Scene, padding=0.01)
     bb = transformationmatrix(scene)[] * bb
     w = widths(bb)
     padd = w .* padding
-    bb = FRect3D(minimum(bb) .- padd, w .+ 2padd)
+    bb = Rect3f(minimum(bb) .- padd, w .+ 2padd)
     update_cam!(scene, bb)
     scene
 end
@@ -501,8 +501,8 @@ function is2d(scene::SceneLike)
     lims === nothing && return nothing
     return is2d(lims)
 end
-is2d(lims::Rect2D) = true
-is2d(lims::Rect3D) = widths(lims)[3] == 0.0
+is2d(lims::Rect2) = true
+is2d(lims::Rect3) = widths(lims)[3] == 0.0
 
 """
     update_limits!(scene::Scene, limits::Union{Automatic, Rect} = scene.limits[], padding = scene.padding[])
@@ -514,10 +514,10 @@ it will not update the limits. Call update_limits!(scene, automatic) for that.
 update_limits!(scene::Scene) = update_limits!(scene, scene.limits[])
 
 function update_limits!(scene::Scene, limits, padding)
-    update_limits!(scene, limits, to_ndim(Vec3f0, padding, 0.0))
+    update_limits!(scene, limits, to_ndim(Vec3f, padding, 0.0))
 end
 
-function update_limits!(scene::Scene, ::Automatic, padding::Vec3f0=scene.padding[])
+function update_limits!(scene::Scene, ::Automatic, padding::Vec3f=scene.padding[])
     # for when scene is empty
     dlimits = data_limits(scene)
     dlimits === nothing && return # nothing to limit if there isn't anything
@@ -526,7 +526,7 @@ function update_limits!(scene::Scene, ::Automatic, padding::Vec3f0=scene.padding
         if !all(x -> all(isfinite, x), (avec, bvec))
             @warn "limits of scene contain non finite values: $(avec) .. $(bvec)"
             mini = map(x -> ifelse(isfinite(x), x, zero(x)), avec)
-            maxi = Vec3f0(ntuple(3) do i
+            maxi = Vec3f(ntuple(3) do i
                 x = bvec[i]
                 ifelse(isfinite(x), x, avec[i] + oneunit(avec[i]))
             end)
@@ -535,7 +535,7 @@ function update_limits!(scene::Scene, ::Automatic, padding::Vec3f0=scene.padding
     end
     local new_widths
     let avec = tlims[1], bvec = tlims[2]
-        new_widths = Vec3f0(ntuple(3) do i
+        new_widths = Vec3f(ntuple(3) do i
             a = avec[i]; b = bvec[i]
             w = b - a
             # check for widths == 0.0... 3rd dimension is allowed to be 0 though.
@@ -545,11 +545,11 @@ function update_limits!(scene::Scene, ::Automatic, padding::Vec3f0=scene.padding
             ifelse(with0, 1f0, w)
         end)
     end
-    update_limits!(scene, FRect3D(tlims[1], new_widths), padding)
+    update_limits!(scene, Rect3f(tlims[1], new_widths), padding)
 end
 
 """
-    update_limits!(scene::Scene, new_limits::Rect, padding = Vec3f0(0))
+    update_limits!(scene::Scene, new_limits::Rect, padding = Vec3f(0))
 
 This function updates the limits of the given `Scene` according to the given Rect.
 
@@ -558,21 +558,21 @@ The first vector defines the origin; the second defines the displacement of the 
 This second vector can be thought of in two dimensions as a vector of width (x-axis) and height (y-axis),
 and in three dimensions as a vector of the width (x-axis), breadth (y-axis), and height (z-axis).
 
-Such a `Rect` can be constructed using the `FRect` or `FRect3D` functions that are exported by
+Such a `Rect` can be constructed using the `Rectf` or `Rect3f` functions that are exported by
 `Makie.jl`.  See their documentation for more information.
 """
-function update_limits!(scene::Scene, new_limits::Rect, padding::Vec3f0=scene.padding[])
-    lims = FRect3D(new_limits)
+function update_limits!(scene::Scene, new_limits::Rect, padding::Vec3f=scene.padding[])
+    lims = Rect3f(new_limits)
     lim_w = widths(lims)
     # use the smallest widths for scaling, to have a consistently wide padding for all sides
     minw = if lim_w[3] ≈ 0.0
         m = min(lim_w[1], lim_w[2])
-        Vec3f0(m, m, 0.0)
+        Vec3f(m, m, 0.0)
     else
-        Vec3f0(minimum(lim_w))
+        Vec3f(minimum(lim_w))
     end
-    padd_abs = minw .* to_ndim(Vec3f0, padding, 0.0)
-    scene.data_limits[] = FRect3D(minimum(lims) .- padd_abs, lim_w .+  2padd_abs)
+    padd_abs = minw .* to_ndim(Vec3f, padding, 0.0)
+    scene.data_limits[] = Rect3f(minimum(lims) .- padd_abs, lim_w .+  2padd_abs)
     scene
 end
 

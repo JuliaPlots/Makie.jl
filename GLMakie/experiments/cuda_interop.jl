@@ -1,7 +1,7 @@
 using CUDA, GLMakie
 
 
-scene = scatter(rand(Point2f0, 10_000), show_axis=false)
+scene = scatter(rand(Point2f, 10_000), show_axis=false)
 screen = display(scene)
 
 buffer = screen.renderlist[1][3][:position]

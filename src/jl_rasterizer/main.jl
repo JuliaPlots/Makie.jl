@@ -27,7 +27,7 @@ mutable struct FixedGeomView{GeomOut, VT}
 end
 
 function FixedGeomView(T, max_primitives, primitive_in, primitive_out)
-    buffer = Vector{Tuple{Point4f0, T}}(max_primitives)
+    buffer = Vector{Tuple{Point4f, T}}(max_primitives)
     # TODO implement primitive_in and out correctly
     # this is for triangle_strip and 4 max_primitives
     if max_primitives != 4 || primitive_out != :triangle_strip
@@ -167,7 +167,7 @@ function (r::JLRasterizer{Vert, Args, FragN})(
         canvas, vertex_array::AbstractArray{Vert}, uniforms::Args
     ) where {Vert, Args, FragN}
     framebuffers = canvas.color; depthbuffer = canvas.depth
-    resolution = Vec2f0(size(framebuffers[1]))
+    resolution = Vec2f(size(framebuffers[1]))
     # hoisting out functions... Seems to help inference a bit. Or not?
     vshader = r.vertexshader
     gshader = r.geometryshader
@@ -247,11 +247,11 @@ function smoothstep(edge0, edge1, x::T) where T
     return t * t * (T(3) - T(2) * t)
 end
 function aastep(threshold1::T, value) where T
-    afwidth = norm(Vec2f0(dFdx(value), dFdy(value))) * T(1.05);
+    afwidth = norm(Vec2f(dFdx(value), dFdy(value))) * T(1.05);
     smoothstep(threshold1 - afwidth, threshold1 + afwidth, value)
 end
 function aastep(threshold1::T, threshold2::T, value::T) where T
-    afwidth = norm(Vec2f0(dFdx(value), dFdy(value))) * T(1.05);
+    afwidth = norm(Vec2f(dFdx(value), dFdy(value))) * T(1.05);
     return (
         smoothstep(threshold1 - afwidth, threshold1 + afwidth, value) -
         smoothstep(threshold2 - afwidth, threshold2 + afwidth, value)
@@ -268,38 +268,38 @@ dFdx(value::T) where {T} = T(0.001) # just default to a small gradient if it's c
 dFdy(value::T) where {T} = T(0.001) # just default to a small gradient if it's called on the CPU
 
 mutable struct Uniforms{F}
-    projection::Mat4f0
-    strokecolor::Vec4f0
-    glowcolor::Vec4f0
+    projection::Mat4f
+    strokecolor::Vec4f
+    glowcolor::Vec4f
     distance_func::F
 end
 
 mutable struct TextUniforms
-    projection::Mat4f0
-    strokecolor::Vec4f0
-    glowcolor::Vec4f0
+    projection::Mat4f
+    strokecolor::Vec4f
+    glowcolor::Vec4f
 end
 
 
 struct VertexCS{N, T}
     position::Vec{N, T}
-    color::Vec4f0
-    scale::Vec2f0
+    color::Vec4f
+    scale::Vec2f
 end
 
 struct Vertex2Geom
-    uvrect::Vec4f0
-    color::Vec4f0
-    rect::Vec4f0
+    uvrect::Vec4f
+    color::Vec4f
+    rect::Vec4f
 end
 
 function vert_particles(vertex, uniforms)
     p = vertex.position
     scale = vertex.scale
     return Vertex2Geom(
-        Vec4f0(0,0,1,1),
+        Vec4f(0,0,1,1),
         vertex.color,
-        Vec4f0(p[1], p[2], scale[1], scale[2])
+        Vec4f(p[1], p[2], scale[1], scale[2])
     )
 end
 
@@ -308,8 +308,8 @@ end
 Emits a vertex with
 """
 function emit_vertex(emit!, vertex, uv, arg, pos, uniforms)
-    datapoint = uniforms.projection * Vec4f0(pos[1], pos[2], 0, 1)
-    final_position = uniforms.projection * Vec4f0(vertex[1], vertex[2], 0, 0)
+    datapoint = uniforms.projection * Vec4f(pos[1], pos[2], 0, 1)
+    final_position = uniforms.projection * Vec4f(vertex[1], vertex[2], 0, 0)
     emit!(datapoint .+ final_position, (uv, arg.color))
     return
 end
@@ -333,7 +333,7 @@ function geom_particles(emit!, vertex_out, uniforms)
     pos_scale = arg.rect
     pos = pos_scale[Vec(1, 2)]
     scale = pos_scale[Vec(3, 4)]
-    quad = Vec4f0(0f0, 0f0, scale[1], scale[2])
+    quad = Vec4f(0f0, 0f0, scale[1], scale[2])
     uv = arg.uvrect
     emit_vertex(emit!, quad[Vec(1, 2)], uv[Vec(1, 4)], arg, pos, uniforms)
     emit_vertex(emit!, quad[Vec(1, 4)], uv[Vec(1, 2)], arg, pos, uniforms)
@@ -350,21 +350,21 @@ end
 function frag_particles(geom_out, uniforms, image)
     uv = geom_out[1]; color = geom_out[2]
     dist = -image[uv][1]
-    bg_color = Vec4f0(0f0, 0f0, 0f0, 0f0)
+    bg_color = Vec4f(0f0, 0f0, 0f0, 0f0)
     (sdf2color(dist, bg_color, color), )
 end
 function frag_particles(geom_out, uniforms)
     uv = geom_out[1]; color = geom_out[2]
     dist = uniforms.distance_func(uv)
-    bg_color = Vec4f0(0f0, 0f0, 0f0, 0f0)
+    bg_color = Vec4f(0f0, 0f0, 0f0, 0f0)
     (sdf2color(dist, bg_color, color), )
 end
 
-function orthographicprojection(wh::Rect2D, near::T, far::T) where T
+function orthographicprojection(wh::Rect2, near::T, far::T) where T
     orthographicprojection(zero(T), T(wh.w), zero(T), T(wh.h), near, far)
 end
 function orthographicprojection(
-        ::Type{T}, wh::Rect2D, near::Number, far::Number
+        ::Type{T}, wh::Rect2, near::Number, far::Number
     ) where T
     orthographicprojection(wh, T(near), T(far))
 end
@@ -395,23 +395,23 @@ function orthographicprojection(::Type{T},
     )
 end
 
-proj = orthographicprojection(Rect2D(0, 0, resolution...), -10_000f0, 10_000f0)
+proj = orthographicprojection(Rect2(0, 0, resolution...), -10_000f0, 10_000f0)
 
 uniforms = Uniforms(
     proj,
-    Vec4f0(1, 0, 0, 1),
-    Vec4f0(1, 0, 1, 1),
+    Vec4f(1, 0, 0, 1),
+    Vec4f(1, 0, 1, 1),
     circle
 )
 
 
 N = 10
-middle = Vec2f0(resolution) / 2f0
+middle = Vec2f(resolution) / 2f0
 radius = min(resolution...) / 2f0
 vertices = [(VertexCS(
-    Vec2f0((sin(2pi * (i / N)) , cos(2pi * (i / N))) .* radius) .+ middle,
-    Vec4f0(1, i/N, 0, 1),
-    Vec2f0(40, 40)
+    Vec2f((sin(2pi * (i / N)) , cos(2pi * (i / N))) .* radius) .+ middle,
+    Vec4f(1, i/N, 0, 1),
+    Vec2f(40, 40)
 ),) for i = 1:N]
 
 

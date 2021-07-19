@@ -7,7 +7,7 @@ vec2string(p::StaticVector{3}) = @sprintf("(%0.3f, %0.3f, %0.3f)", p[1], p[2], p
 position2string(p::StaticVector{2}) = @sprintf("x: %0.6f\ny: %0.6f", p[1], p[2])
 position2string(p::StaticVector{3}) = @sprintf("x: %0.6f\ny: %0.6f\nz: %0.6f", p[1], p[2], p[3])
 
-function bbox2string(bbox::Rect3D)
+function bbox2string(bbox::Rect3)
     p0 = origin(bbox)
     p1 = p0 .+ widths(bbox)
     @sprintf(
@@ -21,7 +21,7 @@ function bbox2string(bbox::Rect3D)
     )
 end
 
-function bbox2string(bbox::Rect2D)
+function bbox2string(bbox::Rect2)
     p0 = origin(bbox)
     p1 = p0 .+ widths(bbox)
     @sprintf(
@@ -37,7 +37,7 @@ end
 color2text(c::AbstractFloat) = @sprintf("%0.3f", c)
 color2text(c::Symbol) = string(c)
 color2text(c) = color2text(to_color(c))
-function color2text(c::RGBAf0)
+function color2text(c::RGBAf)
     if c.alpha == 1.0
         @sprintf("RGB(%0.2f, %0.2f, %0.2f)", c.r, c.g, c.b)
     else
@@ -55,9 +55,9 @@ end
 ### dealing with markersize and rotations
 ########################################
 
-to_scale(f::AbstractFloat, idx) = Vec3f0(f)
-to_scale(v::Vec2f0, idx) = Vec3f0(v[1], v[2], 1)
-to_scale(v::Vec3f0, idx) = v
+to_scale(f::AbstractFloat, idx) = Vec3f(f)
+to_scale(v::Vec2f, idx) = Vec3f(v[1], v[2], 1)
+to_scale(v::Vec3f, idx) = v
 to_scale(v::Vector, idx) = to_scale(v[idx], idx)
 
 to_rotation(x, idx) = x
@@ -67,7 +67,7 @@ to_rotation(x::Vector, idx) = x[idx]
 ### Selecting a point on a nearby line
 ########################################
 
-function closest_point_on_line(p0::Point2f0, p1::Point2f0, r::Point2f0)
+function closest_point_on_line(p0::Point2f, p1::Point2f, r::Point2f)
     # This only works in 2D
     AP = P .- A; AB = B .- A
     A .+ AB * dot(AP, AB) / dot(AB, AB)
@@ -77,20 +77,20 @@ function view_ray(scene)
     inv_projview = inv(camera(scene).projectionview[])
     view_ray(inv_projview, events(scene).mouseposition[], pixelarea(scene)[])
 end
-function view_ray(inv_view_proj, mpos, area::Rect2D)
+function view_ray(inv_view_proj, mpos, area::Rect2)
     # This figures out the camera view direction from the projectionview matrix (?)
     # and computes a ray from a near and a far point.
     # Based on ComputeCameraRay from ImGuizmo
     mp = 2f0 .* (mpos .- minimum(area)) ./ widths(area) .- 1f0
-    v = inv_view_proj * Vec4f0(0, 0, -10, 1)
+    v = inv_view_proj * Vec4f(0, 0, -10, 1)
     reversed = v[3] < v[4]
     near = reversed ? 1f0 - 1e-6 : 0f0
     far = reversed ? 0f0 : 1f0 - 1e-6
 
-    origin = inv_view_proj * Vec4f0(mp[1], mp[2], near, 1f0)
+    origin = inv_view_proj * Vec4f(mp[1], mp[2], near, 1f0)
     origin = origin[SOneTo(3)] ./ origin[4]
 
-    p = inv_view_proj * Vec4f0(mp[1], mp[2], far, 1f0)
+    p = inv_view_proj * Vec4f(mp[1], mp[2], far, 1f0)
     p = p[SOneTo(3)] ./ p[4]
 
     dir = normalize(p - origin)
@@ -101,13 +101,13 @@ end
 # These work in 2D and 3D
 function closest_point_on_line(A, B, origin, dir)
     closest_point_on_line(
-        to_ndim(Point3f0, A, 0),
-        to_ndim(Point3f0, B, 0),
-        to_ndim(Point3f0, origin, 0),
-        to_ndim(Vec3f0, dir, 0)
+        to_ndim(Point3f, A, 0),
+        to_ndim(Point3f, B, 0),
+        to_ndim(Point3f, origin, 0),
+        to_ndim(Vec3f, dir, 0)
     )
 end
-function closest_point_on_line(A::Point3f0, B::Point3f0, origin::Point3f0, dir::Vec3f0)
+function closest_point_on_line(A::Point3f, B::Point3f, origin::Point3f, dir::Vec3f)
     # See:
     # https://en.wikipedia.org/wiki/Line%E2%80%93plane_intersection
     AB_norm = norm(B .- A)
@@ -131,9 +131,9 @@ function ray_triangle_intersection(A, B, C, origin, dir)
 
     e = 1e-3
     if (A1 > -e && A2 > -e && A3 > -e) || (A1 < e && A2 < e && A3 < e)
-        Point3f0((A1 * A .+ A2 * B .+ A3 * C) / (A1 + A2 + A3))
+        Point3f((A1 * A .+ A2 * B .+ A3 * C) / (A1 + A2 + A3))
     else
-        Point3f0(NaN)
+        Point3f(NaN)
     end
 end
 
@@ -151,7 +151,7 @@ surface_y(ys::AbstractMatrix, i, j, N) = ys[i, j]
 
 function surface_pos(xs, ys, zs, i, j)
     N, M = size(zs)
-    Point3f0(surface_x(xs, i, j, N), surface_y(ys, i, j, M), zs[i, j])
+    Point3f(surface_x(xs, i, j, N), surface_y(ys, i, j, M), zs[i, j])
 end
 
 
@@ -186,16 +186,16 @@ end
 ########################################
 
 function Bbox_from_glyphcollection(text, gc)
-    bbox = FRect2D(0, 0, 0, 0)
-    bboxes = FRect2D[]
+    bbox = Rect2f(0, 0, 0, 0)
+    bboxes = Rect2f[]
     broadcast_foreach(gc.extents, gc.fonts, gc.scales) do extent, font, scale
         b = FreeTypeAbstraction.height_insensitive_boundingbox(extent, font) * scale
         push!(bboxes, b)
     end
     for (c, o, bb) in zip(text, gc.origins, bboxes)
         c == '\n' && continue
-        bbox2 = FRect2D(o[Vec(1,2)] .+ origin(bb), widths(bb))
-        if bbox == FRect2D(0, 0, 0, 0)
+        bbox2 = Rect2f(o[Vec(1,2)] .+ origin(bb), widths(bb))
+        if bbox == Rect2f(0, 0, 0, 0)
             bbox = bbox2
         else
             bbox = union(bbox, bbox2)
@@ -211,9 +211,9 @@ end
 function shift_project(scene, plot, pos)
     project(
         camera(scene).projectionview[],
-        Vec2f0(widths(pixelarea(scene)[])),
+        Vec2f(widths(pixelarea(scene)[])),
         apply_transform(transform_func_obs(plot)[], pos)
-    ) .+ Vec2f0(origin(pixelarea(scene)[]))
+    ) .+ Vec2f(origin(pixelarea(scene)[]))
 end
 
 
@@ -227,13 +227,13 @@ end
     # Attributes starting with _ are modified internally
     Attributes(
         # Text
-        text_padding = Vec4f0(5, 5, 3, 3), # LRBT
+        text_padding = Vec4f(5, 5, 3, 3), # LRBT
         text_align = (:left, :bottom),
         textcolor = :black,
         textsize = 18,
         font = theme(scene, :font),
         _display_text = " ",
-        _text_position = Point2f0(0),
+        _text_position = Point2f(0),
 
         # Background
         background_color = :white,
@@ -245,24 +245,24 @@ end
         indicator_color = :red,
         indicator_linewidth = 2,
         indicator_linestyle = nothing,
-        _bbox2D = FRect2D(Vec2f0(0), Vec2f0(0)),
+        _bbox2D = Rect2f(Vec2f(0), Vec2f(0)),
         _px_bbox_visible = true,
 
         # general
         tooltip_align = (:center, :top), # default tooltip position relative to cursor
-        tooltip_offset = Vec2f0(20), # default offset in alignment direction
+        tooltip_offset = Vec2f(20), # default offset in alignment direction
         depth = 9e3,
         enabled = true,
         range = 10,
 
-        _root_px_projection = Mat4f0(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1),
-        _model = Mat4f0(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1),
+        _root_px_projection = Mat4f(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1),
+        _model = Mat4f(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1),
         _visible = true,
         _tooltip_align = (:center, :top),
-        _bbox3D = FRect3D(Vec3f0(0), Vec3f0(0)),
+        _bbox3D = Rect3f(Vec3f(0), Vec3f(0)),
         _bbox_visible = true,
-        _position = Point3f0(0),
-        _color = RGBAf0(0,0,0,0)
+        _position = Point3f(0),
+        _color = RGBAf(0,0,0,0)
     )
 end
 
@@ -277,8 +277,8 @@ function plot!(plot::_Inspector)
     )
 
     # tooltip text
-    _aligned_text_position = Node(Point2f0(0))
-    id = Mat4f0(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)
+    _aligned_text_position = Node(Point2f(0))
+    id = Mat4f(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)
     text_plot = text!(plot, _display_text,
         position = _aligned_text_position, visible = _visible, align = text_align,
         color = textcolor, font = font, textsize = textsize, show_axis = false,
@@ -293,9 +293,9 @@ function plot!(plot::_Inspector)
     bbox = map(text_plot.plots[1][1], text_plot.position, text_padding) do gc, pos, pad
         rect = Bbox_from_glyphcollection(_display_text[], gc)
         l, r, b, t = pad
-        FRect2D(
-            origin(rect) .+ Vec2f0(pos[1] - l, pos[2] - b),
-            widths(rect) .+ Vec2f0(l + r, b + t)
+        Rect2f(
+            origin(rect) .+ Vec2f(pos[1] - l, pos[2] - b),
+            widths(rect) .+ Vec2f(l + r, b + t)
         )
     end
     onany(_text_position, _tooltip_align, tooltip_offset, bbox) do pos, align, offset, bbox
@@ -316,7 +316,7 @@ function plot!(plot::_Inspector)
         elseif valign == :bottom
             dy = -wy - oy
         end
-        new_pos = pos .+ Point2f0(dx, dy)
+        new_pos = pos .+ Point2f(dx, dy)
         if new_pos != _aligned_text_position[]
             _aligned_text_position[] = new_pos
         end
@@ -348,10 +348,10 @@ function plot!(plot::_Inspector)
 
     # To make sure inspector plots end up in front
     on(depth) do d
-        translate!(background, Vec3f0(0,0,d+1))
-        translate!(outline,    Vec3f0(0,0,d+2))
-        translate!(text_plot,  Vec3f0(0,0,d+3))
-        translate!(px_bbox,    Vec3f0(0,0,d))
+        translate!(background, Vec3f(0,0,d+1))
+        translate!(outline,    Vec3f(0,0,d+2))
+        translate!(text_plot,  Vec3f(0,0,d+3))
+        translate!(px_bbox,    Vec3f(0,0,d))
     end
     depth[] = depth[]
     nothing
@@ -406,7 +406,7 @@ when you hover over a plot. If you wish to exclude a plot you may set
 - `range = 10`: Controls the snapping range for selecting an element of a plot.
 - `enabled = true`: Disables inspection of plots when set to false. Can also be
     adjusted with `enable!(inspector)` and `disable!(inspector)`.
-- `text_padding = Vec4f0(5, 5, 3, 3)`: Padding for the box drawn around the
+- `text_padding = Vec4f(5, 5, 3, 3)`: Padding for the box drawn around the
     tooltip text. (left, right, bottom, top)
 - `text_align = (:left, :bottom)`: Alignment of text within the tooltip. This
     does not affect the alignment of the tooltip relative to the cursor.
@@ -423,7 +423,7 @@ when you hover over a plot. If you wish to exclude a plot you may set
 - `tooltip_align = (:center, :top)`: Default position of the tooltip relative to
     the cursor or current selection. The real align may adjust to keep the
     tooltip in view.
-- `tooltip_offset = Vec2f0(20)`: Offset from the indicator to the tooltip.
+- `tooltip_offset = Vec2f(20)`: Offset from the indicator to the tooltip.
 - `depth = 9e3`: Depth value of the tooltip. This should be high so that the
     tooltip is always in front.
 - `priority = 100`: The priority of creating a tooltip on a mouse movement or
@@ -435,7 +435,7 @@ end
 
 function DataInspector(scene::Scene; priority = 100, kwargs...)
     parent = root(scene)
-    @assert origin(pixelarea(parent)[]) == Vec2f0(0)
+    @assert origin(pixelarea(parent)[]) == Vec2f(0)
 
     plot = _inspector!(
         parent, 1,
@@ -537,12 +537,12 @@ function show_data(inspector::DataInspector, plot::Scatter, idx)
     a = inspector.plot.attributes
     scene = parent_scene(plot)
 
-    proj_pos = shift_project(scene, plot, to_ndim(Point3f0, plot[1][][idx], 0))
+    proj_pos = shift_project(scene, plot, to_ndim(Point3f, plot[1][][idx], 0))
     update_tooltip_alignment!(inspector, proj_pos)
     ms = plot.markersize[]
 
     a._display_text[] = position2string(plot[1][][idx])
-    a._bbox2D[] = FRect2D(proj_pos .- 0.5 .* ms .- Vec2f0(5), Vec2f0(ms) .+ Vec2f0(10))
+    a._bbox2D[] = Rect2f(proj_pos .- 0.5 .* ms .- Vec2f(5), Vec2f(ms) .+ Vec2f(10))
     a._px_bbox_visible[] = true
     a._bbox_visible[] = false
     a._visible[] = true
@@ -555,7 +555,7 @@ function show_data(inspector::DataInspector, plot::MeshScatter, idx)
     a = inspector.plot.attributes
     scene = parent_scene(plot)
 
-    proj_pos = shift_project(scene, plot, to_ndim(Point3f0, plot[1][][idx], 0))
+    proj_pos = shift_project(scene, plot, to_ndim(Point3f, plot[1][][idx], 0))
     update_tooltip_alignment!(inspector, proj_pos)
     bbox = Rect{3, Float32}(plot.marker[])
 
@@ -605,11 +605,11 @@ function show_data(inspector::DataInspector, plot::Union{Lines, LineSegments}, i
     pos = closest_point_on_line(p0, p1, origin, dir)
     lw = plot.linewidth[] isa Vector ? plot.linewidth[][idx] : plot.linewidth[]
 
-    proj_pos = shift_project(scene, plot, to_ndim(Point3f0, pos, 0))
+    proj_pos = shift_project(scene, plot, to_ndim(Point3f, pos, 0))
     update_tooltip_alignment!(inspector, proj_pos)
 
     a._display_text[] = position2string(typeof(p0)(pos))
-    a._bbox2D[] = FRect2D(proj_pos .- 0.5 .* lw .- Vec2f0(5), Vec2f0(lw) .+ Vec2f0(10))
+    a._bbox2D[] = Rect2f(proj_pos .- 0.5 .* lw .- Vec2f(5), Vec2f(lw) .+ Vec2f(10))
     a._px_bbox_visible[] = true
     a._bbox_visible[] = false
     a._visible[] = true
@@ -623,7 +623,7 @@ function show_data(inspector::DataInspector, plot::Mesh, idx)
     scene = parent_scene(plot)
 
     bbox = boundingbox(plot)
-    proj_pos = Point2f0(mouseposition_px(inspector.root))
+    proj_pos = Point2f(mouseposition_px(inspector.root))
     update_tooltip_alignment!(inspector, proj_pos)
 
     a._bbox3D[] = bbox
@@ -659,7 +659,7 @@ function show_data(inspector::DataInspector, plot::Surface, idx)
     a = inspector.plot.attributes
     scene = parent_scene(plot)
 
-    proj_pos = Point2f0(mouseposition_px(inspector.root))
+    proj_pos = Point2f(mouseposition_px(inspector.root))
     update_tooltip_alignment!(inspector, proj_pos)
 
     xs = plot[1][]
@@ -670,7 +670,7 @@ function show_data(inspector::DataInspector, plot::Surface, idx)
 
     # This isn't the most accurate so we include some neighboring faces
     origin, dir = view_ray(scene)
-    pos = Point3f0(NaN)
+    pos = Point3f(NaN)
     for i in _i-1:_i+1, j in _j-1:_j+1
         (1 <= i <= w) && (1 <= j < h) || continue
 
@@ -698,7 +698,7 @@ function show_data(inspector::DataInspector, plot::Surface, idx)
     if !isnan(pos)
         a._display_text[] = position2string(pos)
         a._text_position[] = proj_pos
-        a._bbox2D[] = FRect2D(proj_pos .- Vec2f0(5), Vec2f0(10))
+        a._bbox2D[] = Rect2f(proj_pos .- Vec2f(5), Vec2f(10))
         a._bbox_visible[] = false
         a._px_bbox_visible[] = true
         a._visible[] = true
@@ -739,8 +739,8 @@ function show_imagelike(inspector, plot, name, edge_based)
         z
     end
 
-    a._position[] = to_ndim(Point3f0, mpos, 0)
-    proj_pos = Point2f0(mouseposition_px(inspector.root))
+    a._position[] = to_ndim(Point3f, mpos, 0)
+    proj_pos = Point2f(mouseposition_px(inspector.root))
     update_tooltip_alignment!(inspector, proj_pos)
 
     if plot.interpolate[]
@@ -754,7 +754,7 @@ function show_imagelike(inspector, plot, name, edge_based)
                 strokecolor = a.indicator_color,
                 strokewidth = a.indicator_linewidth #, linestyle = a.indicator_linestyle no?
             )
-            translate!(p, Vec3f0(0, 0, a.depth[]))
+            translate!(p, Vec3f(0, 0, a.depth[]))
             push!(inspector.temp_plots, p)
             # Hacky?
             push!(
@@ -765,14 +765,14 @@ function show_imagelike(inspector, plot, name, edge_based)
         a._display_text[] = color2text(name, mpos[1], mpos[2], z)
     else
         a._bbox2D[] = _pixelated_image_bbox(plot[1][], plot[2][], plot[3][], i, j, edge_based)
-        if inspector.selection != plot || !(inspector.temp_plots[1][1][] isa Rect2D)
+        if inspector.selection != plot || !(inspector.temp_plots[1][1][] isa Rect2)
             clear_temporary_plots!(inspector, plot)
             p = wireframe!(
                 scene, a._bbox2D, model = a._model, color = a.indicator_color,
                 strokewidth = a.indicator_linewidth, linestyle = a.indicator_linestyle,
                 visible = a._bbox_visible, show_axis = false, inspectable = false
             )
-            translate!(p, Vec3f0(0, 0, a.depth[]))
+            translate!(p, Vec3f(0, 0, a.depth[]))
             push!(inspector.temp_plots, p)
         end
         a._display_text[] = color2text(name, i, j, z)
@@ -838,11 +838,11 @@ function _pixelated_image_bbox(xs, ys, img, i::Integer, j::Integer, edge_based)
     x0, x1 = extrema(xs)
     y0, y1 = extrema(ys)
     nw, nh = ((x1 - x0), (y1 - y0)) ./ size(img)
-    FRect2D(x0 + nw * (i-1), y0 + nh * (j-1), nw, nh)
+    Rect2f(x0 + nw * (i-1), y0 + nh * (j-1), nw, nh)
 end
 function _pixelated_image_bbox(xs::Vector, ys::Vector, img, i::Integer, j::Integer, edge_based)
     if edge_based
-        FRect2D(xs[i], ys[j], xs[i+1] - xs[i], ys[j+1] - ys[j])
+        Rect2f(xs[i], ys[j], xs[i+1] - xs[i], ys[j+1] - ys[j])
     else
         _pixelated_image_bbox(
             minimum(xs)..maximum(xs), minimum(ys)..maximum(ys),
@@ -877,7 +877,7 @@ function show_data(inspector::DataInspector, plot::BarPlot, idx)
     scene = parent_scene(plot)
 
     pos = plot[1][][idx]
-    proj_pos = shift_project(scene, plot, to_ndim(Point3f0, pos, 0))
+    proj_pos = shift_project(scene, plot, to_ndim(Point3f, pos, 0))
     update_tooltip_alignment!(inspector, proj_pos)
     a._model[] = plot.model[]
     a._bbox2D[] = plot.plots[1][1][][idx]
@@ -889,7 +889,7 @@ function show_data(inspector::DataInspector, plot::BarPlot, idx)
             strokewidth = a.indicator_linewidth, linestyle = a.indicator_linestyle,
             visible = a._bbox_visible, show_axis = false, inspectable = false
         )
-        translate!(p, Vec3f0(0, 0, a.depth[]))
+        translate!(p, Vec3f(0, 0, a.depth[]))
         push!(inspector.temp_plots, p)
     end
 
@@ -909,9 +909,9 @@ function show_data(inspector::DataInspector, plot::Arrows, idx, source)
     scene = parent_scene(plot)
 
     pos = plot[1][][idx]
-    proj_pos = shift_project(scene, plot, to_ndim(Point3f0, pos, 0))
+    proj_pos = shift_project(scene, plot, to_ndim(Point3f, pos, 0))
 
-    mpos = Point2f0(mouseposition_px(inspector.root))
+    mpos = Point2f(mouseposition_px(inspector.root))
     update_tooltip_alignment!(inspector, mpos)
 
     p = vec2string(pos)
@@ -919,7 +919,7 @@ function show_data(inspector::DataInspector, plot::Arrows, idx, source)
 
     a._text_position[] = mpos
     a._display_text[] = "Position:\n  $p\nDirection\n  $v"
-    a._bbox2D[] = FRect2D(proj_pos .- Vec2f0(5), Vec2f0(10))
+    a._bbox2D[] = Rect2f(proj_pos .- Vec2f(5), Vec2f(10))
     a._bbox_visible[] = false
     a._px_bbox_visible[] = true
     a._visible[] = true
@@ -935,7 +935,7 @@ function show_data(inspector::DataInspector, plot::Contourf, idx, source::Mesh)
     idx, ext = show_poly(inspector, plot.plots[1], idx, source)
     level = plot.plots[1].color[][idx]
 
-    a._text_position[] = Point2f0(mouseposition_px(inspector.root))
+    a._text_position[] = Point2f(mouseposition_px(inspector.root))
     a._display_text[] = @sprintf("level = %0.3f", level)
     return true
 end
@@ -964,7 +964,7 @@ function show_poly(inspector, plot, idx, source)
         strokewidth = a.indicator_linewidth, linestyle = a.indicator_linestyle,
         visible = a._visible, show_axis = false, inspectable = false
     )
-    translate!(p, Vec3f0(0,0,a.depth[]))
+    translate!(p, Vec3f(0,0,a.depth[]))
     push!(inspector.temp_plots, p)
 
     for int in plot[1][][idx].interiors
@@ -973,7 +973,7 @@ function show_poly(inspector, plot, idx, source)
             strokewidth = a.indicator_linewidth, linestyle = a.indicator_linestyle,
             visible = a._visible, show_axis = false, inspectable = false
         )
-        translate!(p, Vec3f0(0,0,a.depth[]))
+        translate!(p, Vec3f(0,0,a.depth[]))
         push!(inspector.temp_plots, p)
     end
 

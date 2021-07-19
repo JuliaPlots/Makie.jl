@@ -9,12 +9,12 @@ function default_theme(scene)
         visible = true,
         transparency = false,
         overdraw = false,
-        ambient = Vec3f0(0.55),
-        diffuse = Vec3f0(0.4),
-        specular = Vec3f0(0.2),
+        ambient = Vec3f(0.55),
+        diffuse = Vec3f(0.4),
+        specular = Vec3f(0.2),
         shininess = 32f0,
         lightposition = :eyeposition,
-        nan_color = RGBAf0(0,0,0,0),
+        nan_color = RGBAf(0,0,0,0),
         ssao = false,
         inspectable = theme(scene, :inspectable)
     )

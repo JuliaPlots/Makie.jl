@@ -117,7 +117,7 @@ function assemble_shader(data)
     delete!(data, :shader)
     glp = get(data, :gl_primitive, GL_TRIANGLES)
     return assemble_robj(
-        data, shader, FRect3D(), glp,
+        data, shader, Rect3f(), glp,
         get(data, :prerender, nothing),
         get(data, :postrender, nothing)
     )
@@ -163,7 +163,7 @@ visualize(@nospecialize(main), s::Symbol=:default; kw_args...) = visualize(main,
 function visualize(@nospecialize(main), @nospecialize(s), @nospecialize(data))
     data = _default(main, s, copy(data))
     @gen_defaults! data begin # make sure every object has these!
-        model = Mat4f0(I)
+        model = Mat4f(I)
     end
     return assemble_shader(data)
 end

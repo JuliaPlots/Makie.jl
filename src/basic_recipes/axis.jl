@@ -30,12 +30,12 @@ $(ATTRIBUTES)
 """
 @recipe(Axis3D) do scene
 
-    q1 = qrotation(Vec3f0(1, 0, 0), -0.5f0*pi)
-    q2 = qrotation(Vec3f0(0, 0, 1), 1f0*pi)
+    q1 = qrotation(Vec3f(1, 0, 0), -0.5f0*pi)
+    q2 = qrotation(Vec3f(0, 0, 1), 1f0*pi)
     tickrotations3d = (
-        qrotation(Vec3f0(0,0,1), -1.5pi),
+        qrotation(Vec3f(0,0,1), -1.5pi),
         q2,
-        qrotation(Vec3f0(1, 0, 0), -0.5pi) * q2
+        qrotation(Vec3f(1, 0, 0), -0.5pi) * q2
     )
     axisnames_rotation3d = tickrotations3d
     tickalign3d = (
@@ -44,8 +44,8 @@ $(ATTRIBUTES)
         (:right, :center), # z axis
     )
     axisnames_align3d = tickalign3d
-    tick_color = RGBAf0(0.5, 0.5, 0.5, 0.6)
-    grid_color = RGBAf0(0.5, 0.5, 0.5, 0.4)
+    tick_color = RGBAf(0.5, 0.5, 0.5, 0.6)
+    grid_color = RGBAf(0.5, 0.5, 0.5, 0.4)
     grid_thickness = 1
     axis_linewidth = 1.5
     gridthickness = ntuple(x-> 1f0, Val(3))
@@ -56,7 +56,7 @@ $(ATTRIBUTES)
         showticks = (true, true, true),
         showaxis = (true, true, true),
         showgrid = (true, true, true),
-        scale = Vec3f0(1),
+        scale = Vec3f(1),
         padding = 0.1,
         inspectable = false,
 
@@ -309,12 +309,12 @@ function draw_axis3d(textbuffer, linebuffer, scale, limits, ranges_labels, args.
 end
 
 function text_bb(str, font, size)
-    rot = Quaternionf0(0,0,0,1)
+    rot = Quaternionf(0,0,0,1)
     layout = layout_text(
-        str, size, font, Vec2f0(0), rot, Mat4f0(I), 0.5, 1.0,
-        RGBAf0(0, 0, 0, 0), RGBAf0(0, 0, 0, 0), 0f0)
-    # @assert typeof(layout.bboxes) <: Vector{FRect2D}
-    return boundingbox(layout, Point3f0(0), rot)
+        str, size, font, Vec2f(0), rot, Mat4f(I), 0.5, 1.0,
+        RGBAf(0, 0, 0, 0), RGBAf(0, 0, 0, 0), 0f0)
+    # @assert typeof(layout.bboxes) <: Vector{Rect2f}
+    return boundingbox(layout, Point3f(0), rot)
 end
 
 

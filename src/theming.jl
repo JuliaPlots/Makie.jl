@@ -42,7 +42,7 @@ function wong_colors(alpha = 1.0)
         RGB(213/255, 94/255, 0/255), # vermillion
         RGB(240/255, 228/255, 66/255), # yellow
     ]
-    @. RGBAf0(red(colors), green(colors), blue(colors), alpha)
+    @. RGBAf(red(colors), green(colors), blue(colors), alpha)
 end
 
 const default_palettes = Attributes(
@@ -57,7 +57,7 @@ const minimal_default = Attributes(
     palette = default_palettes,
     font = "Dejavu Sans",
     textcolor = :black,
-    padding = Vec3f0(0.05),
+    padding = Vec3f(0.05),
     figure_padding = 16,
     rowgap = 24,
     colgap = 24,
@@ -71,7 +71,7 @@ const minimal_default = Attributes(
     linecolor = :black,
     linewidth = 1.5,
     linestyle = nothing,
-    patchcolor = RGBAf0(0, 0, 0, 0.6),
+    patchcolor = RGBAf(0, 0, 0, 0.6),
     patchstrokecolor = :black,
     patchstrokewidth = 0,
     resolution = (800, 600), # 4/3 aspect ratio

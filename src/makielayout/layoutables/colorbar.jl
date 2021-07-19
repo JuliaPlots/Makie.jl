@@ -99,7 +99,7 @@ function layoutable(::Type{<:Colorbar}, fig_or_scene; bbox = nothing, kwargs...)
     layoutobservables = LayoutObservables{Colorbar}(_width, _height, attrs.tellwidth, attrs.tellheight,
         halign, valign, attrs.alignmode; suggestedbbox = bbox, protrusions = protrusions)
 
-    framebox = @lift(round_to_IRect2D($(layoutobservables.computedbbox)))
+    framebox = @lift(round_to_Rect2i($(layoutobservables.computedbbox)))
 
     highclip_tri_visible = lift(x -> !(isnothing(x) || to_color(x) == to_color(:transparent)), highclip)
     lowclip_tri_visible = lift(x -> !(isnothing(x) || to_color(x) == to_color(:transparent)), lowclip)
@@ -231,11 +231,11 @@ function layoutable(::Type{<:Colorbar}, fig_or_scene; bbox = nothing, kwargs...)
             lb, rb = topline(box)
             l = lb
             r = rb
-            t = ((l .+ r) ./ 2) .+ Point2f0(0, sqrt(sum((r .- l) .^ 2)) * sin(pi/3))
+            t = ((l .+ r) ./ 2) .+ Point2f(0, sqrt(sum((r .- l) .^ 2)) * sin(pi/3))
             [l, r, t]
         else
             b, t = rightline(box)
-            r = ((b .+ t) ./ 2) .+ Point2f0(sqrt(sum((t .- b) .^ 2)) * sin(pi/3), 0)
+            r = ((b .+ t) ./ 2) .+ Point2f(sqrt(sum((t .- b) .^ 2)) * sin(pi/3), 0)
             [t, b, r]
         end
     end
@@ -258,11 +258,11 @@ function layoutable(::Type{<:Colorbar}, fig_or_scene; bbox = nothing, kwargs...)
             lb, rb = bottomline(box)
             l = lb
             r = rb
-            t = ((l .+ r) ./ 2) .- Point2f0(0, sqrt(sum((r .- l) .^ 2)) * sin(pi/3))
+            t = ((l .+ r) ./ 2) .- Point2f(0, sqrt(sum((r .- l) .^ 2)) * sin(pi/3))
             [l, r, t]
         else
             b, t = leftline(box)
-            l = ((b .+ t) ./ 2) .- Point2f0(sqrt(sum((t .- b) .^ 2)) * sin(pi/3), 0)
+            l = ((b .+ t) ./ 2) .- Point2f(sqrt(sum((t .- b) .^ 2)) * sin(pi/3), 0)
             [b, t, l]
         end
     end

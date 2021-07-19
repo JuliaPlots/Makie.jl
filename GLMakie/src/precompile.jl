@@ -10,7 +10,7 @@ function _precompile_()
     isdefined(GLMakie, Symbol("#81#82")) && Base.precompile(Tuple{getfield(GLMakie, Symbol("#81#82")),Symbol})   # time: 0.07212781
     Base.precompile(Tuple{typeof(draw_atomic),Screen,Scene,Union{Scatter{ArgType} where ArgType, MeshScatter{ArgType} where ArgType}})   # time: 0.06695828
     isdefined(GLMakie, Symbol("#89#90")) && Base.precompile(Tuple{getfield(GLMakie, Symbol("#89#90")),LineSegments{Tuple{Vector{Point{2, Float32}}}}})   # time: 0.050924074
-    isdefined(GLMakie, Symbol("#104#109")) && Base.precompile(Tuple{getfield(GLMakie, Symbol("#104#109")),String,Vector{Point{3, Float32}},Vector{Float32},Vector{FTFont},Vec{2, Float32},Vector{Quaternionf0},SMatrix{4, 4, Float32, 16},Float64,Float64})   # time: 0.038516257
+    isdefined(GLMakie, Symbol("#104#109")) && Base.precompile(Tuple{getfield(GLMakie, Symbol("#104#109")),String,Vector{Point{3, Float32}},Vector{Float32},Vector{FTFont},Vec{2, Float32},Vector{Quaternionf},SMatrix{4, 4, Float32, 16},Float64,Float64})   # time: 0.038516257
     isdefined(GLMakie, Symbol("#81#82")) && Base.precompile(Tuple{getfield(GLMakie, Symbol("#81#82")),Bool})   # time: 0.030008739
     isdefined(GLMakie, Symbol("#101#102")) && Base.precompile(Tuple{getfield(GLMakie, Symbol("#101#102")),Int64,Point{3, Float32},Float32,FTFont,Vec{2, Float32}})   # time: 0.029477166
     isdefined(GLMakie, Symbol("#81#82")) && Base.precompile(Tuple{getfield(GLMakie, Symbol("#81#82")),Symbol})   # time: 0.019217245

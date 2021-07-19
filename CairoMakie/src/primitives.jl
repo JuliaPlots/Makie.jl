@@ -18,7 +18,7 @@ function draw_atomic(scene::Scene, screen::CairoScreen, primitive::Union{Lines, 
     # TODO this shouldn't be necessary anymore!
     if positions isa SubArray{<:Point3, 1, P, <:Tuple{Array{<:AbstractFace}}} where P
         positions = let
-            pos = Point3f0[]
+            pos = Point3f[]
             for tup in positions
                 push!(pos, tup[1])
                 push!(pos, tup[2])
@@ -174,7 +174,7 @@ function draw_atomic(scene::Scene, screen::CairoScreen, primitive::Scatter)
     model = primitive[:model][]
     positions = primitive[1][]
     isempty(positions) && return
-    size_model = transform_marker ? model : Mat4f0(I)
+    size_model = transform_marker ? model : Mat4f(I)
 
     font = to_font(to_value(get(primitive, :font, Makie.defaultfont())))
 
@@ -235,12 +235,12 @@ function draw_marker(ctx, marker::Char, font, pos, scale, strokecolor, strokewid
     inkbb = Makie.FreeTypeAbstraction.inkboundingbox(charextent)
 
     # scale normalized bbox by font size
-    inkbb_scaled = FRect2D(origin(inkbb) .* scale, widths(inkbb) .* scale)
+    inkbb_scaled = Rect2f(origin(inkbb) .* scale, widths(inkbb) .* scale)
 
     # flip y for the centering shift of the character because in Cairo y goes down
     centering_offset = [1, -1] .* (-origin(inkbb_scaled) .- 0.5 .* widths(inkbb_scaled))
     # this is the origin where we actually have to place the glyph so it can be centered
-    charorigin = pos .+ Vec2f0(marker_offset[1], -marker_offset[2])
+    charorigin = pos .+ Vec2f(marker_offset[1], -marker_offset[2])
     old_matrix = get_font_matrix(ctx)
     set_font_matrix(ctx, scale_matrix(scale...))
 
@@ -272,7 +272,7 @@ end
 function draw_marker(ctx, marker::Circle, pos, scale, strokecolor, strokewidth, marker_offset, rotation)
 
     marker_offset = marker_offset + scale ./ 2
-    pos += Point2f0(marker_offset[1], -marker_offset[2])
+    pos += Point2f(marker_offset[1], -marker_offset[2])
     Cairo.arc(ctx, pos[1], pos[2], scale[1]/2, 0, 2*pi)
     Cairo.fill_preserve(ctx)
 
@@ -285,7 +285,7 @@ end
 
 function draw_marker(ctx, marker::Rect, pos, scale, strokecolor, strokewidth, marker_offset, rotation)
     s2 = Point2((widths(marker) .* scale .* (1, -1))...)
-    pos = pos .+ Point2f0(marker_offset[1], -marker_offset[2])
+    pos = pos .+ Point2f(marker_offset[1], -marker_offset[2])
     Cairo.rotate(ctx, to_2d_rotation(rotation))
     Cairo.rectangle(ctx, pos[1], pos[2], s2...)
     Cairo.fill_preserve(ctx)
@@ -350,7 +350,7 @@ function draw_glyph_collection(scene, ctx, position, glyph_collection, rotation,
         cairoface = set_ft_font(ctx, font)
         old_matrix = get_font_matrix(ctx)
 
-        p3_offset = to_ndim(Point3f0, offset, 0)
+        p3_offset = to_ndim(Point3f, offset, 0)
 
         glyph in ('\r', '\n') && return
 
@@ -362,9 +362,9 @@ function draw_glyph_collection(scene, ctx, position, glyph_collection, rotation,
             # and then projected
 
             # glyph position in data coordinates (offset has rotation applied already)
-            gpos_data = to_ndim(Point3f0, position, 0) .+ glyphoffset .+ p3_offset
+            gpos_data = to_ndim(Point3f, position, 0) .+ glyphoffset .+ p3_offset
 
-            scale3 = scale isa Number ? Point3f0(scale, scale, 0) : to_ndim(Point3f0, scale, 0)
+            scale3 = scale isa Number ? Point3f(scale, scale, 0) : to_ndim(Point3f, scale, 0)
 
             # this could be done better but it works at least
 
@@ -373,12 +373,12 @@ function draw_glyph_collection(scene, ctx, position, glyph_collection, rotation,
             # origin. The resulting vectors give the directions in which the character
             # needs to be stretched in order to match the 3D projection
 
-            xvec = rotation * (scale3[1] * Point3f0(1, 0, 0))
-            yvec = rotation * (scale3[2] * Point3f0(0, -1, 0))
+            xvec = rotation * (scale3[1] * Point3f(1, 0, 0))
+            yvec = rotation * (scale3[2] * Point3f(0, -1, 0))
 
-            glyphpos = project_position(scene, gpos_data, Mat4f0(I))
-            xproj = project_position(scene, gpos_data + xvec, Mat4f0(I))
-            yproj = project_position(scene, gpos_data + yvec, Mat4f0(I))
+            glyphpos = project_position(scene, gpos_data, Mat4f(I))
+            xproj = project_position(scene, gpos_data + xvec, Mat4f(I))
+            yproj = project_position(scene, gpos_data + yvec, Mat4f(I))
 
             xdiff = xproj - glyphpos
             ydiff = yproj - glyphpos
@@ -395,7 +395,7 @@ function draw_glyph_collection(scene, ctx, position, glyph_collection, rotation,
             glyphpos = project_position(
                 scene,
                 position,
-                Mat4f0(I)) .+ (p3_to_p2(glyphoffset .+ p3_offset)) .* (1, -1) # flip for Cairo
+                Mat4f(I)) .+ (p3_to_p2(glyphoffset .+ p3_offset)) .* (1, -1) # flip for Cairo
             # and the scale is just taken as is
             scale = length(scale) == 2 ? scale : SVector(scale, scale)
 
@@ -413,7 +413,7 @@ function draw_glyph_collection(scene, ctx, position, glyph_collection, rotation,
         Cairo.show_text(ctx, string(glyph))
         Cairo.restore(ctx)
 
-        if strokewidth > 0 && strokecolor != RGBAf0(0, 0, 0, 0)
+        if strokewidth > 0 && strokecolor != RGBAf(0, 0, 0, 0)
             Cairo.save(ctx)
             Cairo.move_to(ctx, glyphpos...)
             set_font_matrix(ctx, mat)
@@ -525,8 +525,8 @@ function draw_atomic(scene::Scene, screen::CairoScreen, primitive::Union{Heatmap
 
         # find projected image corners
         # this already takes care of flipping the image to correct cairo orientation
-        xy = project_position(scene, Point2f0(first.(imsize)), model)
-        xymax = project_position(scene, Point2f0(last.(imsize)), model)
+        xy = project_position(scene, Point2f(first.(imsize)), model)
+        xymax = project_position(scene, Point2f(last.(imsize)), model)
         w, h = xymax .- xy
 
         s = to_cairo_image(image, primitive)
@@ -557,7 +557,7 @@ function draw_atomic(scene::Scene, screen::CairoScreen, primitive::Union{Heatmap
         end
         # find projected image corners
         # this already takes care of flipping the image to correct cairo orientation
-        xys = [project_position(scene, Point2f0(x, y), model) for x in xs, y in ys]
+        xys = [project_position(scene, Point2f(x, y), model) for x in xs, y in ys]
         colors = to_rgba_image(image, primitive)
 
         # Note: xs and ys should have size ni+1, nj+1
@@ -663,7 +663,7 @@ nan2zero(x) = !isnan(x) * x
 
 function draw_mesh3D(
         scene, screen, primitive;
-        mesh = primitive[1][], pos = Vec4f0(0), scale = 1f0
+        mesh = primitive[1][], pos = Vec4f(0), scale = 1f0
     )
     @get_attribute(primitive, (color, shading, lightposition, ambient, diffuse,
         specular, shininess, faceculling))
@@ -694,8 +694,8 @@ function draw_mesh3D(
     vs = broadcast(decompose(Point, mesh), (func,)) do v, f
         # Should v get a nan2zero?
         v = Makie.apply_transform(f, v)
-        p4d = to_ndim(Vec4f0, scale .* to_ndim(Vec3f0, v, 0f0), 1f0)
-        view * (model * p4d .+ to_ndim(Vec4f0, pos, 0f0))
+        p4d = to_ndim(Vec4f, scale .* to_ndim(Vec3f, v, 0f0), 1f0)
+        view * (model * p4d .+ to_ndim(Vec4f, pos, 0f0))
     end
     fs = decompose(GLTriangleFace, mesh)
     uv = hasproperty(mesh, :uv) ? mesh.uv : nothing
@@ -711,18 +711,18 @@ function draw_mesh3D(
     if lightposition == :eyeposition
         lightposition = scene.camera.eyeposition[]
     end
-    lightpos = (view * to_ndim(Vec4f0, lightposition, 1.0))[Vec(1, 2, 3)]
+    lightpos = (view * to_ndim(Vec4f, lightposition, 1.0))[Vec(1, 2, 3)]
 
     # Camera to screen space
     ts = map(vs) do v
         clip = projection * v
         @inbounds begin
             p = (clip ./ clip[4])[Vec(1, 2)]
-            p_yflip = Vec2f0(p[1], -p[2])
+            p_yflip = Vec2f(p[1], -p[2])
             p_0_to_1 = (p_yflip .+ 1f0) / 2f0
         end
         p = p_0_to_1 .* scene.camera.resolution[]
-        Vec3f0(p[1], p[2], clip[3])
+        Vec3f(p[1], p[2], clip[3])
     end
 
     # Approximate zorder
@@ -744,7 +744,7 @@ function draw_mesh3D(
                 H = normalize(L + normalize(-v[SOneTo(3)]))
                 spec_coeff = max(dot(H, N), 0.0)^shininess
                 c = RGBA(c)
-                new_c = (ambient .+ diff_coeff .* diffuse) .* Vec3f0(c.r, c.g, c.b) .+
+                new_c = (ambient .+ diff_coeff .* diffuse) .* Vec3f(c.r, c.g, c.b) .+
                         specular * spec_coeff
                 RGBA(new_c..., c.alpha)
             end
@@ -752,7 +752,7 @@ function draw_mesh3D(
             cols[k]
         end
         # debug normal coloring
-        # n1, n2, n3 = Vec3f0(0.5) .+ 0.5ns[f]
+        # n1, n2, n3 = Vec3f(0.5) .+ 0.5ns[f]
         # c1 = RGB(n1...)
         # c2 = RGB(n2...)
         # c3 = RGB(n3...)
@@ -812,7 +812,7 @@ function surface2mesh(xs::Makie.ClosedInterval, ys::Makie.ClosedInterval, zs::Ab
 end
 
 function surface2mesh(xs::AbstractVector, ys::AbstractVector, zs::AbstractMatrix)
-    ps = [nan2zero.(Point3f0(xs[i], ys[j], zs[i, j])) for j in eachindex(ys) for i in eachindex(xs)]
+    ps = [nan2zero.(Point3f(xs[i], ys[j], zs[i, j])) for j in eachindex(ys) for i in eachindex(xs)]
     idxs = LinearIndices(size(zs))
     faces = [
         QuadFace(idxs[i, j], idxs[i+1, j], idxs[i+1, j+1], idxs[i, j+1])
@@ -822,7 +822,7 @@ function surface2mesh(xs::AbstractVector, ys::AbstractVector, zs::AbstractMatrix
 end
 
 function surface2mesh(xs::AbstractMatrix, ys::AbstractMatrix, zs::AbstractMatrix)
-    ps = [nan2zero.(Point3f0(xs[i, j], ys[i, j], zs[i, j])) for j in 1:size(zs, 2) for i in 1:size(zs, 1)]
+    ps = [nan2zero.(Point3f(xs[i, j], ys[i, j], zs[i, j])) for j in 1:size(zs, 2) for i in 1:size(zs, 1)]
     idxs = LinearIndices(size(zs))
     faces = [
         QuadFace(idxs[i, j], idxs[i+1, j], idxs[i+1, j+1], idxs[i, j+1])
@@ -850,7 +850,7 @@ function draw_atomic(scene::Scene, screen::CairoScreen, primitive::Makie.MeshSca
     view = scene.camera.view[]
 
     zorder = sortperm(pos, by = p -> begin
-        p4d = to_ndim(Vec4f0, to_ndim(Vec3f0, p, 0f0), 1f0)
+        p4d = to_ndim(Vec4f, to_ndim(Vec3f, p, 0f0), 1f0)
         cam_pos = view * model * p4d
         cam_pos[3] / cam_pos[4]
     end, rev=false)
@@ -883,7 +883,7 @@ function draw_atomic(scene::Scene, screen::CairoScreen, primitive::Makie.MeshSca
 
         draw_mesh3D(
             scene, screen, submesh, mesh = m, pos = p,
-            scale = scale isa Real ? Vec3f0(scale) : to_ndim(Vec3f0, scale, 1f0)
+            scale = scale isa Real ? Vec3f(scale) : to_ndim(Vec3f, scale, 1f0)
         )
     end
 

@@ -50,7 +50,7 @@ scene
 Sometimes you just want to place a `Layoutable` in a specific location, without it being controlled by a dynamic layout.
 You can do this by setting the `bbox` parameter, which is usually controlled by the layout, manually.
 The boundingbox should be a 2D `Rect`, and can also be an Observable if you plan to change it dynamically.
-The function `BBox` creates an `FRect2D`, but instead of passing origin and widths, you pass left, right, bottom and top boundaries directly.
+The function `BBox` creates an `Rect2f`, but instead of passing origin and widths, you pass left, right, bottom and top boundaries directly.
 
 Here's an example where two axes are placed manually:
 

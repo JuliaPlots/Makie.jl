@@ -3,7 +3,7 @@ Shorthand for `isnothing(optional) ? fallback : optional`
 """
 @inline ifnothing(optional, fallback) = isnothing(optional) ? fallback : optional
 
-function round_to_IRect2D(r::Rect{2})
+function round_to_Rect2i(r::Rect{2})
     newori = round.(Int, minimum(r))
     othercorner = round.(Int, maximum(r))
     newwidth = othercorner .- newori
@@ -12,7 +12,7 @@ end
 
 function sceneareanode!(finalbbox, limits, aspect)
 
-    scenearea = Node(IRect(0, 0, 100, 100))
+    scenearea = Node(Recti(0, 0, 100, 100))
 
     onany(finalbbox, limits, aspect) do bbox, limits, aspect
 
@@ -50,7 +50,7 @@ function sceneareanode!(finalbbox, limits, aspect)
         newbbox = BBox(l, l + mw, b, b + mh)
 
         # only update scene if pixel positions change
-        new_scenearea = round_to_IRect2D(newbbox)
+        new_scenearea = round_to_Rect2i(newbbox)
         if new_scenearea != scenearea[]
             scenearea[] = new_scenearea
         end
@@ -172,7 +172,7 @@ function layoutscene(nrows::Int, ncols::Int, padding = 30; inspectable = false, 
 end
 
 
-GridLayoutBase.GridLayout(scene::Scene, args...; kwargs...) = GridLayout(args...; bbox = lift(x -> FRect2D(x), pixelarea(scene)), kwargs...)
+GridLayoutBase.GridLayout(scene::Scene, args...; kwargs...) = GridLayout(args...; bbox = lift(x -> Rect2f(x), pixelarea(scene)), kwargs...)
 
 function axislines!(scene, rect, spinewidth, topspinevisible, rightspinevisible,
     leftspinevisible, bottomspinevisible, topspinecolor, leftspinecolor,
@@ -414,9 +414,9 @@ function hvlines!(ax::Axis, direction::Int, datavals, axmins, axmaxs; attributes
         xfrac(f) = xlims[1] + f * (xlims[2] - xlims[1])
         segs = broadcast(datavals, axmins, axmaxs) do dataval, axmin, axmax
             if direction == 1
-                (Point2f0(xfrac(axmin), dataval), Point2f0(xfrac(axmax), dataval))
+                (Point2f(xfrac(axmin), dataval), Point2f(xfrac(axmax), dataval))
             elseif direction == 2
-                (Point2f0(dataval, xfrac(axmin)), Point2f0(dataval, xfrac(axmax)))
+                (Point2f(dataval, xfrac(axmin)), Point2f(dataval, xfrac(axmax)))
             else
                 error("direction must be 1 or 2")
             end
@@ -460,7 +460,7 @@ function abline!(axis::Axis, a::Number, b::Number; kwargs...)
     f(x) = x * b + a
     line = map(axis.finallimits) do limits
         xmin, xmax = first.(extrema(limits))
-        return [Point2f0(xmin, f(xmin)), Point2f0(xmax, f(xmax))]
+        return [Point2f(xmin, f(xmin)), Point2f(xmax, f(xmax))]
     end
     return linesegments!(axis, line; xautolimits=false, yautolimits=false, kwargs...)
 end

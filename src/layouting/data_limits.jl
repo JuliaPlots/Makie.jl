@@ -61,10 +61,10 @@ function xyz_boundingbox(transform_func, mesh::GeometryBasics.Mesh)
 end
 
 function xyz_boundingbox(transform_func, xyz)
-    isempty(xyz) && return FRect3D()
+    isempty(xyz) && return Rect3f()
     mini, maxi = extrema_nan((apply_transform(transform_func, point) for point in xyz))
     w = maxi .- mini
-    return FRect3D(to_ndim(Vec3f0, mini, 0), to_ndim(Vec3f0, w, 0))
+    return Rect3f(to_ndim(Vec3f, mini, 0), to_ndim(Vec3f, w, 0))
 end
 
 const NumOrArray = Union{AbstractArray, Number}
@@ -82,11 +82,11 @@ function xyz_boundingbox(transform_func, x::NumOrArray, y::NumOrArray, z::NumOrA
 end
 
 function xyz_boundingbox(transform_func, x, y, z = 0)
-    isempty(x) && return FRect3D()
+    isempty(x) && return Rect3f()
     minmax = extrema_nan.(apply_transform.((transform_func,), (x, y, z)))
     mini, maxi = Vec(first.(minmax)), Vec(last.(minmax))
     w = maxi .- mini
-    return FRect3D(to_ndim(Vec3f0, mini, 0), to_ndim(Vec3f0, w, 0))
+    return Rect3f(to_ndim(Vec3f, mini, 0), to_ndim(Vec3f, w, 0))
 end
 
 const ImageLike{Arg} = Union{Heatmap{Arg}, Image{Arg}}
@@ -101,23 +101,23 @@ function data_limits(x::Volume)
 end
 
 function text_limits(x::VecTypes)
-    p = to_ndim(Vec3f0, x, 0.0)
-    return FRect3D(p, p)
+    p = to_ndim(Vec3f, x, 0.0)
+    return Rect3f(p, p)
 end
 
 function text_limits(x::AbstractVector)
-    return FRect3D(x)
+    return Rect3f(x)
 end
 
-FRect3D_from_point(p::VecTypes{2}) = FRect3D(Point3f0(p..., 0), Point3f0(0, 0, 0))
-FRect3D_from_point(p::VecTypes{3}) = FRect3D(Point3f0(p...), Point3f0(0, 0, 0))
+Rect3f_from_point(p::VecTypes{2}) = Rect3f(Point3f(p..., 0), Point3f(0, 0, 0))
+Rect3f_from_point(p::VecTypes{3}) = Rect3f(Point3f(p...), Point3f(0, 0, 0))
 
 
 function atomic_limits(x::Text{<:Tuple{<:GlyphCollection}})
     if x.space[] == :data
         boundingbox(x)
     elseif x.space[] == :screen
-        FRect3D_from_point(x.position[])
+        Rect3f_from_point(x.position[])
     else
         error()
     end
@@ -128,11 +128,11 @@ function atomic_limits(x::Text{<:Tuple{<:AbstractArray{<:GlyphCollection}}})
         boundingbox(x)
     elseif x.space[] == :screen
         if isempty(x.position[])
-            FRect3D()
+            Rect3f()
         else
-            bb = FRect3D_from_point(x.position[][1])
+            bb = Rect3f_from_point(x.position[][1])
             for p in x.position[][2:end]
-                bb = union(bb, FRect3D_from_point(p))
+                bb = union(bb, Rect3f_from_point(p))
             end
             bb
         end
@@ -146,14 +146,14 @@ isfinite_rect(x::Rect) = all(isfinite.(minimum(x))) &&  all(isfinite.(maximum(x)
 
 function data_limits(plots::Vector)
     isempty(plots) && return
-    bb = FRect3D()
+    bb = Rect3f()
     plot_idx = iterate(plots)
     while plot_idx !== nothing
         plot, idx = plot_idx
         plot_idx = iterate(plots, idx)
         # axis shouldn't be part of the data limit
         isaxis(plot) && continue
-        bb2 = data_limits(plot)::FRect3D
+        bb2 = data_limits(plot)::Rect3f
         isfinite_rect(bb) || (bb = bb2)
         isfinite_rect(bb2) || continue
         bb = union(bb, bb2)
