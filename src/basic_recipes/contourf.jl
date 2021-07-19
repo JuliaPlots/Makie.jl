@@ -75,25 +75,25 @@ function Makie.plot!(c::Contourf{<:Tuple{<:AbstractVector{<:Real}, <:AbstractVec
     end
 
 
-    lowcolor = lift(Union{Nothing, RGBAf0}, c.extendlow) do el
+    lowcolor = lift(Union{Nothing, RGBAf}, c.extendlow) do el
         if el === nothing
             nothing
         elseif el === automatic || el == :auto
-            RGBAf0(get(c._computed_colormap[], 0))
+            RGBAf(get(c._computed_colormap[], 0))
         else
-            convert_attribute(el, key"color"())::RGBAf0
+            convert_attribute(el, key"color"())::RGBAf
         end
     end
     c.attributes[:_computed_extendlow] = lowcolor
     is_extended_low = lift(x -> !isnothing(x), lowcolor)
 
-    highcolor = lift(Union{Nothing, RGBAf0}, c.extendhigh) do eh
+    highcolor = lift(Union{Nothing, RGBAf}, c.extendhigh) do eh
         if eh === nothing
             nothing
         elseif eh === automatic || eh == :auto
-            RGBAf0(get(c._computed_colormap[], 1))
+            RGBAf(get(c._computed_colormap[], 1))
         else
-            convert_attribute(eh, key"color"())::RGBAf0
+            convert_attribute(eh, key"color"())::RGBAf
         end
     end
     c.attributes[:_computed_extendhigh] = highcolor
@@ -101,7 +101,7 @@ function Makie.plot!(c::Contourf{<:Tuple{<:AbstractVector{<:Real}, <:AbstractVec
 
 
 
-    PolyType = typeof(Polygon(Point2f0[], [Point2f0[]]))
+    PolyType = typeof(Polygon(Point2f[], [Point2f[]]))
 
     polys = Observable(PolyType[])
     colors = Observable(Float64[])
@@ -122,13 +122,13 @@ function Makie.plot!(c::Contourf{<:Tuple{<:AbstractVector{<:Real}, <:AbstractVec
         # zs needs to be transposed to match rest of makie
         isos = Isoband.isobands(xs, ys, zs', lows, highs)
 
-        allvertices = Point2f0[]
+        allvertices = Point2f[]
         allfaces = NgonFace{3,OffsetInteger{-1,UInt32}}[]
         allids = Int[]
         levelcenters = (highs .+ lows) ./ 2
 
         for (i, (center, group)) in enumerate(zip(levelcenters, isos))
-            points = Point2f0.(group.x, group.y)
+            points = Point2f.(group.x, group.y)
             polygroups = _group_polys(points, group.id)
             for polygroup in polygroups
                 outline = polygroup[1]
@@ -190,7 +190,7 @@ function _group_polys(points, ids)
 
     # each group has first an outer polygon, and then its holes
     # TODO: don't specifically type this 2f0?
-    groups = Vector{Vector{Point2f0}}[]
+    groups = Vector{Vector{Point2f}}[]
 
     # a dict that maps index in `polys` to index in `groups` for outer polys
     outerindex_groupdict = Dict{Int, Int}()

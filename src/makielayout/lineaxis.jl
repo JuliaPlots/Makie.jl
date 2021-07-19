@@ -28,7 +28,7 @@ function LineAxis(parent::Scene; kwargs...)
         end
     end
 
-    ticksnode = Node(Point2f0[])
+    ticksnode = Node(Point2f[])
     ticklines = linesegments!(
         parent, ticksnode, linewidth = tickwidth, color = tickcolor, linestyle = nothing,
         show_axis = false, visible = ticksvisible, inspectable = false
@@ -36,7 +36,7 @@ function LineAxis(parent::Scene; kwargs...)
     decorations[:ticklines] = ticklines
     translate!(ticklines, 0, 0, 10)
 
-    minorticksnode = Node(Point2f0[])
+    minorticksnode = Node(Point2f[])
     minorticklines = linesegments!(
         parent, minorticksnode, linewidth = minortickwidth, color = minortickcolor,
         linestyle = nothing,
@@ -81,16 +81,16 @@ function LineAxis(parent::Scene; kwargs...)
         end
     end
 
-    ticklabelannosnode = Node(Tuple{AbstractString, Point2f0}[])
+    ticklabelannosnode = Node(Tuple{AbstractString, Point2f}[])
     ticklabels = nothing
 
     ticklabel_ideal_space = lift(Float32, ticklabelannosnode, ticklabelalign, ticklabelrotation, ticklabelfont, ticklabelsvisible) do args...
         maxwidth = if pos_extents_horizontal[][3]
                 # height
-                ticklabelsvisible[] ? (ticklabels === nothing ? 0f0 : height(FRect2D(boundingbox(ticklabels)))) : 0f0
+                ticklabelsvisible[] ? (ticklabels === nothing ? 0f0 : height(Rect2f(boundingbox(ticklabels)))) : 0f0
             else
                 # width
-                ticklabelsvisible[] ? (ticklabels === nothing ? 0f0 : width(FRect2D(boundingbox(ticklabels)))) : 0f0
+                ticklabelsvisible[] ? (ticklabels === nothing ? 0f0 : width(Rect2f(boundingbox(ticklabels)))) : 0f0
         end
         # in case there is no string in the annotations and the boundingbox comes back all NaN
         if !isfinite(maxwidth)
@@ -187,7 +187,7 @@ function LineAxis(parent::Scene; kwargs...)
         get_ticks(ticks, scale, tickformat, limits...)
     end
 
-    tickpositions = Node(Point2f0[])
+    tickpositions = Node(Point2f[])
     tickstrings = Node(AbstractString[])
 
     onany(tickvalues_labels_unfiltered, reversed) do tickvalues_labels_unfiltered, reversed
@@ -233,7 +233,7 @@ function LineAxis(parent::Scene; kwargs...)
     end
 
     minortickvalues = Node(Float32[])
-    minortickpositions = Node(Point2f0[])
+    minortickpositions = Node(Point2f[])
 
     onany(tickvalues, minorticks) do tickvalues, minorticks
         minortickvalues[] = get_minor_tickvalues(minorticks, attrs.scale[], tickvalues, limits[]...)
@@ -270,12 +270,12 @@ function LineAxis(parent::Scene; kwargs...)
         position, extents, horizontal = pos_extents_horizontal[]
 
         if horizontal
-            tickstarts = [tp + (flipped[] ? -1f0 : 1f0) * Point2f0(0f0, tickalign * ticksize - 0.5f0 * spinewidth) for tp in tickpositions]
-            tickends = [t + (flipped[] ? -1f0 : 1f0) * Point2f0(0f0, -ticksize) for t in tickstarts]
+            tickstarts = [tp + (flipped[] ? -1f0 : 1f0) * Point2f(0f0, tickalign * ticksize - 0.5f0 * spinewidth) for tp in tickpositions]
+            tickends = [t + (flipped[] ? -1f0 : 1f0) * Point2f(0f0, -ticksize) for t in tickstarts]
             minorticksnode[] = interleave_vectors(tickstarts, tickends)
         else
-            tickstarts = [tp + (flipped[] ? -1f0 : 1f0) * Point2f0(tickalign * ticksize - 0.5f0 * spinewidth, 0f0) for tp in tickpositions]
-            tickends = [t + (flipped[] ? -1f0 : 1f0) * Point2f0(-ticksize, 0f0) for t in tickstarts]
+            tickstarts = [tp + (flipped[] ? -1f0 : 1f0) * Point2f(tickalign * ticksize - 0.5f0 * spinewidth, 0f0) for tp in tickpositions]
+            tickends = [t + (flipped[] ? -1f0 : 1f0) * Point2f(-ticksize, 0f0) for t in tickstarts]
             minorticksnode[] = interleave_vectors(tickstarts, tickends)
         end
     end
@@ -292,9 +292,9 @@ function LineAxis(parent::Scene; kwargs...)
         ticklabelgap = spinewidth[] + tickspace[] + ticklabelpad[]
 
         shift = if horizontal
-            Point2f0(0f0, flipped ? ticklabelgap : -ticklabelgap)
+            Point2f(0f0, flipped ? ticklabelgap : -ticklabelgap)
         else
-            Point2f0(flipped ? ticklabelgap : -ticklabelgap, 0f0)
+            Point2f(flipped ? ticklabelgap : -ticklabelgap, 0f0)
         end
 
         ticklabelpositions = tickpositions[] .+ Ref(shift)
@@ -307,12 +307,12 @@ function LineAxis(parent::Scene; kwargs...)
         position, extents, horizontal = pos_extents_horizontal[]
 
         if horizontal
-            tickstarts = [tp + (flipped[] ? -1f0 : 1f0) * Point2f0(0f0, tickalign * ticksize - 0.5f0 * spinewidth) for tp in tickpositions]
-            tickends = [t + (flipped[] ? -1f0 : 1f0) * Point2f0(0f0, -ticksize) for t in tickstarts]
+            tickstarts = [tp + (flipped[] ? -1f0 : 1f0) * Point2f(0f0, tickalign * ticksize - 0.5f0 * spinewidth) for tp in tickpositions]
+            tickends = [t + (flipped[] ? -1f0 : 1f0) * Point2f(0f0, -ticksize) for t in tickstarts]
             ticksnode[] = interleave_vectors(tickstarts, tickends)
         else
-            tickstarts = [tp + (flipped[] ? -1f0 : 1f0) * Point2f0(tickalign * ticksize - 0.5f0 * spinewidth, 0f0) for tp in tickpositions]
-            tickends = [t + (flipped[] ? -1f0 : 1f0) * Point2f0(-ticksize, 0f0) for t in tickstarts]
+            tickstarts = [tp + (flipped[] ? -1f0 : 1f0) * Point2f(tickalign * ticksize - 0.5f0 * spinewidth, 0f0) for tp in tickpositions]
+            tickends = [t + (flipped[] ? -1f0 : 1f0) * Point2f(-ticksize, 0f0) for t in tickstarts]
             ticksnode[] = interleave_vectors(tickstarts, tickends)
         end
     end
@@ -323,19 +323,19 @@ function LineAxis(parent::Scene; kwargs...)
         if !trimspine
             if horizontal
                 y = position
-                p1 = Point2f0(extents[1] - 0.5sw, y)
-                p2 = Point2f0(extents[2] + 0.5sw, y)
+                p1 = Point2f(extents[1] - 0.5sw, y)
+                p2 = Point2f(extents[2] + 0.5sw, y)
                 [p1, p2]
             else
                 x = position
-                p1 = Point2f0(x, extents[1] - 0.5sw)
-                p2 = Point2f0(x, extents[2] + 0.5sw)
+                p1 = Point2f(x, extents[1] - 0.5sw)
+                p2 = Point2f(x, extents[2] + 0.5sw)
                 [p1, p2]
             end
         else
             [tickpositions[1], tickpositions[end]] .+ [
-                (horizontal ? Point2f0(-0.5f0 * tickwidth, 0) : Point2f0(0, -0.5f0 * tickwidth)),
-                (horizontal ? Point2f0(0.5f0 * tickwidth, 0) : Point2f0(0, 0.5f0 * tickwidth)),
+                (horizontal ? Point2f(-0.5f0 * tickwidth, 0) : Point2f(0, -0.5f0 * tickwidth)),
+                (horizontal ? Point2f(0.5f0 * tickwidth, 0) : Point2f(0, 0.5f0 * tickwidth)),
             ]
         end
     end
@@ -416,10 +416,10 @@ function tight_ticklabel_spacing!(la::LineAxis)
     tls = la.elements[:ticklabels]
     maxwidth = if horizontal
             # height
-            tls.visible[] ? height(FRect2D(boundingbox(tls))) : 0f0
+            tls.visible[] ? height(Rect2f(boundingbox(tls))) : 0f0
         else
             # width
-            tls.visible[] ? width(FRect2D(boundingbox(tls))) : 0f0
+            tls.visible[] ? width(Rect2f(boundingbox(tls))) : 0f0
     end
     la.attributes.ticklabelspace = maxwidth
 end

@@ -18,7 +18,7 @@ end
 
 const PostProcessROBJ = RenderObject{PostprocessPrerender}
 
-rcpframe(x) = 1f0 ./ Vec2f0(x[1], x[2])
+rcpframe(x) = 1f0 ./ Vec2f(x[1], x[2])
 
 struct PostProcessor{F}
     robjs::Vector{PostProcessROBJ}
@@ -36,7 +36,7 @@ function ssao_postprocessor(framebuffer)
     if !haskey(framebuffer.buffers, :position)
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.id[1])
         position_buffer = Texture(
-            Vec4f0, size(framebuffer), minfilter = :nearest, x_repeat = :clamp_to_edge
+            Vec4f, size(framebuffer), minfilter = :nearest, x_repeat = :clamp_to_edge
         )
         attach_framebuffer(position_buffer, GL_COLOR_ATTACHMENT2)
         push!(framebuffer.buffers, :position => position_buffer)
@@ -44,7 +44,7 @@ function ssao_postprocessor(framebuffer)
     if !haskey(framebuffer.buffers, :normal)
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.id[1])
         normal_occlusion_buffer = Texture(
-            Vec4f0, size(framebuffer), minfilter = :nearest, x_repeat = :clamp_to_edge
+            Vec4f, size(framebuffer), minfilter = :nearest, x_repeat = :clamp_to_edge
         )
         attach_framebuffer(normal_occlusion_buffer, GL_COLOR_ATTACHMENT3)
         push!(framebuffer.buffers, :normal_occlusion => normal_occlusion_buffer)
@@ -65,7 +65,7 @@ function ssao_postprocessor(framebuffer)
     kernel = map(1:N_samples) do i
         n = normalize([2.0rand() .- 1.0, 2.0rand() .- 1.0, rand()])
         scale = lerp_min + (lerp_max - lerp_min) * (i / N_samples)^2
-        v = Vec3f0(scale * rand() * n)
+        v = Vec3f(scale * rand() * n)
     end
 
 
@@ -83,11 +83,11 @@ function ssao_postprocessor(framebuffer)
         :normal_occlusion_buffer => framebuffer.buffers[:normal_occlusion],
         :kernel => kernel,
         :noise => Texture(
-            [normalize(Vec2f0(2.0rand(2) .- 1.0)) for _ in 1:4, __ in 1:4],
+            [normalize(Vec2f(2.0rand(2) .- 1.0)) for _ in 1:4, __ in 1:4],
             minfilter = :nearest, x_repeat = :repeat
         ),
-        :noise_scale => map(s -> Vec2f0(s ./ 4.0), framebuffer.resolution),
-        :projection => Node(Mat4f0(I)),
+        :noise_scale => map(s -> Vec2f(s ./ 4.0), framebuffer.resolution),
+        :projection => Node(Mat4f(I)),
         :bias => Node(0.025f0),
         :radius => Node(0.5f0)
     )

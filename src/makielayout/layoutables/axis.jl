@@ -49,8 +49,8 @@ function layoutable(::Type{<:Axis}, fig_or_scene::Union{Figure, Scene}; bbox = n
 
     # initialize either with user limits, or pick defaults based on scales
     # so that we don't immediately error
-    targetlimits = Node{FRect2D}(defaultlimits(limits[], attrs.xscale[], attrs.yscale[]))
-    finallimits = Node{FRect2D}(targetlimits[])
+    targetlimits = Node{Rect2f}(defaultlimits(limits[], attrs.xscale[], attrs.yscale[]))
+    finallimits = Node{Rect2f}(targetlimits[])
 
     # the first thing to do when setting a new scale is
     # resetting the limits because simply through expanding they might be invalid for log
@@ -85,7 +85,7 @@ function layoutable(::Type{<:Axis}, fig_or_scene::Union{Figure, Scene}; bbox = n
 
     campixel!(scene)
 
-    xgridnode = Node(Point2f0[])
+    xgridnode = Node(Point2f[])
     xgridlines = linesegments!(
         topscene, xgridnode, linewidth = xgridwidth, show_axis = false, visible = xgridvisible,
         color = xgridcolor, linestyle = xgridstyle, inspectable = false
@@ -94,7 +94,7 @@ function layoutable(::Type{<:Axis}, fig_or_scene::Union{Figure, Scene}; bbox = n
     translate!(xgridlines, 0, 0, -10)
     decorations[:xgridlines] = xgridlines
 
-    xminorgridnode = Node(Point2f0[])
+    xminorgridnode = Node(Point2f[])
     xminorgridlines = linesegments!(
         topscene, xminorgridnode, linewidth = xminorgridwidth, show_axis = false, visible = xminorgridvisible,
         color = xminorgridcolor, linestyle = xminorgridstyle, inspectable = false
@@ -103,7 +103,7 @@ function layoutable(::Type{<:Axis}, fig_or_scene::Union{Figure, Scene}; bbox = n
     translate!(xminorgridlines, 0, 0, -10)
     decorations[:xminorgridlines] = xminorgridlines
 
-    ygridnode = Node(Point2f0[])
+    ygridnode = Node(Point2f[])
     ygridlines = linesegments!(
         topscene, ygridnode, linewidth = ygridwidth, show_axis = false, visible = ygridvisible,
         color = ygridcolor, linestyle = ygridstyle, inspectable = false
@@ -112,7 +112,7 @@ function layoutable(::Type{<:Axis}, fig_or_scene::Union{Figure, Scene}; bbox = n
     translate!(ygridlines, 0, 0, -10)
     decorations[:ygridlines] = ygridlines
 
-    yminorgridnode = Node(Point2f0[])
+    yminorgridnode = Node(Point2f[])
     yminorgridlines = linesegments!(
         topscene, yminorgridnode, linewidth = yminorgridwidth, show_axis = false, visible = yminorgridvisible,
         color = yminorgridcolor, linestyle = yminorgridstyle, inspectable = false
@@ -147,9 +147,9 @@ function layoutable(::Type{<:Axis}, fig_or_scene::Union{Figure, Scene}; bbox = n
 
     xaxis_endpoints = lift(xaxisposition, scene.px_area) do xaxisposition, area
         if xaxisposition == :bottom
-            bottomline(FRect2D(area))
+            bottomline(Rect2f(area))
         elseif xaxisposition == :top
-            topline(FRect2D(area))
+            topline(Rect2f(area))
         else
             error("Invalid xaxisposition $xaxisposition")
         end
@@ -157,9 +157,9 @@ function layoutable(::Type{<:Axis}, fig_or_scene::Union{Figure, Scene}; bbox = n
 
     yaxis_endpoints = lift(yaxisposition, scene.px_area) do yaxisposition, area
         if yaxisposition == :left
-            leftline(FRect2D(area))
+            leftline(Rect2f(area))
         elseif yaxisposition == :right
-            rightline(FRect2D(area))
+            rightline(Rect2f(area))
         else
             error("Invalid yaxisposition $yaxisposition")
         end
@@ -278,28 +278,28 @@ function layoutable(::Type{<:Axis}, fig_or_scene::Union{Figure, Scene}; bbox = n
     on(xaxis.tickpositions) do tickpos
         pxheight = height(scene.px_area[])
         offset = xaxisposition[] == :bottom ? pxheight : -pxheight
-        opposite_tickpos = tickpos .+ Ref(Point2f0(0, offset))
+        opposite_tickpos = tickpos .+ Ref(Point2f(0, offset))
         xgridnode[] = interleave_vectors(tickpos, opposite_tickpos)
     end
 
     on(yaxis.tickpositions) do tickpos
         pxwidth = width(scene.px_area[])
         offset = yaxisposition[] == :left ? pxwidth : -pxwidth
-        opposite_tickpos = tickpos .+ Ref(Point2f0(offset, 0))
+        opposite_tickpos = tickpos .+ Ref(Point2f(offset, 0))
         ygridnode[] = interleave_vectors(tickpos, opposite_tickpos)
     end
 
     on(xaxis.minortickpositions) do tickpos
         pxheight = height(scene.px_area[])
         offset = xaxisposition[] == :bottom ? pxheight : -pxheight
-        opposite_tickpos = tickpos .+ Ref(Point2f0(0, offset))
+        opposite_tickpos = tickpos .+ Ref(Point2f(0, offset))
         xminorgridnode[] = interleave_vectors(tickpos, opposite_tickpos)
     end
 
     on(yaxis.minortickpositions) do tickpos
         pxwidth = width(scene.px_area[])
         offset = yaxisposition[] == :left ? pxwidth : -pxwidth
-        opposite_tickpos = tickpos .+ Ref(Point2f0(offset, 0))
+        opposite_tickpos = tickpos .+ Ref(Point2f(offset, 0))
         yminorgridnode[] = interleave_vectors(tickpos, opposite_tickpos)
     end
 
@@ -546,9 +546,9 @@ function reset_limits!(ax; xauto = true, yauto = true, zauto = true)
     if ax isa Axis
         ax.targetlimits[] = BBox(xlims..., ylims...)
     elseif ax isa Axis3
-        ax.targetlimits[] = FRect3D(
-            Vec3f0(xlims[1], ylims[1], zlims[1]),
-            Vec3f0(xlims[2] - xlims[1], ylims[2] - ylims[1], zlims[2] - zlims[1]),
+        ax.targetlimits[] = Rect3f(
+            Vec3f(xlims[1], ylims[1], zlims[1]),
+            Vec3f(xlims[2] - xlims[1], ylims[2] - ylims[1], zlims[2] - zlims[1]),
         )
     end
     nothing
@@ -695,7 +695,7 @@ function expandbboxwithfractionalmargins(bb, margins)
     newwidths = bb.widths .* (1f0 .+ margins)
     diffs = newwidths .- bb.widths
     neworigin = bb.origin .- (0.5f0 .* diffs)
-    FRect2D(neworigin, newwidths)
+    Rect2f(neworigin, newwidths)
 end
 
 function limitunion(lims1, lims2)
@@ -750,7 +750,7 @@ function getlimits(la::Axis, dim)
         plots_with_autolimits)
 
     # get all data limits
-    bboxes = [FRect2D(Makie.data_limits(p)) for p in visible_plots]
+    bboxes = [Rect2f(Makie.data_limits(p)) for p in visible_plots]
 
     # filter out bboxes that are invalid somehow
     finite_bboxes = filter(Makie.isfinite_rect, bboxes)
@@ -1221,12 +1221,12 @@ function limits!(ax::Axis, x1, x2, y1, y2)
 end
 
 """
-    limits!(ax::Axis, rect::Rect2D)
+    limits!(ax::Axis, rect::Rect2)
 
 Set the axis limits to `rect`.
 If limits are ordered high-low, this reverses the axis orientation.
 """
-function limits!(ax::Axis, rect::Rect2D)
+function limits!(ax::Axis, rect::Rect2)
     xmin, ymin = minimum(rect)
     xmax, ymax = maximum(rect)
     Makie.xlims!(ax, xmin, xmax)

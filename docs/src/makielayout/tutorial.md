@@ -20,7 +20,7 @@ using CairoMakie
 noto_sans = assetpath("fonts", "NotoSans-Regular.ttf")
 noto_sans_bold = assetpath("fonts", "NotoSans-Bold.ttf")
 
-fig = Figure(backgroundcolor = RGBf0(0.98, 0.98, 0.98),
+fig = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98),
     resolution = (1000, 700), font = noto_sans)
 
 ax1 = fig[1, 1] = Axis(fig, title = "Pre Treatment")
@@ -141,7 +141,7 @@ Random.seed!(2) # hide
 noto_sans = assetpath("fonts", "NotoSans-Regular.ttf")
 noto_sans_bold = assetpath("fonts", "NotoSans-Bold.ttf")
 
-fig = Figure(backgroundcolor = RGBf0(0.98, 0.98, 0.98),
+fig = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98),
     resolution = (1000, 700), font = noto_sans)
 
 fig

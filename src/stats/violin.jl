@@ -80,8 +80,8 @@ function plot!(plot::Violin)
             max_density
         end
 
-        vertices = Vector{Point2f0}[]
-        lines = Pair{Point2f0, Point2f0}[]
+        vertices = Vector{Point2f}[]
+        lines = Pair{Point2f, Point2f}[]
         colors = RGBA{Float32}[]
 
         for spec in specs
@@ -98,7 +98,7 @@ function plot!(plot::Violin)
             else
                 [spec.x; xr; spec.x; xl], [yr[1]; yr; yl[1]; yl]
             end
-            verts = Point2f0.(x_coord, y_coord)
+            verts = Point2f.(x_coord, y_coord)
             push!(vertices, verts)
 
             if show_median
@@ -108,8 +108,8 @@ function plot!(plot::Violin)
                 ym₋, ym₊ = spec.kde.density[ip-1], spec.kde.density[ip]
                 xm₋, xm₊ = spec.kde.x[ip-1], spec.kde.x[ip]
                 ym = (xm * (ym₊ - ym₋) + xm₊ * ym₋ - xm₋ * ym₊) / (xm₊ - xm₋)
-                median_left = Point2f0(spec.side == 1 ? spec.x : spec.x - ym * scale, xm)
-                median_right = Point2f0(spec.side == -1 ? spec.x : spec.x + ym * scale, xm)
+                median_left = Point2f(spec.side == 1 ? spec.x : spec.x - ym * scale, xm)
+                median_right = Point2f(spec.side == -1 ? spec.x : spec.x + ym * scale, xm)
                 push!(lines, median_left => median_right)
             end
 

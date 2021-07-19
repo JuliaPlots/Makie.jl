@@ -4,9 +4,9 @@
 struct OldCamera3D <: AbstractCamera
     rotationspeed::Node{Float32}
     translationspeed::Node{Float32}
-    eyeposition::Node{Vec3f0}
-    lookat::Node{Vec3f0}
-    upvector::Node{Vec3f0}
+    eyeposition::Node{Vec3f}
+    lookat::Node{Vec3f}
+    upvector::Node{Vec3f}
     fov::Node{Float32}
     near::Node{Float32}
     far::Node{Float32}
@@ -28,9 +28,9 @@ function old_cam3d_cad!(scene; kw_args...)
         Attributes(
             rotationspeed = 0.01,
             translationspeed = 1.0,
-            eyeposition = Vec3f0(3),
-            lookat = Vec3f0(0),
-            upvector = Vec3f0(0, 0, 1),
+            eyeposition = Vec3f(3),
+            lookat = Vec3f(0),
+            upvector = Vec3f(0, 0, 1),
             fov = 45f0,
             near = 0.01f0,
             far = 100f0,
@@ -64,9 +64,9 @@ function old_cam3d_turntable!(scene; kw_args...)
         Attributes(
             rotationspeed = 0.01,
             translationspeed = 1.0,
-            eyeposition = Vec3f0(3),
-            lookat = Vec3f0(0),
-            upvector = Vec3f0(0, 0, 1),
+            eyeposition = Vec3f(3),
+            lookat = Vec3f(0),
+            upvector = Vec3f(0, 0, 1),
             fov = 45f0,
             near = 0.01f0,
             far = 100f0,
@@ -99,7 +99,7 @@ the plot's axis.
 const old_cam3d! = old_cam3d_turntable!
 
 function projection_switch(
-        wh::Rect2D,
+        wh::Rect2,
         fov::T, near::T, far::T,
         projectiontype::ProjectionEnum, zoom::T
     ) where T <: Real
@@ -138,7 +138,7 @@ end
 
 # TODO switch button and key because this is the wrong order
 function add_translation!(scene, cam, key, button, zoom_shift_lookat::Bool)
-    last_mousepos = RefValue(Vec2f0(0, 0))
+    last_mousepos = RefValue(Vec2f(0, 0))
     dragging = RefValue(false)
     on(camera(scene), scene.events.mousebutton) do event
         if event.button == key[] && ispressed(scene, button[])
@@ -151,7 +151,7 @@ function add_translation!(scene, cam, key, button, zoom_shift_lookat::Bool)
                 dragging[] = false
                 diff = (last_mousepos[] - mousepos) * cam.translationspeed[]
                 last_mousepos[] = mousepos
-                translate_cam!(scene, cam, Vec3f0(0f0, diff[1], diff[2]))
+                translate_cam!(scene, cam, Vec3f(0f0, diff[1], diff[2]))
                 return Consume(true)
             end
         end
@@ -163,7 +163,7 @@ function add_translation!(scene, cam, key, button, zoom_shift_lookat::Bool)
             mousepos = screen_relative(scene, mp)
             diff = (last_mousepos[] .- mousepos) * cam.translationspeed[]
             last_mousepos[] = mousepos
-            translate_cam!(scene, cam, Vec3f0(0f0, diff[1], diff[2]))
+            translate_cam!(scene, cam, Vec3f(0f0, diff[1], diff[2]))
             return Consume(true)
         end
         return Consume(false)
@@ -171,7 +171,7 @@ function add_translation!(scene, cam, key, button, zoom_shift_lookat::Bool)
 
     on(camera(scene), scene.events.scroll) do scroll
         if ispressed(scene, button[]) && is_mouseinside(scene)
-            cam_res = Vec2f0(widths(scene.px_area[]))
+            cam_res = Vec2f(widths(scene.px_area[]))
             mouse_pos_normalized = mouseposition_px(scene) ./ cam_res
             mouse_pos_normalized = 2*mouse_pos_normalized .- 1f0
             zoom_step = scroll[2]
@@ -183,7 +183,7 @@ function add_translation!(scene, cam, key, button, zoom_shift_lookat::Bool)
 end
 
 function add_rotation!(scene, cam, button, key, fixed_axis::Bool)
-    last_mousepos = RefValue(Vec2f0(0, 0))
+    last_mousepos = RefValue(Vec2f(0, 0))
     dragging = RefValue(false)
     e = events(scene)
 
@@ -199,7 +199,7 @@ function add_rotation!(scene, cam, button, key, fixed_axis::Bool)
                 rot_scaling = cam.rotationspeed[] * (e.window_dpi[] * 0.005)
                 mp = (last_mousepos[] - mousepos) * rot_scaling
                 last_mousepos[] = mousepos
-                rotate_cam!(scene, cam, Vec3f0(mp[1], -mp[2], 0f0), fixed_axis)
+                rotate_cam!(scene, cam, Vec3f(mp[1], -mp[2], 0f0), fixed_axis)
                 return Consume(true)
             end
         end
@@ -212,7 +212,7 @@ function add_rotation!(scene, cam, button, key, fixed_axis::Bool)
             rot_scaling = cam.rotationspeed[] * (e.window_dpi[] * 0.005)
             mp = (last_mousepos[] .- mousepos) * rot_scaling
             last_mousepos[] = mousepos
-            rotate_cam!(scene, cam, Vec3f0(mp[1], -mp[2], 0f0), fixed_axis)
+            rotate_cam!(scene, cam, Vec3f(mp[1], -mp[2], 0f0), fixed_axis)
             return Consume(true)
         end
         return Consume(false)
@@ -226,17 +226,17 @@ Translate the camera to the given coordinates.
 """
 translate_cam!(scene::Scene, translation::VecTypes) = translate_cam!(scene, cameracontrols(scene), translation)
 function translate_cam!(scene::Scene, cam::OldCamera3D, _translation::VecTypes)
-    translation = Vec3f0(_translation)
-    translation == Vec3f0(0) && return
+    translation = Vec3f(_translation)
+    translation == Vec3f(0) && return
     @extractvalue cam (projectiontype, lookat, eyeposition, upvector)
 
     dir = eyeposition - lookat
     dir_len = norm(dir)
-    cam_res = Vec2f0(widths(scene.px_area[]))
+    cam_res = Vec2f(widths(scene.px_area[]))
     z, x, y = translation
     z *= 0.1f0 * dir_len
 
-    x, y = (Vec2f0(x, y) ./ cam_res) .* dir_len
+    x, y = (Vec2f(x, y) ./ cam_res) .* dir_len
 
     dir_norm = normalize(dir)
     right = normalize(cross(dir_norm, upvector))
@@ -263,9 +263,9 @@ function zoom!(scene, point::VecTypes, zoom_step, shift_lookat::Bool)
     # split zoom into two components:
     # the offset perpendicular to `eyeposition - lookat`, based on mouse offset ~ ray_dir
     # the offset parallel to `eyeposition - lookat` ~ dir
-    ray_eye = inv(scene.camera.projection[]) * Vec4f0(point[1],point[2],0,0)
-    ray_eye = Vec4f0(ray_eye[1:2]...,0,0)
-    ray_dir = Vec3f0((inv(scene.camera.view[]) * ray_eye))
+    ray_eye = inv(scene.camera.projection[]) * Vec4f(point[1],point[2],0,0)
+    ray_eye = Vec4f(ray_eye[1:2]...,0,0)
+    ray_dir = Vec3f((inv(scene.camera.view[]) * ray_eye))
 
     dir = eyeposition - lookat
 
@@ -299,14 +299,14 @@ the camera according to the Euler angles (α, β, γ).
 rotate_cam!(scene::Scene, theta_v::Number...) = rotate_cam!(scene, cameracontrols(scene), theta_v)
 rotate_cam!(scene::Scene, theta_v::VecTypes) = rotate_cam!(scene, cameracontrols(scene), theta_v)
 function rotate_cam!(scene::Scene, cam::OldCamera3D, _theta_v::VecTypes, fixed_axis::Bool = true)
-    theta_v = Vec3f0(_theta_v)
-    theta_v == Vec3f0(0) && return #nothing to do!
+    theta_v = Vec3f(_theta_v)
+    theta_v == Vec3f(0) && return #nothing to do!
     @extractvalue cam (eyeposition, lookat, upvector)
 
     dir = normalize(eyeposition - lookat)
     right_v = normalize(cross(upvector, dir))
     upvector = normalize(cross(dir, right_v))
-    axis = fixed_axis ? Vec3f0(0, 0, sign(upvector[3])) : upvector
+    axis = fixed_axis ? Vec3f(0, 0, sign(upvector[3])) : upvector
     rotation = rotate_cam(theta_v, right_v, axis, dir)
     r_eyepos = lookat + rotation * (eyeposition - lookat)
     r_up = normalize(rotation * upvector)
@@ -334,7 +334,7 @@ end
 
 function update_cam!(scene::Scene, camera::OldCamera3D, area3d::Rect)
     @extractvalue camera (fov, near, lookat, eyeposition, upvector)
-    bb = FRect3D(area3d)
+    bb = Rect3f(area3d)
     width = widths(bb)
     half_width = width/2f0
     lower_corner = minimum(bb)
@@ -343,7 +343,7 @@ function update_cam!(scene::Scene, camera::OldCamera3D, area3d::Rect)
     camera.lookat[] = middle
     neweyepos = middle .+ (1.2*norm(width) .* old_dir)
     camera.eyeposition[] = neweyepos
-    camera.upvector[] = Vec3f0(0,0,1)
+    camera.upvector[] = Vec3f(0,0,1)
     camera.near[] = 0.1f0 * norm(widths(bb))
     camera.far[] = 3f0 * norm(widths(bb))
     update_cam!(scene, camera)
@@ -351,16 +351,16 @@ function update_cam!(scene::Scene, camera::OldCamera3D, area3d::Rect)
 end
 
 """
-    update_cam!(scene::Scene, eyeposition, lookat, up = Vec3f0(0, 0, 1))
+    update_cam!(scene::Scene, eyeposition, lookat, up = Vec3f(0, 0, 1))
 
 Updates the camera's controls to point to the specified location.
 """
-update_cam!(scene::Scene, eyeposition, lookat, up = Vec3f0(0, 0, 1)) = update_cam!(scene, cameracontrols(scene), eyeposition, lookat, up)
+update_cam!(scene::Scene, eyeposition, lookat, up = Vec3f(0, 0, 1)) = update_cam!(scene, cameracontrols(scene), eyeposition, lookat, up)
 
-function update_cam!(scene::Scene, camera::OldCamera3D, eyeposition, lookat, up = Vec3f0(0, 0, 1))
-    camera.lookat[] = Vec3f0(lookat)
-    camera.eyeposition[] = Vec3f0(eyeposition)
-    camera.upvector[] = Vec3f0(up)
+function update_cam!(scene::Scene, camera::OldCamera3D, eyeposition, lookat, up = Vec3f(0, 0, 1))
+    camera.lookat[] = Vec3f(lookat)
+    camera.eyeposition[] = Vec3f(eyeposition)
+    camera.upvector[] = Vec3f(up)
     update_cam!(scene, camera)
     return
 end

@@ -40,9 +40,9 @@ $(TYPEDFIELDS)
 """
 struct Events
     """
-    The area of the window in pixels, as a `Rect2D`.
+    The area of the window in pixels, as a `Rect2`.
     """
-    window_area::PriorityObservable{IRect2D}
+    window_area::PriorityObservable{Rect2i}
     """
     The DPI resolution of the window, as a `Float64`.
     """
@@ -139,7 +139,7 @@ function Events()
     end
 
     return Events(
-        PriorityObservable(IRect(0, 0, 0, 0)),
+        PriorityObservable(Recti(0, 0, 0, 0)),
         PriorityObservable(100.0),
         PriorityObservable(false),
 
@@ -230,12 +230,12 @@ function Base.getproperty(e::Events, field::Symbol)
 end
 
 mutable struct Camera
-    pixel_space::Node{Mat4f0}
-    view::Node{Mat4f0}
-    projection::Node{Mat4f0}
-    projectionview::Node{Mat4f0}
-    resolution::Node{Vec2f0}
-    eyeposition::Node{Vec3f0}
+    pixel_space::Node{Mat4f}
+    view::Node{Mat4f}
+    projection::Node{Mat4f}
+    projectionview::Node{Mat4f}
+    resolution::Node{Vec2f}
+    eyeposition::Node{Vec3f}
     steering_nodes::Vector{ObserverFunction}
 end
 
@@ -246,12 +246,12 @@ $(TYPEDFIELDS)
 """
 struct Transformation <: Transformable
     parent::RefValue{Transformable}
-    translation::Node{Vec3f0}
-    scale::Node{Vec3f0}
-    rotation::Node{Quaternionf0}
-    model::Node{Mat4f0}
+    translation::Node{Vec3f}
+    scale::Node{Vec3f}
+    rotation::Node{Quaternionf}
+    model::Node{Mat4f}
     flip::Node{NTuple{3, Bool}}
-    align::Node{Vec2f0}
+    align::Node{Vec2f}
     # data conversion node, for e.g. log / log10 etc
     transform_func::Node{Any}
     function Transformation(translation, scale, rotation, model, flip, align, transform_func)
@@ -315,12 +315,12 @@ Stores information about the glyphs in a string that had a layout calculated for
 struct GlyphCollection
     glyphs::Vector{Char}
     fonts::Vector{FTFont}
-    origins::Vector{Point3f0}
+    origins::Vector{Point3f}
     extents::Vector{FreeTypeAbstraction.FontExtent{Float32}}
-    scales::ScalarOrVector{Vec2f0}
-    rotations::ScalarOrVector{Quaternionf0}
-    colors::ScalarOrVector{RGBAf0}
-    strokecolors::ScalarOrVector{RGBAf0}
+    scales::ScalarOrVector{Vec2f}
+    rotations::ScalarOrVector{Quaternionf}
+    colors::ScalarOrVector{RGBAf}
+    strokecolors::ScalarOrVector{RGBAf}
     strokewidths::ScalarOrVector{Float32}
 
     function GlyphCollection(glyphs, fonts, origins, extents, scales, rotations,

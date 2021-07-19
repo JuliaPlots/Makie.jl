@@ -59,8 +59,8 @@ Multiple `direction`s, `width`s and `shift`s can also be given to create more
 complex patterns, e.g. a cross-hatching pattern.
 """
 function LinePattern(;
-        direction = Vec2f0(1), width = 2f0, tilesize = (10,10),
-        shift = map(w -> Vec2f0(0.5 - 0.5(w%2)), width),
+        direction = Vec2f(1), width = 2f0, tilesize = (10,10),
+        shift = map(w -> Vec2f(0.5 - 0.5(w%2)), width),
         linecolor = RGBA(0,0,0,1), background_color = RGBA(1,1,1,0)
     )
     N = 1
@@ -87,17 +87,17 @@ to the keyword arguments for [`LinePattern`](@ref).
 Pattern(style::String; kwargs...) = Pattern(style[1]; kwargs...)
 function Pattern(style::Char = '/'; kwargs...)
     if style == '/'
-        LinePattern(direction=Vec2f0(1); kwargs...)
+        LinePattern(direction=Vec2f(1); kwargs...)
     elseif style == '\\'
-        LinePattern(direction=Vec2f0(1, -1); kwargs...)
+        LinePattern(direction=Vec2f(1, -1); kwargs...)
     elseif style == '-'
-        LinePattern(direction=Vec2f0(1, 0); kwargs...)
+        LinePattern(direction=Vec2f(1, 0); kwargs...)
     elseif style == '|'
-        LinePattern(direction=Vec2f0(0, 1); kwargs...)
+        LinePattern(direction=Vec2f(0, 1); kwargs...)
     elseif style == 'x'
-        LinePattern(direction=[Vec2f0(1), Vec2f0(1, -1)]; kwargs...)
+        LinePattern(direction=[Vec2f(1), Vec2f(1, -1)]; kwargs...)
     elseif style == '+'
-        LinePattern(direction=[Vec2f0(1, 0), Vec2f0(0, 1)]; kwargs...)
+        LinePattern(direction=[Vec2f(1, 0), Vec2f(0, 1)]; kwargs...)
     else
         LinePattern(; kwargs...)
     end

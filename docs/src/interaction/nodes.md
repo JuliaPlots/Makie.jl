@@ -188,4 +188,4 @@ ys[] = rand(11) # trigger listeners of ys (in this case the same as xs)
 Use this technique sparingly, as it increases the complexity of your code and can make reasoning about it more difficult.
 It also only works if you can still trigger all listeners correctly.
 For example, if another observable listened only to `xs`, we wouldn't have updated it correctly in the above workaround.
-Often, you can avoid length change problems by using arrays of containers like `Point2f0` or `Vec3f0` instead of synchronizing two or three observables of single element vectors manually.
+Often, you can avoid length change problems by using arrays of containers like `Point2f` or `Vec3f` instead of synchronizing two or three observables of single element vectors manually.

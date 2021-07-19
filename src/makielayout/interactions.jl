@@ -109,21 +109,21 @@ end
 
 function _chosen_limits(rz, ax)
 
-    r = positivize(FRect2D(rz.from, rz.to .- rz.from))
+    r = positivize(Rect2f(rz.from, rz.to .- rz.from))
     lims = ax.finallimits[]
     # restrict to y change
     if rz.restrict_x || !ax.xrectzoom[]
-        r = FRect2D(lims.origin[1], r.origin[2], widths(lims)[1], widths(r)[2])
+        r = Rect2f(lims.origin[1], r.origin[2], widths(lims)[1], widths(r)[2])
     end
     # restrict to x change
     if rz.restrict_y || !ax.yrectzoom[]
-        r = FRect2D(r.origin[1], lims.origin[2], widths(r)[1], widths(lims)[2])
+        r = Rect2f(r.origin[1], lims.origin[2], widths(r)[1], widths(lims)[2])
     end
     return r
 end
 
 function _selection_vertices(outer, inner)
-    _clamp(p, plow, phigh) = Point2f0(clamp(p[1], plow[1], phigh[1]), clamp(p[2], plow[2], phigh[2]))
+    _clamp(p, plow, phigh) = Point2f(clamp(p[1], plow[1], phigh[1]), clamp(p[2], plow[2], phigh[2]))
 
     outer = positivize(outer)
     inner = positivize(inner)
@@ -203,11 +203,11 @@ function process_interaction(r::RectangleZoom, event::KeysEvent, ax::Axis)
 end
 
 
-function positivize(r::FRect2D)
+function positivize(r::Rect2f)
     negwidths = r.widths .< 0
     newori = ifelse.(negwidths, r.origin .+ r.widths, r.origin)
     newwidths = ifelse.(negwidths, -r.widths, r.widths)
-    FRect2D(newori, newwidths)
+    Rect2f(newori, newwidths)
 end
 
 function process_interaction(l::LimitReset, event::MouseEvent, ax::Axis)
@@ -245,7 +245,7 @@ function process_interaction(s::ScrollZoom, event::ScrollEvent, ax::Axis)
 
         z = (1f0 - s.speed)^zoom
 
-        mp_axscene = Vec4f0((e.mouseposition[] .- pa.origin)..., 0, 1)
+        mp_axscene = Vec4f((e.mouseposition[] .- pa.origin)..., 0, 1)
 
         # first to normal -1..1 space
         mp_axfraction =  (cam.pixel_space[] * mp_axscene)[1:2] .*
@@ -275,11 +275,11 @@ function process_interaction(s::ScrollZoom, event::ScrollEvent, ax::Axis)
         timed_ticklabelspace_reset(ax, s.reset_timer, s.prev_xticklabelspace, s.prev_yticklabelspace, s.reset_delay)
 
         newrect_trans = if ispressed(scene, xzoomkey[])
-            FRect(newxorigin, yorigin, newxwidth, ywidth)
+            Rectf(newxorigin, yorigin, newxwidth, ywidth)
         elseif ispressed(scene, yzoomkey[])
-            FRect(xorigin, newyorigin, xwidth, newywidth)
+            Rectf(xorigin, newyorigin, xwidth, newywidth)
         else
-            FRect(newxorigin, newyorigin, newxwidth, newywidth)
+            Rectf(newxorigin, newyorigin, newxwidth, newywidth)
         end
 
         inv_transf = Makie.inverse_transform(transf)
@@ -307,8 +307,8 @@ function process_interaction(dp::DragPan, event::MouseEvent, ax)
     cam = camera(scene)
     pa = pixelarea(scene)[]
 
-    mp_axscene = Vec4f0((event.px .- pa.origin)..., 0, 1)
-    mp_axscene_prev = Vec4f0((event.prev_px .- pa.origin)..., 0, 1)
+    mp_axscene = Vec4f((event.px .- pa.origin)..., 0, 1)
+    mp_axscene_prev = Vec4f((event.prev_px .- pa.origin)..., 0, 1)
 
     mp_axfraction, mp_axfraction_prev = map((mp_axscene, mp_axscene_prev)) do mp
         # first to normal -1..1 space
@@ -346,7 +346,7 @@ function process_interaction(dp::DragPan, event::MouseEvent, ax)
     timed_ticklabelspace_reset(ax, dp.reset_timer, dp.prev_xticklabelspace, dp.prev_yticklabelspace, dp.reset_delay)
 
     inv_transf = Makie.inverse_transform(transf)
-    newrect_trans = FRect(Vec2f0(xori, yori), widths(tlimits_trans))
+    newrect_trans = Rectf(Vec2f(xori, yori), widths(tlimits_trans))
     tlimits[] = Makie.apply_transform(inv_transf, newrect_trans)
 
     return Consume(true)

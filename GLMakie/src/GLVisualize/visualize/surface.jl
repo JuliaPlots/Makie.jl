@@ -5,7 +5,7 @@ function _default(main::Tuple{MatTypes{T}, MatTypes{T}, MatTypes{T}}, s::Style{:
         position_x = main[1] => (Texture, "x position, must be a `Matrix{Float}`")
         position_y = main[2] => (Texture, "y position, must be a `Matrix{Float}`")
         position_z = main[3] => (Texture, "z position, must be a `Matrix{Float}`")
-        scale = Vec3f0(0) => "scale must be 0, for a surfacemesh"
+        scale = Vec3f(0) => "scale must be 0, for a surfacemesh"
     end
     surface(position_z, s, data)
 end
@@ -16,7 +16,7 @@ function _default(main::Tuple{VectorTypes{T}, VectorTypes{T}, MatTypes{T}}, s::S
         position_x = main[1] => (Texture, "x position, must be a `Vector{Float}`")
         position_y = main[2] => (Texture, "y position, must be a `Vector{Float}`")
         position_z = main[3] => (Texture, "z position, must be a `Matrix{Float}`")
-        scale = Vec3f0(0) => "scale must be 0, for a surfacemesh"
+        scale = Vec3f(0) => "scale must be 0, for a surfacemesh"
     end
     surface(position_z, s, data)
 end
@@ -39,12 +39,12 @@ function _default(main::Tuple{G, MatTypes{T}}, s::Style{:surface}, data::Dict) w
         position    = main[1] =>" Position given as a `Grid{2}`.
         Can be constructed e.g. `Grid(LinRange(0,2,N1), LinRange(0,3, N2))`"
         position_z  = main[2] => (Texture, "height offset for the surface, must be `Matrix{Float}`")
-        scale       = Vec3f0(xscale, yscale, 1) => "scale of the grid planes forming the surface. Can be made smaller, to let the grid show"
+        scale       = Vec3f(xscale, yscale, 1) => "scale of the grid planes forming the surface. Can be made smaller, to let the grid show"
     end
     surface(position_z, s, data)
 end
 
-_extrema(x::FRect3D) = Vec2f0(minimum(x)[3], maximum(x)[3])
+_extrema(x::Rect3f) = Vec2f(minimum(x)[3], maximum(x)[3])
 nothing_or_vec(x) = x
 nothing_or_vec(x::Array) = vec(x)
 
@@ -79,7 +79,7 @@ end
 function surface(main, s::Style{:surface}, data::Dict)
 
     @gen_defaults! data begin
-        primitive = Rect2D(0f0,0f0,1f0,1f0) => native_triangle_mesh
+        primitive = Rect2(0f0,0f0,1f0,1f0) => native_triangle_mesh
         scale = nothing
         position = nothing
         position_x = nothing => Texture
@@ -98,11 +98,11 @@ function surface(main, s::Style{:surface}, data::Dict)
         fetch_pixel = false
         matcap = nothing => Texture
 
-        nan_color = RGBAf0(1, 0, 0, 1)
-        highclip = RGBAf0(0, 0, 0, 0)
-        lowclip = RGBAf0(0, 0, 0, 0)
+        nan_color = RGBAf(1, 0, 0, 1)
+        highclip = RGBAf(0, 0, 0, 0)
+        lowclip = RGBAf(0, 0, 0, 0)
 
-        uv_scale = Vec2f0(1)
+        uv_scale = Vec2f(1)
         instances = const_lift(x->(size(x,1)-1) * (size(x,2)-1), main) => "number of planes used to render the surface"
         shader = GLVisualizeShader(
             "fragment_output.frag", "util.vert", "surface.vert",

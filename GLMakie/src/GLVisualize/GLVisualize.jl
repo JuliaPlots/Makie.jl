@@ -21,7 +21,7 @@ using LinearAlgebra
 import Makie: to_font, glyph_uv_width!
 import ..GLMakie: get_texture!, loadshader
 
-const GLBoundingBox = FRect3D
+const GLBoundingBox = Rect3f
 
 include("visualize_interface.jl")
 export visualize # Visualize an object

@@ -26,7 +26,7 @@ ax = Axis(fig[1, 1])
 sl_x = Slider(fig[2, 1], range = 0:0.01:10, startvalue = 3)
 sl_y = Slider(fig[1, 2], range = 0:0.01:10, horizontal = false, startvalue = 6)
 
-point = @lift(Point2f0($(sl_x.value), $(sl_y.value)))
+point = @lift(Point2f($(sl_x.value), $(sl_y.value)))
 
 scatter!(point, color = :red, markersize = 20)
 

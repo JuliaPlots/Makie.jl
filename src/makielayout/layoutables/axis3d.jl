@@ -26,7 +26,7 @@ function layoutable(::Type{<:Axis3}, fig_or_scene::Union{Figure, Scene}; bbox = 
 
     notify(protrusions)
 
-    finallimits = Node(FRect3D(Vec3f0(0f0, 0f0, 0f0), Vec3f0(100f0, 100f0, 100f0)))
+    finallimits = Node(Rect3f(Vec3f(0f0, 0f0, 0f0), Vec3f(100f0, 100f0, 100f0)))
 
     scenearea = lift(round_to_IRect2D, layoutobservables.computedbbox)
 
@@ -217,7 +217,7 @@ function calculate_matrices(limits, px_area, elev, azim, perspectiveness, aspect
 
     # for eyeposition dependent algorithms, we need to present the position as if
     # there was no scaling applied
-    eyeposition = Vec3f0(inv(scale_matrix) * Vec4f0(eyepos..., 1))
+    eyeposition = Vec3f(inv(scale_matrix) * Vec4f(eyepos..., 1))
 
     view_matrix, projection_matrix, eyeposition
 end
@@ -236,9 +236,9 @@ function projectionmatrix(viewmatrix, limits, eyepos, radius, azim, elev, angle,
         pm = Makie.perspectiveprojection(Float64, angle, aspect_ratio, near, far)
 
         if viewmode in (:fitzoom, :stretch)
-            points = decompose(Point3f0, limits)
+            points = decompose(Point3f, limits)
             # @show points
-            projpoints = Ref(pm * viewmatrix) .* to_ndim.(Point4f0, points, 1)
+            projpoints = Ref(pm * viewmatrix) .* to_ndim.(Point4f, points, 1)
 
             maxx = maximum(x -> abs(x[1] / x[4]), projpoints)
             maxy = maximum(x -> abs(x[2] / x[4]), projpoints)
@@ -289,15 +289,15 @@ function autolimits!(ax::Axis3)
     ylims = getlimits(ax, 2)
     zlims = getlimits(ax, 3)
 
-    ori = Vec3f0(xlims[1], ylims[1], zlims[1])
-    widths = Vec3f0(xlims[2] - xlims[1], ylims[2] - ylims[1], zlims[2] - zlims[1])
+    ori = Vec3f(xlims[1], ylims[1], zlims[1])
+    widths = Vec3f(xlims[2] - xlims[1], ylims[2] - ylims[1], zlims[2] - zlims[1])
 
     enlarge_factor = 0.1
 
     nori = ori .- (0.5 * enlarge_factor) * widths
     nwidths = widths .* (1 + enlarge_factor)
 
-    lims = FRect3D(nori, nwidths)
+    lims = Rect3f(nori, nwidths)
 
     ax.finallimits[] = lims
     nothing
@@ -445,10 +445,10 @@ end
 # small z value
 function to_topscene_z_2d(p3d, scene)
     o = scene.px_area[].origin
-    p2d = Point2f0(o + Makie.project(scene, p3d))
+    p2d = Point2f(o + Makie.project(scene, p3d))
     # -10000 is an arbitrary weird constant that in preliminary testing didn't seem
     # to clip into plot objects anymore
-    Point3f0(p2d..., -10000)
+    Point3f(p2d..., -10000)
 end
 
 function add_ticks_and_ticklabels!(topscene, scene, dim::Int, limits, ticknode, miv, min1, min2, attrs, azimuth)
@@ -514,16 +514,16 @@ function add_ticks_and_ticklabels!(topscene, scene, dim::Int, limits, ticknode, 
         o = pxa.origin
 
         points = map(ticksegs) do (tstart, tend)
-            tstartp = Point2f0(o + Makie.project(scene, tstart))
-            tendp = Point2f0(o + Makie.project(scene, tend))
+            tstartp = Point2f(o + Makie.project(scene, tstart))
+            tendp = Point2f(o + Makie.project(scene, tend))
 
             offset = pad * Makie.GeometryBasics.normalize(
-                Point2f0(tendp - tstartp))
+                Point2f(tendp - tstartp))
             tendp + offset
         end
 
         v = collect(zip(ticklabs, points))
-        v::Vector{Tuple{String, Point2f0}}
+        v::Vector{Tuple{String, Point2f}}
     end
 
     align = lift(miv, min1, min2) do mv, m1, m2
@@ -558,8 +558,8 @@ function add_ticks_and_ticklabels!(topscene, scene, dim::Int, limits, ticknode, 
         p2 = dpoint(maximum(lims)[dim], f1, f2)
 
         # project them into screen space
-        pp1 = Point2f0(o + Makie.project(scene, p1))
-        pp2 = Point2f0(o + Makie.project(scene, p2))
+        pp1 = Point2f(o + Makie.project(scene, p1))
+        pp2 = Point2f(o + Makie.project(scene, p2))
 
         # find the midpoint
         midpoint = (pp1 + pp2) / 2
@@ -576,7 +576,7 @@ function add_ticks_and_ticklabels!(topscene, scene, dim::Int, limits, ticknode, 
         a = pi/2
 
         # get the vector pointing from the axis in the direction of the label anchor
-        offset_vec = (Makie.Mat2f0(cos(a), sin(a), -sin(a), cos(a)) *
+        offset_vec = (Makie.Mat2f(cos(a), sin(a), -sin(a), cos(a)) *
             Makie.GeometryBasics.normalize(diffsign * diff))
 
         # calculate the label offset from the axis midpoint
@@ -895,12 +895,12 @@ function limits!(ax::Axis3, x1, x2, y1, y2, z1, z2)
 end
 
 """
-    limits!(ax::Axis3, rect::Rect3D)
+    limits!(ax::Axis3, rect::Rect3)
 
 Set the axis limits to `rect`.
 If limits are ordered high-low, this reverses the axis orientation.
 """
-function limits!(ax::Axis3, rect::Rect3D)
+function limits!(ax::Axis3, rect::Rect3)
     xmin, ymin, zmin = minimum(rect)
     xmax, ymax, zmax = maximum(rect)
     Makie.xlims!(ax, xmin, xmax)

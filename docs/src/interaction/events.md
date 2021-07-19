@@ -51,7 +51,7 @@ struct. You can access it from any scene via `events(scene)` and via
 `events(figure.scene)` or `events(axis.scene)` from a figure or axis. The struct
 contains the following fields you may react to.
 
-- `window_area::PriorityObservable{IRect2D}`: Contains the current size of the window in pixels.
+- `window_area::PriorityObservable{Rect2i}`: Contains the current size of the window in pixels.
 - `window_dpi::PriorityObservable{Float64}`: Contains the DPI of the window.
 - `window_open::PriorityObservable{Bool}`: Contains `true` as long as the window is open.
 - `hasfocus::PriorityObservable{Bool}`: Contains `true` if the window is focused (in the foreground).

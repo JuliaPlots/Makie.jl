@@ -1,5 +1,5 @@
 struct Camera2D <: AbstractCamera
-    area::Node{FRect2D}
+    area::Node{Rect2f}
     zoomspeed::Node{Float32}
     zoombutton::Node{ButtonTypes}
     panbutton::Node{Union{ButtonTypes, Vector{ButtonTypes}}}
@@ -16,7 +16,7 @@ Creates a 2D camera for the given Scene.
 function cam2d!(scene::SceneLike; kw_args...)
     cam_attributes = merged_get!(:cam2d, scene, Attributes(kw_args)) do
         Attributes(
-            area = Node(FRect(0, 0, 1, 1)),
+            area = Node(Rectf(0, 0, 1, 1)),
             zoomspeed = 0.10f0,
             zoombutton = nothing,
             panbutton = Mouse.right,
@@ -55,7 +55,7 @@ Useful when using the `Node` pipeline.
 update_cam!(scene::SceneLike) = update_cam!(scene, cameracontrols(scene), limits(scene)[])
 
 function update_cam!(scene::Scene, cam::Camera2D, area3d::Rect)
-    area = FRect2D(area3d)
+    area = Rect2f(area3d)
     area = positive_widths(area)
     # ignore rects with width almost 0
     any(x-> x ≈ 0.0, widths(area)) && return
@@ -71,7 +71,7 @@ function update_cam!(scene::Scene, cam::Camera2D, area3d::Rect)
         # so we make the minimum 1.0, and grow in the other dimension
         s = ratio ./ minimum(ratio)
         newwh = s .* widths(area)
-        cam.area[] = FRect(minimum(area), newwh)
+        cam.area[] = Rectf(minimum(area), newwh)
     end
     update_cam!(scene, cam)
 end
@@ -81,7 +81,7 @@ function update_cam!(scene::SceneLike, cam::Camera2D)
     w, h = widths(cam.area[]) ./ 2f0
     # These nodes should be final, no one should do map(cam.projection),
     # so we don't push! and just update the value in place
-    view = translationmatrix(Vec3f0(-x - w, -y - h, 0))
+    view = translationmatrix(Vec3f(-x - w, -y - h, 0))
     projection = orthographicprojection(-w, w, -h, h, -10_000f0, 10_000f0)
     camera(scene).view[] = view
     camera(scene).projection[] = projection
@@ -96,7 +96,7 @@ function correct_ratio!(scene, cam)
         change = neww .- cam.last_area[]
         if !(change ≈ Vec(0.0, 0.0))
             s = 1.0 .+ (change ./ cam.last_area[])
-            camrect = FRect(minimum(cam.area[]), widths(cam.area[]) .* s)
+            camrect = Rectf(minimum(cam.area[]), widths(cam.area[]) .* s)
             cam.area[] = camrect
             update_cam!(scene, cam)
         end
@@ -125,7 +125,7 @@ function add_pan!(scene::SceneLike, cam::Camera2D)
                 startpos[] = mp
                 area = cam.area[]
                 diff = Vec(diff) .* wscale(pixelarea(scene)[], area)
-                cam.area[] = FRect(minimum(area) .+ diff, widths(area))
+                cam.area[] = Rectf(minimum(area) .+ diff, widths(area))
                 update_cam!(scene, cam)
                 active[] = false
                 return Consume(true)
@@ -144,7 +144,7 @@ function add_pan!(scene::SceneLike, cam::Camera2D)
             startpos[] = pos
             area = cam.area[]
             diff = Vec(diff) .* wscale(pixelarea(scene)[], area)
-            cam.area[] = FRect(minimum(area) .+ diff, widths(area))
+            cam.area[] = Rectf(minimum(area) .+ diff, widths(area))
             update_cam!(scene, cam)
             return Consume(true)
         end
@@ -160,13 +160,13 @@ function add_zoom!(scene::SceneLike, cam::Camera2D)
         if zoom != 0 && ispressed(scene, zoombutton) && is_mouseinside(scene)
             pa = pixelarea(scene)[]
             z = (1f0 - zoomspeed)^zoom
-            mp = Vec2f0(e.mouseposition[]) - minimum(pa)
+            mp = Vec2f(e.mouseposition[]) - minimum(pa)
             mp = (mp .* wscale(pa, area)) + minimum(area)
             p1, p2 = minimum(area), maximum(area)
             p1, p2 = p1 - mp, p2 - mp # translate to mouse position
             p1, p2 = z * p1, z * p2
             p1, p2 = p1 + mp, p2 + mp
-            cam.area[] = FRect(p1, p2 - p1)
+            cam.area[] = Rectf(p1, p2 - p1)
             update_cam!(scene, cam)
             return Consume(true)
         end
@@ -184,12 +184,12 @@ function absrect(rect)
     xy = ntuple(Val(2)) do i
         wh[i] < 0 ? xy[i] + wh[i] : xy[i]
     end
-    return FRect(Vec2f0(xy), Vec2f0(abs.(wh)))
+    return Rectf(Vec2f(xy), Vec2f(abs.(wh)))
 end
 
 
 function selection_rect!(scene, cam, key)
-    rect = RefValue(FRect(NaN, NaN, NaN, NaN))
+    rect = RefValue(Rectf(NaN, NaN, NaN, NaN))
     lw = 2f0
     scene_unscaled = Scene(
         scene, transformation = Transformation(),
@@ -214,7 +214,7 @@ function selection_rect!(scene, cam, key)
             if event.action == Mouse.press
                 waspressed[] = true
                 rect_vis[:visible] = true # start displaying
-                rect[] = FRect(mp, 0, 0)
+                rect[] = Rectf(mp, 0, 0)
                 rect_vis[1] = rect[]
                 return Consume(true)
             end
@@ -226,7 +226,7 @@ function selection_rect!(scene, cam, key)
                 if w > 0.0 && h > 0.0
                     update_cam!(scene, cam, r)
                 end
-                rect[] = FRect(NaN, NaN, NaN, NaN)
+                rect[] = Rectf(NaN, NaN, NaN, NaN)
                 rect_vis[1] = rect[]
                 return Consume(true)
             end
@@ -241,7 +241,7 @@ function selection_rect!(scene, cam, key)
         # this is only true after a mousebutton update
         if ispressed(scene, key) && is_mouseinside(scene)
             mini = minimum(rect[])
-            rect[] = FRect(mini, mp - mini)
+            rect[] = Rectf(mini, mp - mini)
             rect_vis[1] = rect[]
             return Consume(true)
         end
@@ -260,25 +260,25 @@ function reset!(cam, boundingbox, preserveratio = true)
         ratio = w2 ./ w1
         w1 = if ratio[1] > ratio[2]
             s = w2[1] ./ w2[2]
-            Vec2f0(s * w1[2], w1[2])
+            Vec2f(s * w1[2], w1[2])
         else
             s = w2[2] ./ w2[1]
-            Vec2f0(w1[1], s * w1[1])
+            Vec2f(w1[1], s * w1[1])
         end
     end
     p = minimum(w1) .* 0.001 # 2mm padding
-    update_cam!(cam, FRect(-p, -p, w1 .+ 2p))
+    update_cam!(cam, Rectf(-p, -p, w1 .+ 2p))
     return
 end
 
 
 
-function add_restriction!(cam, window, rarea::Rect2D, minwidths::Vec)
+function add_restriction!(cam, window, rarea::Rect2, minwidths::Vec)
     area_ref = Base.RefValue(cam[Area])
     restrict_action = paused_action(1.0) do t
         o = lerp(origin(area_ref[]), origin(cam[Area]), t)
         wh = lerp(widths(area_ref[]), widths(cam[Area]), t)
-        update_cam!(cam, FRect(o, wh))
+        update_cam!(cam, Rectf(o, wh))
     end
     on(window, Mouse.Drag) do drag
         if drag == Mouse.up && !isplaying(restrict_action)
@@ -296,7 +296,7 @@ function add_restriction!(cam, window, rarea::Rect2D, minwidths::Vec)
                 scale = max(scale, stmp)
             end
             newwh = newwh * scale
-            area_ref[] = FRect(newo, newwh)
+            area_ref[] = Rectf(newo, newwh)
             if area_ref[] != cam[Area]
                 play!(restrict_action)
             end
@@ -314,7 +314,7 @@ Creates a pixel-level camera for the `Scene`.  No controls!
 """
 function campixel!(scene)
     scene.updated = Node(false)
-    camera(scene).view[] = Mat4f0(I)
+    camera(scene).view[] = Mat4f(I)
     update_once = Observable(false)
     on(camera(scene), update_once, pixelarea(scene)) do u, window_size
         nearclip = -10_000f0

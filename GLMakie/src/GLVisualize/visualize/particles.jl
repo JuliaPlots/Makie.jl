@@ -49,25 +49,25 @@ using Makie: get_texture_atlas
 vec2quaternion(rotation::StaticVector{4}) = rotation
 
 function vec2quaternion(r::StaticVector{2})
-    vec2quaternion(Vec3f0(r[1], r[2], 0))
+    vec2quaternion(Vec3f(r[1], r[2], 0))
 end
 function vec2quaternion(rotation::StaticVector{3})
-    Makie.rotation_between(Vec3f0(0, 0, 1), Vec3f0(rotation))
+    Makie.rotation_between(Vec3f(0, 0, 1), Vec3f(rotation))
 end
 
-vec2quaternion(rotation::Vec4f0) = rotation
+vec2quaternion(rotation::Vec4f) = rotation
 vec2quaternion(rotation::VectorTypes) = const_lift(x-> vec2quaternion.(x), rotation)
 vec2quaternion(rotation::Node) = lift(vec2quaternion, rotation)
-vec2quaternion(rotation::Makie.Quaternion)= Vec4f0(rotation.data)
+vec2quaternion(rotation::Makie.Quaternion)= Vec4f(rotation.data)
 vec2quaternion(rotation)= vec2quaternion(to_rotation(rotation))
-GLAbstraction.gl_convert(rotation::Makie.Quaternion)= Vec4f0(rotation.data)
+GLAbstraction.gl_convert(rotation::Makie.Quaternion)= Vec4f(rotation.data)
 
 
 """
 This is the main function to assemble particles with a GLNormalMesh as a primitive
 """
 function meshparticle(p, s, data)
-    rot = get!(data, :rotation, Vec4f0(0, 0, 0, 1))
+    rot = get!(data, :rotation, Vec4f(0, 0, 0, 1))
     rot = vec2quaternion(rot)
     delete!(data, :rotation)
     @gen_defaults! data begin
@@ -77,7 +77,7 @@ function meshparticle(p, s, data)
         position_y = nothing => TextureBuffer
         position_z = nothing => TextureBuffer
 
-        scale = Vec3f0(1) => TextureBuffer
+        scale = Vec3f(1) => TextureBuffer
         scale_x = nothing => TextureBuffer
         scale_y = nothing => TextureBuffer
         scale_z = nothing => TextureBuffer
@@ -97,10 +97,10 @@ function meshparticle(p, s, data)
         else
             nothing
         end => to_meshcolor
-        vertex_color = Vec4f0(1)
+        vertex_color = Vec4f(1)
         matcap = nothing => Texture
         fetch_pixel = false
-        uv_scale = Vec2f0(1)
+        uv_scale = Vec2f(1)
 
         instances = const_lift(length, position)
         shading = true
@@ -156,20 +156,20 @@ returns the Shape for the distancefield algorithm
 primitive_shape(::Char) = DISTANCEFIELD
 primitive_shape(x::X) where {X} = primitive_shape(X)
 primitive_shape(::Type{T}) where {T <: Circle} = CIRCLE
-primitive_shape(::Type{T}) where {T <: Rect2D} = RECTANGLE
+primitive_shape(::Type{T}) where {T <: Rect2} = RECTANGLE
 primitive_shape(x::Shape) = x
 
 """
 Extracts the scale from a primitive.
 """
-primitive_scale(prim::GeometryPrimitive) = Vec2f0(widths(prim))
-primitive_scale(::Union{Shape, Char}) = Vec2f0(40)
-primitive_scale(c) = Vec2f0(0.1)
+primitive_scale(prim::GeometryPrimitive) = Vec2f(widths(prim))
+primitive_scale(::Union{Shape, Char}) = Vec2f(40)
+primitive_scale(c) = Vec2f(0.1)
 
 """
 Extracts the offset from a primitive.
 """
-primitive_offset(x, scale::Nothing) = Vec2f0(0) # default offset
+primitive_offset(x, scale::Nothing) = Vec2f(0) # default offset
 primitive_offset(x, scale) = const_lift(/, scale, -2f0)  # default offset
 
 
@@ -177,7 +177,7 @@ primitive_offset(x, scale) = const_lift(/, scale, -2f0)  # default offset
 Extracts the uv offset and width from a primitive.
 """
 primitive_uv_offset_width(c::Char) = glyph_uv_width!(c)
-primitive_uv_offset_width(x) = Vec4f0(0,0,1,1)
+primitive_uv_offset_width(x) = Vec4f(0,0,1,1)
 
 """
 Gets the texture atlas if primitive is a char.
@@ -191,9 +191,9 @@ function _default(
     ) where {C <: Colorant, P <: Point}
     data[:image] = p[1] # we don't want this to be overwritten by user
     @gen_defaults! data begin
-        scale = lift(x-> Vec2f0(size(x)), p[1])
+        scale = lift(x-> Vec2f(size(x)), p[1])
         shape = RECTANGLE
-        offset = Vec2f0(0)
+        offset = Vec2f(0)
     end
     sprites(p, s, data)
 end
@@ -203,9 +203,9 @@ function _default(
     ) where {C <: AbstractFloat, P <: Point}
     data[:distancefield] = p[1] # we don't want this to be overwritten by user
     @gen_defaults! data begin
-        scale = lift(x-> Vec2f0(size(x)), p[1])
+        scale = lift(x-> Vec2f(size(x)), p[1])
         shape = RECTANGLE
-        offset = Vec2f0(0)
+        offset = Vec2f(0)
     end
     sprites(p, s, data)
 end
@@ -219,8 +219,8 @@ function _default(
     if !all(x-> x == sizes[1], sizes) # if differently sized
         # create texture atlas
         maxdims = sum(map(Vec{2, Int}, sizes))
-        rectangles = map(x->Rect2D(0, 0, x...), sizes)
-        rpack = RectanglePacker(Rect2D(0, 0, maxdims...))
+        rectangles = map(x->Rect2(0, 0, x...), sizes)
+        rpack = RectanglePacker(Rect2(0, 0, maxdims...))
         uv_coordinates = [push!(rpack, rect).area for rect in rectangles]
         max_xy = maximum(maximum.(uv_coordinates))
         texture_atlas = Texture(C, (max_xy...,))
@@ -231,14 +231,14 @@ function _default(
             m = max_xy .- 1
             mini = reverse((minimum(uv)) ./ m)
             maxi = reverse((maximum(uv) .- 1) ./ m)
-            return Vec4f0(mini..., maxi...)
+            return Vec4f(mini..., maxi...)
         end
         images = texture_atlas
     end
     data[:image] = images # we don't want this to be overwritten by user
     @gen_defaults! data begin
         shape = RECTANGLE
-        offset = Vec2f0(0)
+        offset = Vec2f(0)
     end
     sprites(p, s, data)
 end
@@ -267,7 +267,7 @@ Main assemble functions for sprite particles.
 Sprites are anything like distance fields, images and simple geometries
 """
 function sprites(p, s, data)
-    rot = get!(data, :rotation, Vec4f0(0, 0, 0, 1))
+    rot = get!(data, :rotation, Vec4f(0, 0, 0, 1))
     rot = vec2quaternion(rot)
     delete!(data, :rotation)
 
@@ -307,7 +307,7 @@ function sprites(p, s, data)
         distancefield   = primitive_distancefield(p[1]) => Texture
         indices         = const_lift(length, p[2]) => to_index_buffer
         # rotation and billboard don't go along
-        billboard        = rotation == Vec4f0(0,0,0,1) => "if `billboard` == true, particles will always face camera"
+        billboard        = rotation == Vec4f(0,0,0,1) => "if `billboard` == true, particles will always face camera"
         fxaa             = false
         shader           = GLVisualizeShader(
             "fragment_output.frag", "util.vert", "sprites.geom",
@@ -342,7 +342,7 @@ end
 function _default(main::TOrSignal{S}, s::Style, data::Dict) where S <: AbstractString
     @gen_defaults! data begin
         relative_scale  = 4 #
-        start_position  = Point2f0(0)
+        start_position  = Point2f(0)
         atlas           = get_texture_atlas()
         distancefield   = get_texture!(atlas)
         stroke_width    = 0f0
@@ -358,10 +358,10 @@ function _default(main::TOrSignal{S}, s::Style, data::Dict) where S <: AbstractS
             enabletransparency()
         end
         uv_offset_width = const_lift(main) do str
-            Vec4f0[glyph_uv_width!(atlas, c, font) for c = str]
+            Vec4f[glyph_uv_width!(atlas, c, font) for c = str]
         end
         scale = const_lift(main, relative_scale) do str, s
-            Vec2f0[glyph_scale!(atlas, c, font, s) for c = str]
+            Vec2f[glyph_scale!(atlas, c, font, s) for c = str]
         end
     end
     delete!(data, :font)

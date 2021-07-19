@@ -4,16 +4,16 @@ using CategoricalArrays: categorical, levelcode
 
 @cell "Test heatmap + image overlap" begin
     heatmap(RNG.rand(32, 32))
-    image!(map(x -> RGBAf0(x, 0.5, 0.5, 0.8), RNG.rand(32, 32)))
+    image!(map(x -> RGBAf(x, 0.5, 0.5, 0.8), RNG.rand(32, 32)))
     current_figure()
 end
 
 @cell "poly and colormap" begin
     # example by @Paulms from JuliaPlots/Makie.jl#310
-    points = Point2f0[[0.0, 0.0], [0.1, 0.0], [0.1, 0.1], [0.0, 0.1]]
+    points = Point2f[[0.0, 0.0], [0.1, 0.0], [0.1, 0.1], [0.0, 0.1]]
     colors = [0.0 ,0.0, 0.5, 0.0]
     fig, ax, polyplot = poly(points, color=colors, colorrange=(0.0, 1.0))
-    points = Point2f0[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2], [0.1, 0.2]]
+    points = Point2f[[0.1, 0.1], [0.2, 0.1], [0.2, 0.2], [0.1, 0.2]]
     colors = [0.5,0.5,1.0,0.3]
     poly!(ax, points, color=colors, colorrange=(0.0, 1.0))
     fig
@@ -25,9 +25,9 @@ end
 end
 
 @cell "Arrows on hemisphere" begin
-    s = Sphere(Point3f0(0), 0.9f0)
+    s = Sphere(Point3f(0), 0.9f0)
     fig, ax, meshplot = mesh(s, transparency=true, alpha=0.05)
-    pos = decompose(Point3f0, s)
+    pos = decompose(Point3f, s)
     dirs = decompose_normals(s)
     arrows!(ax, pos, dirs, arrowcolor=:red, arrowsize=0.1, linecolor=:red)
     fig
@@ -110,9 +110,9 @@ end
 end
 
 # @cell "Subscenes" begin
-#     img = RNG.rand(RGBAf0, 100, 100)
+#     img = RNG.rand(RGBAf, 100, 100)
 #     scene = image(img, show_axis=false)
-#     subscene = Scene(scene, IRect(100, 100, 300, 300))
+#     subscene = Scene(scene, Recti(100, 100, 300, 300))
 #     scatter!(subscene, RNG.rand(100) * 200, RNG.rand(100) * 200, markersize=4)
 #     scene
 # end
@@ -127,14 +127,14 @@ end
 end
 
 @cell "Polygons" begin
-    points = decompose(Point2f0, Circle(Point2f0(50), 50f0))
+    points = decompose(Point2f, Circle(Point2f(50), 50f0))
     fig, ax, pol = poly(points, color=:gray, strokewidth=10, strokecolor=:red)
     # Optimized forms
-    poly!(ax, [Circle(Point2f0(50 + 300), 50f0)], color=:gray, strokewidth=10, strokecolor=:red)
-    poly!(ax, [Circle(Point2f0(50 + i, 50 + i), 10f0) for i = 1:100:400], color=:red)
-    poly!(ax, [FRect2D(50 + i, 50 + i, 20, 20) for i = 1:100:400], strokewidth=2, strokecolor=:green)
+    poly!(ax, [Circle(Point2f(50 + 300), 50f0)], color=:gray, strokewidth=10, strokecolor=:red)
+    poly!(ax, [Circle(Point2f(50 + i, 50 + i), 10f0) for i = 1:100:400], color=:red)
+    poly!(ax, [Rect2f(50 + i, 50 + i, 20, 20) for i = 1:100:400], strokewidth=2, strokecolor=:green)
     linesegments!(ax,
-        [Point2f0(50 + i, 50 + i) => Point2f0(i + 70, i + 70) for i = 1:100:400], linewidth=8, color=:purple
+        [Point2f(50 + i, 50 + i) => Point2f(i + 70, i + 70) for i = 1:100:400], linewidth=8, color=:purple
     )
     fig
 end
@@ -153,7 +153,7 @@ end
     fig = Figure()
     ax = fig[1, 1] = Axis(fig)
     pos = (500, 500)
-    posis = Point2f0[]
+    posis = Point2f[]
     for r in range(0, stop=2pi, length=20)
         p = pos .+ (sin(r) * 100.0, cos(r) * 100)
         push!(posis, p)
@@ -200,7 +200,7 @@ end
     fig, ax, lineplot = lines(RNG.rand(10); linewidth=10)
     N = 20
     Record(fig, 1:N; framerate=20) do i
-        lineplot.color = RGBf0(i / N, (N - i) / N, 0) # animate scene
+        lineplot.color = RGBf(i / N, (N - i) / N, 0) # animate scene
     end
 end
 
@@ -213,7 +213,7 @@ let
     end
     @cell "streamplot" begin
         P = FitzhughNagumo(0.1, 0.0, 1.5, 0.8)
-        f(x, P::FitzhughNagumo) = Point2f0(
+        f(x, P::FitzhughNagumo) = Point2f(
             (x[1] - x[2] - x[1]^3 + P.s) / P.ϵ,
             P.γ * x[1] - x[2] + P.β
         )
@@ -236,7 +236,7 @@ end
         lines!(ax,
             xs, ys;
             color=colors[i],
-            limits=FRect((0, 0), (10, 10)),
+            limits=Rectf((0, 0), (10, 10)),
             linewidth=5
         ) # plot lines with colors
     end
@@ -246,7 +246,7 @@ end
     for (i, rot) in enumerate(LinRange(0, π / 2, N))
         Makie.rotate!(plots[i], rot)
         arc!(ax,
-            Point2f0(0),
+            Point2f(0),
             (8 - i),
             pi / 2,
             (pi / 2 - rot);
@@ -298,7 +298,7 @@ end
 
 @cell "intersecting polygon" begin
     x = LinRange(0, 2pi, 100)
-    poly(Point2f0.(zip(sin.(x), sin.(2x))), color = :white, strokecolor = :blue, strokewidth = 10)
+    poly(Point2f.(zip(sin.(x), sin.(2x))), color = :white, strokecolor = :blue, strokewidth = 10)
 end
 
 

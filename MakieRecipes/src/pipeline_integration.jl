@@ -118,7 +118,7 @@ makie_args(::SurfaceLike, plotattributes) = (plotattributes[:x], plotattributes[
 makie_args(::Type{<: Contour}, plotattributes) = (plotattributes[:x], plotattributes[:y], plotattributes[:z].surf)
 
 function makie_args(::Type{<: Poly}, plotattributes)
-    return (from_nansep_vec(Point2f0.(plotattributes[:x], plotattributes[:y])),)
+    return (from_nansep_vec(Point2f.(plotattributes[:x], plotattributes[:y])),)
 end
 
 function translate_to_makie!(st, pa)
@@ -300,7 +300,7 @@ function plot_series_annotations!(plt, args, pt, plotattributes)
 
     sa = plotattributes[:series_annotations]
 
-    positions = Point2f0.(plotattributes[:x], plotattributes[:y])
+    positions = Point2f.(plotattributes[:x], plotattributes[:y])
 
     strs = sa[1]
 
@@ -318,7 +318,7 @@ function plot_annotations!(plt, args, pt, plotattributes)
 
     sa = plotattributes[:annotations]
 
-    positions = Point2f0.(plotattributes[:x], plotattributes[:y])
+    positions = Point2f.(plotattributes[:x], plotattributes[:y])
 
     strs = string.(getindex.(sa, 3))
 

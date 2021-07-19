@@ -27,33 +27,33 @@ function plot!(p::Stairs{<:Tuple{<:AbstractVector{<:Point2}}})
 
     steppoints = lift(points, p.step) do points, step
         if step == :pre
-            s_points = Vector{Point2f0}(undef, length(points) * 2 - 1)
+            s_points = Vector{Point2f}(undef, length(points) * 2 - 1)
             s_points[1] = point = points[1]
             for i in 1:length(points)-1
                 nextpoint = points[i + 1]
-                s_points[2i] = Point2f0(point[1], nextpoint[2])
+                s_points[2i] = Point2f(point[1], nextpoint[2])
                 s_points[2i + 1] = nextpoint
                 point = nextpoint
             end
             s_points
         elseif step == :post
-            s_points = Vector{Point2f0}(undef, length(points) * 2 - 1)
+            s_points = Vector{Point2f}(undef, length(points) * 2 - 1)
             s_points[1] = point = points[1]
             for i in 1:length(points)-1
                 nextpoint = points[i+1]
-                s_points[2i] = Point2f0(nextpoint[1], point[2])
+                s_points[2i] = Point2f(nextpoint[1], point[2])
                 s_points[2i + 1] = nextpoint
                 point = nextpoint
             end
             s_points
         elseif step == :center
-            s_points = Vector{Point2f0}(undef, length(points) * 2)
+            s_points = Vector{Point2f}(undef, length(points) * 2)
             s_points[1] = point = points[1]
             for i in 1:length(points)-1
                 nextpoint = points[i+1]
                 halfx = (point[1] + nextpoint[1]) / 2
-                s_points[2i] = Point2f0(halfx, point[2])
-                s_points[2i + 1] = Point2f0(halfx, nextpoint[2])
+                s_points[2i] = Point2f(halfx, point[2])
+                s_points[2i + 1] = Point2f(halfx, nextpoint[2])
                 point = nextpoint
             end
             s_points[end] = point

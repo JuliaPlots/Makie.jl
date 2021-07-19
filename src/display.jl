@@ -136,12 +136,12 @@ end
 
 mutable struct RamStepper
     scene::Scene
-    images::Vector{Matrix{RGBf0}}
+    images::Vector{Matrix{RGBf}}
     format::Symbol
 end
 
 Stepper(scene::FigureLike, path::String, step::Int; format=:png) = FolderStepper(get_scene(scene), path, format, step)
-Stepper(scene::FigureLike; format=:png) = RamStepper(get_scene(scene), Matrix{RGBf0}[], format)
+Stepper(scene::FigureLike; format=:png) = RamStepper(get_scene(scene), Matrix{RGBf}[], format)
 
 function Stepper(scene::FigureLike, path::String; format = :png)
     ispath(path) || mkpath(path)
@@ -161,7 +161,7 @@ function step!(s::FolderStepper)
 end
 
 function step!(s::RamStepper)
-    img = convert(Matrix{RGBf0}, colorbuffer(s.scene))
+    img = convert(Matrix{RGBf}, colorbuffer(s.scene))
     push!(s.images, img)
     return s
 end
@@ -551,7 +551,7 @@ If you want a more tweakable interface, consider using [`VideoStream`](@ref) and
 fig, ax, p = lines(rand(10))
 record(fig, "test.gif") do io
     for i in 1:255
-        p[:color] = RGBf0(i/255, (255 - i)/255, 0) # animate figure
+        p[:color] = RGBf(i/255, (255 - i)/255, 0) # animate figure
         recordframe!(io)
     end
 end
@@ -560,7 +560,7 @@ or
 ```julia
 fig, ax, p = lines(rand(10))
 record(fig, "test.gif", 1:255) do i
-    p[:color] = RGBf0(i/255, (255 - i)/255, 0) # animate figure
+    p[:color] = RGBf(i/255, (255 - i)/255, 0) # animate figure
 end
 ```
 

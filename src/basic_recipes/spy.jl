@@ -39,14 +39,14 @@ function plot!(p::Spy)
     rect = lift(p.x, p.y) do x, y
         xe = extrema(x)
         ye = extrema(y)
-        FRect2D((xe[1], ye[1]), (xe[2] - xe[1], ye[2] - ye[1]))
+        Rect2f((xe[1], ye[1]), (xe[2] - xe[1], ye[2] - ye[1]))
     end
     # TODO FastPixel isn't accepting marker size in data coordinates
     # but instead in pixel - so we need to fix that in GLMakie for consistency
     # and make this nicer when redoing unit support
     markersize = lift(p.markersize, rect, p.z) do msize, rect, z
         if msize === automatic
-            widths(rect) ./ Vec2f0(size(z))
+            widths(rect) ./ Vec2f(size(z))
         else
             msize
         end
@@ -55,7 +55,7 @@ function plot!(p::Spy)
     xycol = lift(rect, p.z, markersize) do rect, z, markersize
         x, y, color = SparseArrays.findnz(z)
         points = map(x, y) do x, y
-            (((Point2f0(x, y) .- 1) ./ Point2f0(size(z) .- 1)) .*
+            (((Point2f(x, y) .- 1) ./ Point2f(size(z) .- 1)) .*
             widths(rect) .+ minimum(rect))
         end
         points, convert(Vector{Float32}, color)

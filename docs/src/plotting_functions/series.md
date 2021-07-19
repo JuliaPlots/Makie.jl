@@ -17,7 +17,7 @@ fig
 ```
 
 ```@example 1
-series([Point2f0.(1:10, rand(10)) for i in 1:4], markersize=5, color=:Set1)
+series([Point2f.(1:10, rand(10)) for i in 1:4], markersize=5, color=:Set1)
 ```
 
 ```@example 1

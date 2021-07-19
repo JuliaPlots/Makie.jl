@@ -36,12 +36,12 @@ function layoutable(::Type{IntervalSlider}, fig_or_scene; bbox = nothing, kwargs
 
         if horizontal
             y = bottom(bb) + h / 2
-            [Point2f0(left(bb) + h/2, y),
-             Point2f0(right(bb) - h/2, y)]
+            [Point2f(left(bb) + h/2, y),
+             Point2f(right(bb) - h/2, y)]
         else
             x = left(bb) + w / 2
-            [Point2f0(x, bottom(bb) + w/2),
-             Point2f0(x, top(bb) - w/2)]
+            [Point2f(x, bottom(bb) + w/2),
+             Point2f(x, top(bb) - w/2)]
         end
     end
 
@@ -90,7 +90,7 @@ function layoutable(::Type{IntervalSlider}, fig_or_scene; bbox = nothing, kwargs
     end
 
     middlepoints = lift(endpoints, displayed_sliderfractions) do ep, sfs
-        [Point2f0(ep[1] .+ sf .* (ep[2] .- ep[1])) for sf in sfs]
+        [Point2f(ep[1] .+ sf .* (ep[2] .- ep[1])) for sf in sfs]
     end
 
     linepoints = lift(endpoints, middlepoints) do eps, middles

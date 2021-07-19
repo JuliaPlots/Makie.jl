@@ -53,8 +53,8 @@ function bezier_value(pts::AbstractVector, t::Real)
 end
 
 
-function to_bezier(p::Vector{Point2f0}, npoints::Int)
-    curves = Point2f0[]
+function to_bezier(p::Vector{Point2f}, npoints::Int)
+    curves = Point2f[]
 
     rawvecs = [getindex.(p, n) for n in 1:2]
 
@@ -63,9 +63,9 @@ function to_bezier(p::Vector{Point2f0}, npoints::Int)
         xs = map(t -> bezier_value(getindex.(rng, 1), t), ts)
         ys = map(t -> bezier_value(getindex.(rng, 2), t), ts)
 
-        append!(curves, Point2f0.(xs, ys))
+        append!(curves, Point2f.(xs, ys))
 
-        push!(curves, Point2f0(NaN))
+        push!(curves, Point2f(NaN))
     end
 
     return curves

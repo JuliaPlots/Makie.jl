@@ -57,8 +57,8 @@ function create_shader(scene::Scene, plot::Union{Lines,LineSegments})
 
     uniforms[:resolution] = scene.camera.resolution
     uniforms[:model] = plot.model
-    positions = meta(Point2f0[(0, -1), (0, 1), (1, -1), (1, 1)],
-                     uv=Vec2f0[(0, 0), (0, 0), (0, 0), (0, 0)])
+    positions = meta(Point2f[(0, -1), (0, 1), (1, -1), (1, 1)],
+                     uv=Vec2f[(0, 0), (0, 0), (0, 0), (0, 0)])
     instance = GeometryBasics.Mesh(positions, GLTriangleFace[(1, 2, 3), (2, 4, 3)])
     return InstancedProgram(WebGL(), lasset("line_segments.vert"),
                             lasset("line_segments.frag"), instance,

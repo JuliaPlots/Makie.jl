@@ -11,7 +11,7 @@ Scaling() = Scaling(identity, nothing)
 
 const NoScaling = Scaling{typeof(identity), Nothing}
 
-struct Sampler{N, V} <: AbstractArray{RGBAf0, 1}
+struct Sampler{N, V} <: AbstractArray{RGBAf, 1}
     # the colors to sample from!
     colors::AbstractArray{T, N} where T
     # or an array of values, which are used to index into colors via interpolation!
@@ -83,7 +83,7 @@ function apply_scaling(value::Number, scaling::Scaling)::Float64
     end
 end
 
-function Base.getindex(sampler::Sampler, i)::RGBAf0
+function Base.getindex(sampler::Sampler, i)::RGBAf
     value = sampler.values[i]
     scaled = apply_scaling(value, sampler.scaling)
     c = if sampler.interpolation == Linear
@@ -91,10 +91,10 @@ function Base.getindex(sampler::Sampler, i)::RGBAf0
     else
         nearest_getindex(sampler.colors, scaled)
     end
-    return RGBAf0(color(c), alpha(c) * sampler.alpha)
+    return RGBAf(color(c), alpha(c) * sampler.alpha)
 end
 
-function Base.getindex(sampler::Sampler{2, <: AbstractVector{Vec2f0}}, i)::RGBAf0
+function Base.getindex(sampler::Sampler{2, <: AbstractVector{Vec2f}}, i)::RGBAf
     uv = sampler.values[i]
     colors = sampler.colors
     # indexing confirming to OpenGL uv indexing
@@ -102,7 +102,7 @@ function Base.getindex(sampler::Sampler{2, <: AbstractVector{Vec2f0}}, i)::RGBAf
     wh = wsize .- 1
     x, y = round.(Int, Tuple(uv) .* wh) .+ 1
     c = colors[size(colors, 1) - (y - 1), x]
-    return RGBAf0(color(c), alpha(c) * sampler.alpha)
+    return RGBAf(color(c), alpha(c) * sampler.alpha)
 end
 
 function sampler(cmap::Union{Symbol, String}, n::Int = 20;
@@ -122,7 +122,7 @@ end
 
 function sampler(cmap::Vector{<: Colorant}, values::AbstractVector{<: AbstractFloat};
                  scaling=Scaling(), alpha=1.0, interpolation=Linear)
-    return Sampler(RGBAf0.(cmap), values, alpha, interpolation, scaling)
+    return Sampler(RGBAf.(cmap), values, alpha, interpolation, scaling)
 end
 
 function sampler(cmap::AbstractVector, values, crange;
@@ -130,7 +130,7 @@ function sampler(cmap::AbstractVector, values, crange;
     return Sampler(to_color.(cmap), values, alpha, interpolation, Scaling(identity, crange))
 end
 # uv texture sampler
-function sampler(cmap::Matrix{<: Colorant}, uv::AbstractVector{Vec2f0};
+function sampler(cmap::Matrix{<: Colorant}, uv::AbstractVector{Vec2f};
                  alpha=1.0, interpolation=Linear)
     return Sampler(cmap, uv, alpha, interpolation, Scaling())
 end

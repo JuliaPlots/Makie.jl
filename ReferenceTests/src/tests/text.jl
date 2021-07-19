@@ -9,7 +9,7 @@ using LaTeXStrings
 
     text!(ax,
         string.(round.(vec(values'), digits = 2)),
-        position = [Point2f0(x, y) for x in 1:10 for y in 1:10],
+        position = [Point2f(x, y) for x in 1:10 for y in 1:10],
         align = (:center, :center),
         color = ifelse.(vec(values') .< 0.3, :white, :black),
         textsize = 12)
@@ -17,7 +17,7 @@ using LaTeXStrings
 end
 
 @cell "data space" begin
-    pos = [Point2f0(0, 0), Point2f0(10, 10)]
+    pos = [Point2f(0, 0), Point2f(10, 10)]
     fig = text(
         ["0 is the ORIGIN of this", "10 says hi"],
         position = pos,
@@ -115,7 +115,7 @@ end
 
     t1 = text!(scene,
         fill("makie", 4),
-        position = [(200, 200) .+ 60 * Point2f0(cos(a), sin(a)) for a in pi/4:pi/2:7pi/4],
+        position = [(200, 200) .+ 60 * Point2f(cos(a), sin(a)) for a in pi/4:pi/2:7pi/4],
         rotation = pi/4:pi/2:7pi/4,
         align = (:left, :center),
         textsize = 30,
@@ -126,7 +126,7 @@ end
 
     t2 = text!(scene,
         fill("makie", 4),
-        position = [(200, 600) .+ 60 * Point2f0(cos(a), sin(a)) for a in pi/4:pi/2:7pi/4],
+        position = [(200, 600) .+ 60 * Point2f(cos(a), sin(a)) for a in pi/4:pi/2:7pi/4],
         rotation = pi/4:pi/2:7pi/4,
         align = (:left, :center),
         textsize = 30,
@@ -145,7 +145,7 @@ end
 
         t = text!(scene,
             "makie",
-            position = (200, 200) .+ 60 * Point2f0(cos(a), sin(a)),
+            position = (200, 200) .+ 60 * Point2f(cos(a), sin(a)),
             rotation = a,
             align = (:left, :center),
             textsize = 30,
@@ -156,7 +156,7 @@ end
 
         t2 = text!(scene,
             "makie",
-            position = (200, 600) .+ 60 * Point2f0(cos(a), sin(a)),
+            position = (200, 600) .+ 60 * Point2f(cos(a), sin(a)),
             rotation = a,
             align = (:left, :center),
             textsize = 30,
@@ -174,7 +174,7 @@ end
     text(
         fill("Makie", 7),
         rotation = [i / 7 * 1.5pi for i in 1:7],
-        position = [Point3f0(0, 0, i/2) for i in 1:7],
+        position = [Point3f(0, 0, i/2) for i in 1:7],
         color = [cgrad(:viridis)[x] for x in LinRange(0, 1, 7)],
         align = (:left, :baseline),
         textsize = 1,
@@ -200,7 +200,7 @@ end
 
 
 @cell "3D screenspace annotations" begin
-    positions = RNG.rand(Point3f0, 10)
+    positions = RNG.rand(Point3f, 10)
     fig, ax, p = meshscatter(positions, color=:white)
     text!(
         fill("Annotation", 10),
@@ -221,21 +221,21 @@ end
         offset = [(0, -10), (0, -20)],
         align = (:center, :top), color = :white)
 
-    scatter(f[1, 2], Point2f0(0, 0))
+    scatter(f[1, 2], Point2f(0, 0))
     text!("hello", position = (0, 0), offset = (40, 0), align = (:left, :center))
     text!("hello", position = (0, 0), offset = (40, 0), align = (:left, :center),
         rotation = -pi/4)
     text!("hello", position = (0, 0), offset = (40, 0), align = (:left, :center),
         rotation = pi/4)
 
-    scatter(f[2, 1], Point2f0[(0, 0), (10, 0), (20, 10)])
+    scatter(f[2, 1], Point2f[(0, 0), (10, 0), (20, 10)])
     text!("ABC", space = :data, offset = (0, 0), color = (:red, 0.3), align = (:left, :baseline))
     text!("ABC", space = :data, offset = (10, 0), color = (:green, 0.3), align = (:left, :baseline))
     text!("ABC", space = :data, offset = (20, 10), color = (:blue, 0.3), align = (:left, :baseline))
 
     LScene(f[2, 2], scenekw = (show_axis = false,))
-    scatter!(Point3f0[(0, 0, 0), (2, 2, 2)])
-    text!("hello", position = Point3f0(1, 1, 1), offset = (10, 10))
+    scatter!(Point3f[(0, 0, 0), (2, 2, 2)])
+    text!("hello", position = Point3f(1, 1, 1), offset = (10, 10))
 
     f
 end
@@ -278,7 +278,7 @@ end
     s = Scene(camera = campixel!)
     t = text!(s,
         L"\int_0^5x^2+2ab",
-        position = Point2f0(50, 50),
+        position = Point2f(50, 50),
         rotation = 0.0,
         show_axis = false,
         space = :data)
@@ -290,7 +290,7 @@ end
     s = Scene(camera = campixel!)
     st = Stepper(s)
     textnode = Node([L"\int_0^5x^2+2ab", L"\int_0^5x^2+2ab"])
-    posnode = Node(Point2f0[(50, 50), (100, 100)])
+    posnode = Node(Point2f[(50, 50), (100, 100)])
 
     t = text!(s,
         textnode,
@@ -302,7 +302,7 @@ end
     Makie.step!(st)
     ## change lengths
     textnode.val = push!(textnode[], L"\int_0^5x^2+2ab")
-    posnode[] = push!(posnode[], Point2f0(150, 150))
+    posnode[] = push!(posnode[], Point2f(150, 150))
     Makie.step!(st)
     st
 end
@@ -311,8 +311,8 @@ end
     s = Scene(camera = campixel!)
     st = Stepper(s)
     textposnode = Node([
-        (L"\int_0^5x^2+2ab", Point2f0(50, 50)),
-        (L"\int_0^5x^2+2ab", Point2f0(100, 100)),
+        (L"\int_0^5x^2+2ab", Point2f(50, 50)),
+        (L"\int_0^5x^2+2ab", Point2f(100, 100)),
     ])
 
     t = text!(s,
@@ -322,7 +322,7 @@ end
 
     Makie.step!(st)
     ## change lengths
-    textposnode[] = push!(textposnode[], (L"\int_0^5x^2+2ab", Point2f0(150, 150)))
+    textposnode[] = push!(textposnode[], (L"\int_0^5x^2+2ab", Point2f(150, 150)))
     Makie.step!(st)
     st
 end

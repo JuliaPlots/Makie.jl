@@ -91,21 +91,21 @@ to_line_segments(polygon) = convert_arguments(PointBased(), polygon)[1]
 to_line_segments(polygon::GeometryBasics.Mesh) = convert_arguments(PointBased(), polygon)[1]
 
 function to_line_segments(meshes::AbstractVector)
-    line = Point2f0[]
+    line = Point2f[]
     for (i, mesh) in enumerate(meshes)
         points = to_line_segments(mesh)
         append!(line, points)
         # push!(line, points[1])
         # dont need to separate the last line segment
         if i != length(meshes)
-            push!(line, Point2f0(NaN))
+            push!(line, Point2f(NaN))
         end
     end
     return line
 end
 
 function to_line_segments(polygon::AbstractVector{<: VecTypes})
-    result = Point2f0.(polygon)
+    result = Point2f.(polygon)
     push!(result, polygon[1])
     return result
 end
@@ -153,10 +153,10 @@ function plot!(plot::Mesh{<: Tuple{<: AbstractVector{P}}}) where P <: Union{Abst
             else
                 to_color.(colors)
             end
-            real_colors = RGBAf0[]
+            real_colors = RGBAf[]
             # Map one single color per mesh to each vertex
             for (mesh, color) in zip(meshes, single_colors)
-                append!(real_colors, Iterators.repeated(RGBAf0(color), length(coordinates(mesh))))
+                append!(real_colors, Iterators.repeated(RGBAf(color), length(coordinates(mesh))))
             end
             # real_colors[] = real_colors[]
             if P <: AbstractPolygon

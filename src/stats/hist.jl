@@ -77,7 +77,7 @@ function Makie.plot!(plot::Hist)
         h_norm = StatsBase.normalize(h, mode = normalization)
         centers = edges[1:end-1] .+ (diff(edges) ./ 2)
         weights = h_norm.weights
-        return Point2f0.(centers, weights)
+        return Point2f.(centers, weights)
     end
 
     widths = lift(diff, edges)

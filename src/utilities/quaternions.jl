@@ -15,7 +15,7 @@ Base.eltype(::Type{Quaternion{T}}) where T = T
 Base.length(::Type{<: Quaternion}) = 4
 Base.length(::Quaternion) = 4
 
-const Quaternionf0 = Quaternion{Float32}
+const Quaternionf = Quaternion{Float32}
 const SMat{N, L} = Mat{N, N, T, L} where T
 
 function Base.show(io::IO, q::Quaternion)

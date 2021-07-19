@@ -18,7 +18,7 @@
 #########
 
 function to_screen(scene::Scene, mpos)
-    return Point2f0(mpos) .- Point2f0(minimum(pixelarea(scene)[]))
+    return Point2f(mpos) .- Point2f(minimum(pixelarea(scene)[]))
 end
 
 number(x::Unit) = x.value
@@ -102,14 +102,14 @@ function Base.convert(::Type{<: Pixel}, scene::Scene, x::DIP)
 end
 
 function Base.convert(::Type{<: SceneSpace}, scene::Scene, x::Vec{2, <:Pixel})
-    zero = to_world(scene, to_screen(scene, Point2f0(0)))
+    zero = to_world(scene, to_screen(scene, Point2f(0)))
     s = to_world(scene, to_screen(scene, number.(Point(x))))
     SceneSpace.(Vec(s .- zero))
 end
 
 function Base.convert(::Type{<: SceneSpace}, scene::Scene, x::Pixel)
-    zero = to_world(scene, to_screen(scene, Point2f0(0)))
-    s = to_world(scene, to_screen(scene, Point2f0(number(x), 0.0)))
+    zero = to_world(scene, to_screen(scene, Point2f(0)))
+    s = to_world(scene, to_screen(scene, Point2f(number(x), 0.0)))
     SceneSpace(norm(s .- zero))
 end
 
@@ -118,9 +118,9 @@ function Base.convert(::Type{<: SceneSpace}, scene::Scene, x::Millimeter)
     (SceneSpace, mm)
 end
 
-to_2d_scale(x::Pixel) = Vec2f0(number(x))
-to_2d_scale(x::Tuple{<:Pixel, <:Pixel}) = Vec2f0(number.(x))
-to_2d_scale(x::VecTypes{2, <:Pixel}) = Vec2f0(number.(x))
+to_2d_scale(x::Pixel) = Vec2f(number(x))
+to_2d_scale(x::Tuple{<:Pixel, <:Pixel}) = Vec2f(number.(x))
+to_2d_scale(x::VecTypes{2, <:Pixel}) = Vec2f(number.(x))
 
 # Exports of units
 export px

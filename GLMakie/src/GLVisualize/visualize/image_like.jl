@@ -24,7 +24,7 @@ function _default(main::MatTypes{T}, ::Style, data::Dict) where T <: Colorant
         primitive = const_lift(ranges) do r
             x, y = minimum(r[1]), minimum(r[2])
             xmax, ymax = maximum(r[1]), maximum(r[2])
-            return FRect2D(x, y, xmax - x, ymax - y)
+            return Rect2f(x, y, xmax - x, ymax - y)
         end => to_uvmesh
         preferred_camera = :orthographic_pixel
         fxaa = false
@@ -47,10 +47,10 @@ A matrix of Intensities will result in a contourf kind of plot
 function gl_heatmap(main::MatTypes{T}, data::Dict) where T <: AbstractFloat
     @gen_defaults! data begin
         intensity = main => Texture
-        primitive = Rect2D(0f0,0f0,1f0,1f0) => native_triangle_mesh
-        nan_color = RGBAf0(1, 0, 0, 1)
-        highclip = RGBAf0(0, 0, 0, 0)
-        lowclip = RGBAf0(0, 0, 0, 0)
+        primitive = Rect2(0f0,0f0,1f0,1f0) => native_triangle_mesh
+        nan_color = RGBAf(1, 0, 0, 1)
+        highclip = RGBAf(0, 0, 0, 0)
+        lowclip = RGBAf(0, 0, 0, 0)
         color_map = nothing => Texture
         color_norm = nothing
         stroke_width::Float32 = 0.0f0
@@ -83,8 +83,8 @@ end
 function _default(main::VolumeTypes{T}, s::Style, data::Dict) where T <: VolumeElTypes
     @gen_defaults! data begin
         volumedata = main => Texture
-        hull = FRect3D(Vec3f0(0), Vec3f0(1)) => to_plainmesh
-        model = Mat4f0(I)
+        hull = Rect3f(Vec3f(0), Vec3f(1)) => to_plainmesh
+        model = Mat4f(I)
         modelinv = const_lift(inv, model)
         color_map = default(Vector{RGBA}, s) => Texture
         color_norm = color_map == nothing ? nothing : const_lift(extrema2f0, main)
@@ -104,8 +104,8 @@ end
 function _default(main::VolumeTypes{T}, s::Style, data::Dict) where T <: RGBA
     @gen_defaults! data begin
         volumedata = main => Texture
-        hull = FRect3D(Vec3f0(0), Vec3f0(1)) => to_plainmesh
-        model = Mat4f0(I)
+        hull = Rect3f(Vec3f(0), Vec3f(1)) => to_plainmesh
+        model = Mat4f(I)
         modelinv = const_lift(inv, model)
         # These don't do anything but are needed for type specification in the frag shader
         color_map = nothing => Texture

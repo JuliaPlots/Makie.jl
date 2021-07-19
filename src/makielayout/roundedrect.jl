@@ -4,8 +4,8 @@
         cornerradius = 5,
         cornersegments = 10,
         raw = true,
-        color = RGBf0(0.9, 0.9, 0.9),
-        strokecolor = RGBf0(0, 0, 0)
+        color = RGBf(0.9, 0.9, 0.9),
+        strokecolor = RGBf(0, 0, 0)
     )
 end
 

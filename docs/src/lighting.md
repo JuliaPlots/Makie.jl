@@ -2,12 +2,12 @@
 
 For 3D scenes, `GLMakie` offers several attributes to control the lighting of the scene. These are set per plot.
 
-- `ambient::Vec3f0`: Objects should never be completely dark; we use an ambient light to simulate background lighting, and give the object some color. Each element of the vector represents the intensity of color in R, G or B respectively.
-- `diffuse::Vec3f0`: Simulates the directional impact which the light source has on the plot object. This is the most visually significant component of the lighting model; the more a part of an object faces the light source, the brighter it becomes. Each element of the vector represents the intensity of color in R, G or B respectively.
-- `specular::Vec3f0`: Simulates the bright spot of a light that appears on shiny objects. Specular highlights are more inclined to the color of the light than the color of the object. Each element of the vector represents the intensity of color in R, G or B respectively.
+- `ambient::Vec3f`: Objects should never be completely dark; we use an ambient light to simulate background lighting, and give the object some color. Each element of the vector represents the intensity of color in R, G or B respectively.
+- `diffuse::Vec3f`: Simulates the directional impact which the light source has on the plot object. This is the most visually significant component of the lighting model; the more a part of an object faces the light source, the brighter it becomes. Each element of the vector represents the intensity of color in R, G or B respectively.
+- `specular::Vec3f`: Simulates the bright spot of a light that appears on shiny objects. Specular highlights are more inclined to the color of the light than the color of the object. Each element of the vector represents the intensity of color in R, G or B respectively.
 
 - `shininess::Float32`: Controls the shininess of the object. Higher shininess reduces the size of the highlight, and makes it sharper. This value must be positive.
-- `lightposition::Vec3f0`: The location of the main light source; by default, the light source is at the location of the camera.
+- `lightposition::Vec3f`: The location of the main light source; by default, the light source is at the location of the camera.
 
 You can find more information on how these were implemented [here](https://learnopengl.com/Lighting/Basic-Lighting).
 
@@ -49,17 +49,17 @@ surface!(
     scene, xs, ys, zs, colormap = (:white, :white),
 
     # Light comes from (0, 0, 15), i.e the sphere
-    lightposition = Vec3f0(0, 0, 15),
+    lightposition = Vec3f(0, 0, 15),
     # base light of the plot only illuminates red colors
-    ambient = Vec3f0(0.3, 0, 0),
+    ambient = Vec3f(0.3, 0, 0),
     # light from source (sphere) illuminates yellow colors
-    diffuse = Vec3f0(0.4, 0.4, 0),
+    diffuse = Vec3f(0.4, 0.4, 0),
     # reflections illuminate blue colors
-    specular = Vec3f0(0, 0, 1.0),
+    specular = Vec3f(0, 0, 1.0),
     # Reflections are sharp
     shininess = 128f0
 )
-mesh!(scene, Sphere(Point3f0(0, 0, 15), 1f0), color=RGBf0(1, 0.7, 0.3))
+mesh!(scene, Sphere(Point3f(0, 0, 15), 1f0), color=RGBf(1, 0.7, 0.3))
 scene
 ```
 
@@ -81,8 +81,8 @@ scene[:SSAO][:radius][] = 5.0
 scene[:SSAO][:blur][] = 3
 scene[:SSAO][:bias][] = 0.025
 
-box = Rect3D(Point3f0(-0.5), Vec3f0(1))
-positions = [Point3f0(x, y, rand()) for x in -5:5 for y in -5:5]
+box = Rect3(Point3f(-0.5), Vec3f(1))
+positions = [Point3f(x, y, rand()) for x in -5:5 for y in -5:5]
 meshscatter!(scene, positions, marker=box, markersize=1, color=:lightblue, ssao=true)
 scene
 

@@ -63,7 +63,7 @@ function Makie.plot!(plot::CrossBar)
         show_notch = show_notch && (nmin !== automatic && nmax !== automatic)
 
         # for horizontal crossbars just flip all components
-        fpoint, frect = Point2f0, FRect
+        fpoint, frect = Point2f, Rectf
         if orientation == :horizontal
             fpoint, frect = _flip_xy ∘ fpoint, _flip_xy ∘ frect
         end

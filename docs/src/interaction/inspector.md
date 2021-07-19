@@ -15,7 +15,7 @@ The `inspector = DataInspector(fig)` contains the following attributes:
 
 - `range = 10`: Controls the snapping range for selecting an element of a plot.
 - `enabled = true`: Disables inspection of plots when set to false. Can also be adjusted with `enable!(inspector)` and `disable!(inspector)`.
-- `text_padding = Vec4f0(5, 5, 3, 3)`: Padding for the box drawn around the tooltip text. (left, right, bottom, top)
+- `text_padding = Vec4f(5, 5, 3, 3)`: Padding for the box drawn around the tooltip text. (left, right, bottom, top)
 - `text_align = (:left, :bottom)`: Alignment of text within the tooltip. This does not affect the alignment of the tooltip relative to the cursor.
 - `textcolor = :black`: Tooltip text color.
 - `textsize = 20`: Tooltip text size.
@@ -28,7 +28,7 @@ The `inspector = DataInspector(fig)` contains the following attributes:
 - `indicator_linewidth = 2`: Linewidth of the selection indicator.
 - `indicator_linestyle = nothing`: Linestyle of the selection indicator
 - `tooltip_align = (:center, :top)`: Default position of the tooltip relative to the cursor or current selection. The real align may adjust to keep the tooltip in view.
-- `tooltip_offset = Vec2f0(20)`: Offset from the indicator to the tooltip.
+- `tooltip_offset = Vec2f(20)`: Offset from the indicator to the tooltip.
 - `depth = 9e3`: Depth value of the tooltip. This should be high so that the tooltip is always in front.
 - `priority = 100`: The priority of creating a tooltip on a mouse movement or scrolling event.
 
@@ -88,7 +88,7 @@ function show_barplot(inspector::DataInspector, plot::BarPlot, idx)
     # Get the hovered world-space position
     pos = plot[1][][idx]
     # project to screen space and shift it to be correct on the root scene
-    proj_pos = shift_project(scene, to_ndim(Point3f0, pos, 0))
+    proj_pos = shift_project(scene, to_ndim(Point3f, pos, 0))
     # anchor the tooltip at the projected position
     update_tooltip_alignment!(inspector, proj_pos)
 
@@ -120,11 +120,11 @@ function show_barplot(inspector::DataInspector, plot::BarPlot, idx)
     scene = parent_scene(plot)
 
     pos = plot[1][][idx]
-    proj_pos = shift_project(scene, to_ndim(Point3f0, pos, 0))
+    proj_pos = shift_project(scene, to_ndim(Point3f, pos, 0))
     update_tooltip_alignment!(inspector, proj_pos)
 
     # Get the rectangle BarPlot generated for Poly
-    # `_bbox2D` is a node meant for saving a `Rect2D` indicator. There is also
+    # `_bbox2D` is a node meant for saving a `Rect2` indicator. There is also
     # a `_bbox3D`. Here we keep `_bbox2D` updated and use it as a source for
     # our custom indicator.
     a._bbox2D[] = plot.plots[1][1][][idx]
@@ -147,7 +147,7 @@ function show_barplot(inspector::DataInspector, plot::BarPlot, idx)
         )
 
         # Make sure this draws on top
-        translate!(p, Vec3f0(0, 0, a.depth[]))
+        translate!(p, Vec3f(0, 0, a.depth[]))
 
         # register this indicator for later cleanup.
         push!(inspector.temp_plots, p)

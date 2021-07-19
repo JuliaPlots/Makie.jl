@@ -188,7 +188,7 @@ gl_promote(x::Type{T}) where {T <: StaticVector} = similar_type(T, gl_promote(el
 
 gl_promote(x::Type{T}) where {T <: GeometryBasics.Mesh} = NativeMesh{T}
 
-gl_convert(x::AbstractVector{Vec3f0}) = x
+gl_convert(x::AbstractVector{Vec3f}) = x
 
 gl_convert(x::T) where {T <: Number} = gl_promote(T)(x)
 gl_convert(x::T) where {T <: Colorant} = gl_promote(T)(x)

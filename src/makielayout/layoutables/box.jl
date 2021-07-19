@@ -13,7 +13,7 @@ function layoutable(::Type{Box}, fig_or_scene; bbox = nothing, kwargs...)
         halign, valign, attrs.alignmode; suggestedbbox = bbox)
 
     strokecolor_with_visibility = lift(strokecolor, strokevisible) do col, vis
-        vis ? col : RGBAf0(0, 0, 0, 0)
+        vis ? col : RGBAf(0, 0, 0, 0)
     end
 
     ibbox = @lift(round_to_IRect2D($(layoutobservables.computedbbox)))

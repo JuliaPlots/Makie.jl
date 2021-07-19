@@ -81,7 +81,7 @@ axes = [Axis(f[i, j]) for j in 1:3, i in 1:2]
 
 for (i, ax) in enumerate(axes)
     ax.title = "Axis $i"
-    poly!(ax, Point2f0[(9, 9), (3, 1), (1, 3)],
+    poly!(ax, Point2f[(9, 9), (3, 1), (1, 3)],
         color = cgrad(:inferno, 6, categorical = true)[i])
 end
 
@@ -471,13 +471,13 @@ a_width = Animation([1, 7], [1200.0, 800], sineio(n=2, yoyo=true, postwait=0.5))
 a_height = Animation([2.5, 8.5], [1200.0, 800], sineio(n=2, yoyo=true, postwait=0.5))
 
 scene_area = lift(t) do t
-    IRect(0, 0, round(Int, a_width(t)), round(Int, a_height(t)))
+    Recti(0, 0, round(Int, a_width(t)), round(Int, a_height(t)))
 end
 
 scene = Scene(container_scene, scene_area, camera = campixel!)
 
 rect = poly!(scene, scene_area,
-    raw=true, color=RGBf0(0.97, 0.97, 0.97), strokecolor=:transparent, strokewidth=0)
+    raw=true, color=RGBf(0.97, 0.97, 0.97), strokecolor=:transparent, strokewidth=0)
 
 outer_layout = GridLayout(scene, alignmode = Outside(30))
 
@@ -493,7 +493,7 @@ titles = ["aspect enforced\nvia layout", "axis aspect\nset directly", "no aspect
 axs = layout[1:2, 1:2] = [Axis(scene, title = t) for t in titles]
 
 for a in axs
-    lines!(a, Circle(Point2f0(0, 0), 100f0))
+    lines!(a, Circle(Point2f(0, 0), 100f0))
 end
 
 rowsize!(layout, 1, Fixed(400))

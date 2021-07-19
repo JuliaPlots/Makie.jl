@@ -4,10 +4,10 @@ function convert_arguments(P::PlotFunc, d::KernelDensity.UnivariateKDE)
 end
 
 function convert_arguments(::Type{<:Poly}, d::KernelDensity.UnivariateKDE)
-    points = Vector{Point2f0}(undef, length(d.x) + 2)
-    points[1] = Point2f0(d.x[1], 0)
-    points[2:end-1] .= Point2f0.(d.x, d.density)
-    points[end] = Point2f0(d.x[end], 0)
+    points = Vector{Point2f}(undef, length(d.x) + 2)
+    points[1] = Point2f(d.x[1], 0)
+    points[2:end-1] .= Point2f.(d.x, d.density)
+    points[end] = Point2f(d.x[end], 0)
     (points,)
 end
 
@@ -63,11 +63,11 @@ function plot!(plot::Density{<:Tuple{<:AbstractVector}})
         )
 
         if dir === :x
-            lowerv = Point2f0.(k.x, offs)
-            upperv = Point2f0.(k.x, offs .+ k.density)
+            lowerv = Point2f.(k.x, offs)
+            upperv = Point2f.(k.x, offs .+ k.density)
         elseif dir === :y
-            lowerv = Point2f0.(offs, k.x)
-            upperv = Point2f0.(offs .+ k.density, k.x)
+            lowerv = Point2f.(offs, k.x)
+            upperv = Point2f.(offs .+ k.density, k.x)
         else
             error("Invalid direction $dir, only :x or :y allowed")
         end
@@ -86,8 +86,8 @@ function plot!(plot::Density{<:Tuple{<:AbstractVector}})
         end
     end
 
-    lower = Node(Point2f0[])
-    upper = Node(Point2f0[])
+    lower = Node(Point2f[])
+    upper = Node(Point2f[])
 
     on(lowerupper) do (l, u)
         lower.val = l

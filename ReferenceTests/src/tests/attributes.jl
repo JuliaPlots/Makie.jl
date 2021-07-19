@@ -48,7 +48,7 @@ end
 end
 
 @cell "shading" begin
-    mesh(Sphere(Point3f0(0), 1f0), color=:orange, shading=false)
+    mesh(Sphere(Point3f(0), 1f0), color=:orange, shading=false)
 end
 
 @cell "visible" begin

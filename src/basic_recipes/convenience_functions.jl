@@ -1,6 +1,6 @@
 function Makie.plot!(plot::Plot(AbstractVector{<: Complex}))
     plot[:axis, :labels] = ("Re(x)", "Im(x)")
-    lines!(plot, lift(im-> Point2f0.(real.(im), imag.(im)), x[1]))
+    lines!(plot, lift(im-> Point2f.(real.(im), imag.(im)), x[1]))
 end
 
 
@@ -60,7 +60,7 @@ function showgradients(
          text!(
              scene,
              cmapstr,
-             position = Point2f0(-0.1, 0.5 + h),
+             position = Point2f(-0.1, 0.5 + h),
              align = (:right, :center),
              show_axis = false,
              textsize = textsize

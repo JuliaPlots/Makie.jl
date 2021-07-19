@@ -18,7 +18,7 @@ document what's possible to pass and convert them to the types that the backends
 They usually look like this:
 
 ```julia
-to_positions(backend, positions) = Point3f0.(positions) # E.g. everything that can be converted to a Point
+to_positions(backend, positions) = Point3f.(positions) # E.g. everything that can be converted to a Point
 ```
 
 As you can see, the first argument is the backend, so you can overload this for a specific backend

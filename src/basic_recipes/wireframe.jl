@@ -27,10 +27,10 @@ yvector(x::AbstractMatrix, len) = x
 function plot!(plot::Wireframe{<: Tuple{<: Any, <: Any, <: AbstractMatrix}})
     points_faces = lift(plot[1:3]...) do x, y, z
         M, N = size(z)
-        points = vec(Point3f0.(xvector(x, M), yvector(y, N), z))
+        points = vec(Point3f.(xvector(x, M), yvector(y, N), z))
         # Connect the vetices with faces, as one would use for a 2D Rectangle
         # grid with M,N grid points
-        faces = decompose(LineFace{GLIndex}, Tesselation(Rect2D(0, 0, 1, 1), (M, N)))
+        faces = decompose(LineFace{GLIndex}, Tesselation(Rect2(0, 0, 1, 1), (M, N)))
         connect(points, faces)
     end
     linesegments!(plot, Attributes(plot), points_faces)
@@ -40,7 +40,7 @@ function plot!(plot::Wireframe{Tuple{T}}) where T
     points = lift(plot[1]) do g
         # get the point representation of the geometry
         indices = decompose(LineFace{GLIndex}, g)
-        points = decompose(Point3f0, g)
+        points = decompose(Point3f, g)
         return connect(points, indices)
     end
     linesegments!(plot, Attributes(plot), points)

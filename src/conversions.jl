@@ -102,7 +102,7 @@ Enables to use scatter like a surface plot with x::Vector, y::Vector, z::Matrix
 spanning z over the grid spanned by x y
 """
 function convert_arguments(::PointBased, x::AbstractVector, y::AbstractVector, z::AbstractMatrix)
-    (vec(Point3f0.(x, y', z)),)
+    (vec(Point3f.(x, y', z)),)
 end
 """
     convert_arguments(P, x, y, z)::(Vector)
@@ -111,7 +111,7 @@ Takes vectors `x`, `y`, and `z` and turns it into a vector of 3D points of the v
 from `x`, `y`, and `z`.
 `P` is the plot Type (it is optional).
 """
-convert_arguments(::PointBased, x::RealVector, y::RealVector, z::RealVector) = (Point3f0.(x, y, z),)
+convert_arguments(::PointBased, x::RealVector, y::RealVector, z::RealVector) = (Point3f.(x, y, z),)
 
 """
     convert_arguments(P, x)::(Vector)
@@ -125,9 +125,9 @@ function convert_arguments(::PointBased, pos::AbstractMatrix{<: Number})
     (to_vertices(pos),)
 end
 
-convert_arguments(P::PointBased, x::AbstractVector{<:Real}, y::AbstractVector{<:Real}) = (Point2f0.(x, y),)
+convert_arguments(P::PointBased, x::AbstractVector{<:Real}, y::AbstractVector{<:Real}) = (Point2f.(x, y),)
 
-convert_arguments(P::PointBased, x::AbstractVector{<:Real}, y::AbstractVector{<:Real}, z::AbstractVector{<:Real}) = (Point3f0.(x, y, z),)
+convert_arguments(P::PointBased, x::AbstractVector{<:Real}, y::AbstractVector{<:Real}, z::AbstractVector{<:Real}) = (Point3f.(x, y, z),)
 
 """
     convert_arguments(P, y)::Vector
@@ -146,7 +146,7 @@ from `x` and `y`.
 
 `P` is the plot Type (it is optional).
 """
-#convert_arguments(::PointBased, x::RealVector, y::RealVector) = (Point2f0.(x, y),)
+#convert_arguments(::PointBased, x::RealVector, y::RealVector) = (Point2f.(x, y),)
 convert_arguments(P::PointBased, x::ClosedInterval, y::RealVector) = convert_arguments(P, LinRange(extrema(x)..., length(y)), y)
 convert_arguments(P::PointBased, x::RealVector, y::ClosedInterval) = convert_arguments(P, x, LinRange(extrema(y)..., length(x)))
 
@@ -158,13 +158,13 @@ Takes an input `Rect` `x` and decomposes it to points.
 
 `P` is the plot Type (it is optional).
 """
-function convert_arguments(P::PointBased, x::Rect2D)
+function convert_arguments(P::PointBased, x::Rect2)
     # TODO fix the order of decompose
-    return convert_arguments(P, decompose(Point2f0, x)[[1, 2, 4, 3, 1]])
+    return convert_arguments(P, decompose(Point2f, x)[[1, 2, 4, 3, 1]])
 end
 
 function convert_arguments(P::PointBased, mesh::AbstractMesh)
-    return convert_arguments(P, decompose(Point3f0, mesh))
+    return convert_arguments(P, decompose(Point3f, mesh))
 end
 
 function convert_arguments(PB::PointBased, linesegments::FaceView{<:Line, P}) where {P<:AbstractPoint}
@@ -172,13 +172,13 @@ function convert_arguments(PB::PointBased, linesegments::FaceView{<:Line, P}) wh
     return convert_arguments(PB, collect(reinterpret(P, linesegments)))
 end
 
-function convert_arguments(P::PointBased, x::Rect3D)
+function convert_arguments(P::PointBased, x::Rect3)
     inds = [
         1, 2, 3, 4, 5, 6, 7, 8,
         1, 5, 5, 7, 7, 3, 1, 3,
         4, 8, 8, 6, 2, 4, 2, 6
     ]
-    convert_arguments(P, decompose(Point3f0, x)[inds])
+    convert_arguments(P, decompose(Point3f, x)[inds])
 end
 
 """
@@ -199,7 +199,7 @@ Takes an input `Array{LineString}` or a `MultiLineString` and decomposes it to p
 function convert_arguments(PB::PointBased, linestring::Union{Array{<:LineString}, MultiLineString})
     arr = copy(convert_arguments(PB, linestring[1])[1])
     for ls in 2:length(linestring)
-        push!(arr, Point2f0(NaN))
+        push!(arr, Point2f(NaN))
         append!(arr, convert_arguments(PB, linestring[ls])[1])
     end
     return (arr,)
@@ -216,7 +216,7 @@ function convert_arguments(PB::PointBased, pol::Polygon)
         return convert_arguments(PB, pol.exterior)
     else
         arr = copy(convert_arguments(PB, pol.exterior)[1])
-        push!(arr, Point2f0(NaN))
+        push!(arr, Point2f(NaN))
         append!(arr, convert_arguments(PB, pol.interiors)[1])
         return (arr,)
     end
@@ -231,7 +231,7 @@ Takes an input `Array{Polygon}` or a `MultiPolygon` and decomposes it to points.
 function convert_arguments(PB::PointBased, mp::Union{Array{<:Polygon}, MultiPolygon})
     arr = copy(convert_arguments(PB, mp[1])[1])
     for p in 2:length(mp)
-        push!(arr, Point2f0(NaN))
+        push!(arr, Point2f(NaN))
         append!(arr, convert_arguments(PB, mp[p])[1])
     end
     return (arr,)
@@ -418,9 +418,9 @@ function convert_arguments(::Type{<: LineSegments}, positions::AbstractVector{E}
     (elconvert(Point{N, Float32}, reinterpret(Point{N, T}, positions)),)
 end
 
-function convert_arguments(::Type{<: LineSegments}, x::Rect2D)
+function convert_arguments(::Type{<: LineSegments}, x::Rect2)
     # TODO fix the order of decompose
-    points = decompose(Point2f0, x)
+    points = decompose(Point2f, x)
     return (points[[1, 2, 2, 4, 4, 3, 3, 1]],)
 end
 
@@ -450,7 +450,7 @@ function convert_arguments(
         T::Type{<:Mesh},
         x::RealVector, y::RealVector, z::RealVector
     )
-    convert_arguments(T, Point3f0.(x, y, z))
+    convert_arguments(T, Point3f.(x, y, z))
 end
 """
     convert_arguments(Mesh, xyz::AbstractVector)::GLNormalMesh
@@ -473,7 +473,7 @@ function convert_arguments(::Type{<:Mesh}, mesh::GeometryBasics.Mesh{N}) where {
         n = normals(mesh)
         # Normals can be nothing, when it's impossible to calculate the normals (e.g. 2d mesh)
         if n !== nothing
-            mesh = GeometryBasics.pointmeta(mesh, decompose(Vec3f0, n))
+            mesh = GeometryBasics.pointmeta(mesh, decompose(Vec3f, n))
         end
     end
     return (GeometryBasics.mesh(mesh, pointtype=Point{N, Float32}, facetype=GLTriangleFace),)
@@ -510,7 +510,7 @@ function convert_arguments(
         x::RealVector, y::RealVector, z::RealVector,
         indices::AbstractVector
     )
-    return convert_arguments(T, Point3f0.(x, y, z), indices)
+    return convert_arguments(T, Point3f.(x, y, z), indices)
 end
 
 """
@@ -635,7 +635,7 @@ end
     to_vertices(v)
 
 Converts a representation of vertices `v` to its canonical representation as a
-`Vector{Point3f0}`. `v` can be:
+`Vector{Point3f}`. `v` can be:
 
 - An `AbstractVector` of 3-element `Tuple`s or `StaticVector`s,
 
@@ -647,12 +647,12 @@ Converts a representation of vertices `v` to its canonical representation as a
   - otherwise if `v` has 2 or 3 columns, it will treat each row as a vertex.
 """
 function to_vertices(verts::AbstractVector{<: VecTypes{3, T}}) where T
-    vert3f0 = T != Float32 ? Point3f0.(verts) : verts
-    return reinterpret(Point3f0, vert3f0)
+    vert3f0 = T != Float32 ? Point3f.(verts) : verts
+    return reinterpret(Point3f, vert3f0)
 end
 
 function to_vertices(verts::AbstractVector{<: VecTypes})
-    to_vertices(to_ndim.(Point3f0, verts, 0.0))
+    to_vertices(to_ndim.(Point3f, verts, 0.0))
 end
 
 function to_vertices(verts::AbstractMatrix{<: Number})
@@ -672,7 +672,7 @@ function to_vertices(verts::AbstractMatrix{T}, ::Val{1}) where T <: Number
     else
         let N = Val(N), lverts = verts
             broadcast(1:size(verts, 2), N) do vidx, n
-                to_ndim(Point3f0, ntuple(i-> lverts[i, vidx], n), 0.0)
+                to_ndim(Point3f, ntuple(i-> lverts[i, vidx], n), 0.0)
             end
         end
     end
@@ -681,7 +681,7 @@ end
 function to_vertices(verts::AbstractMatrix{T}, ::Val{2}) where T <: Number
     let N = Val(size(verts, 2)), lverts = verts
         broadcast(1:size(verts, 1), N) do vidx, n
-            to_ndim(Point3f0, ntuple(i-> lverts[vidx, i], n), 0.0)
+            to_ndim(Point3f, ntuple(i-> lverts[vidx, i], n), 0.0)
         end
     end
 end
@@ -737,7 +737,7 @@ function convert_attribute(c::String, ::key"color")
     return parse(RGBA{Float32}, c)
 end
 
-# Do we really need all colors to be RGBAf0?!
+# Do we really need all colors to be RGBAf?!
 convert_attribute(c::AbstractArray{<: Colorant}, k::key"color") = el32convert(c)
 convert_attribute(c::AbstractArray, k::key"color") = to_color.(c)
 
@@ -747,7 +747,7 @@ convert_attribute(c::Tuple, k::key"color") = convert_attribute.(c, k)
 convert_attribute(p::AbstractPattern, k::key"color") = p
 
 function convert_attribute(c::Tuple{T, F}, k::key"color") where {T, F <: Number}
-    RGBAf0(Colors.color(to_color(c[1])), c[2])
+    RGBAf(Colors.color(to_color(c[1])), c[2])
 end
 
 convert_attribute(b::Billboard{Float32}, ::key"rotations") = to_rotation(b.rotation)
@@ -759,16 +759,16 @@ convert_attribute(r, ::key"rotations") = to_rotation(r)
 convert_attribute(c, ::key"markersize", ::key"scatter") = to_2d_scale(c)
 convert_attribute(c, k1::key"markersize", k2::key"meshscatter") = to_3d_scale(c)
 
-convert_attribute(x, ::key"uv_offset_width") = Vec4f0(x)
-convert_attribute(x::AbstractVector{Vec4f0}, ::key"uv_offset_width") = x
+convert_attribute(x, ::key"uv_offset_width") = Vec4f(x)
+convert_attribute(x::AbstractVector{Vec4f}, ::key"uv_offset_width") = x
 
-to_2d_scale(x::Number) = Vec2f0(x)
-to_2d_scale(x::VecTypes) = to_ndim(Vec2f0, x, 1)
-to_2d_scale(x::Tuple{<:Number, <:Number}) = to_ndim(Vec2f0, x, 1)
+to_2d_scale(x::Number) = Vec2f(x)
+to_2d_scale(x::VecTypes) = to_ndim(Vec2f, x, 1)
+to_2d_scale(x::Tuple{<:Number, <:Number}) = to_ndim(Vec2f, x, 1)
 to_2d_scale(x::AbstractVector) = to_2d_scale.(x)
 
-to_3d_scale(x::Number) = Vec3f0(x)
-to_3d_scale(x::VecTypes) = to_ndim(Vec3f0, x, 1)
+to_3d_scale(x::Number) = Vec3f(x)
+to_3d_scale(x::VecTypes) = to_ndim(Vec3f, x, 1)
 to_3d_scale(x::AbstractVector) = to_3d_scale.(x)
 
 convert_attribute(c::Number, ::key"glowwidth") = Float32(c)
@@ -887,15 +887,15 @@ function convert_attribute(f::Symbol, ::key"frames")
 end
 convert_attribute(f::Tuple{Tuple{Bool,Bool},Tuple{Bool,Bool}}, ::key"frames") = f
 
-convert_attribute(c::Tuple{<: Number, <: Number}, ::key"position") = Point2f0(c[1], c[2])
-convert_attribute(c::Tuple{<: Number, <: Number, <: Number}, ::key"position") = Point3f0(c)
+convert_attribute(c::Tuple{<: Number, <: Number}, ::key"position") = Point2f(c[1], c[2])
+convert_attribute(c::Tuple{<: Number, <: Number, <: Number}, ::key"position") = Point3f(c)
 convert_attribute(c::VecTypes{N}, ::key"position") where N = Point{N, Float32}(c)
 
 """
     Text align, e.g.:
 """
-convert_attribute(x::Tuple{Symbol, Symbol}, ::key"align") = Vec2f0(alignment2num.(x))
-convert_attribute(x::Vec2f0, ::key"align") = x
+convert_attribute(x::Tuple{Symbol, Symbol}, ::key"align") = Vec2f(alignment2num.(x))
+convert_attribute(x::Vec2f, ::key"align") = x
 
 const _font_cache = Dict{String, NativeFont}()
 
@@ -941,35 +941,35 @@ convert_attribute(x::NativeFont, k::key"font") = x
     to_rotation(b, tuple_float)
     to_rotation(b, vec4)
 """
-convert_attribute(s::Quaternionf0, ::key"rotation") = s
-convert_attribute(s::Quaternion, ::key"rotation") = Quaternionf0(s.data...)
+convert_attribute(s::Quaternionf, ::key"rotation") = s
+convert_attribute(s::Quaternion, ::key"rotation") = Quaternionf(s.data...)
 function convert_attribute(s::VecTypes{N}, ::key"rotation") where N
     if N == 4
-        Quaternionf0(s...)
+        Quaternionf(s...)
     elseif N == 3
-        rotation_between(Vec3f0(0, 0, 1), to_ndim(Vec3f0, s, 0.0))
+        rotation_between(Vec3f(0, 0, 1), to_ndim(Vec3f, s, 0.0))
     elseif N == 2
 
-        rotation_between(Vec3f0(0, 1, 0), to_ndim(Vec3f0, s, 0.0))
+        rotation_between(Vec3f(0, 1, 0), to_ndim(Vec3f, s, 0.0))
     else
         error("The $N dimensional vector $s can't be converted to a rotation.")
     end
 end
 
 function convert_attribute(s::Tuple{VecTypes, AbstractFloat}, ::key"rotation")
-    qrotation(to_ndim(Vec3f0, s[1], 0.0), s[2])
+    qrotation(to_ndim(Vec3f, s[1], 0.0), s[2])
 end
-convert_attribute(angle::AbstractFloat, ::key"rotation") = qrotation(Vec3f0(0, 0, 1), Float32(angle))
+convert_attribute(angle::AbstractFloat, ::key"rotation") = qrotation(Vec3f(0, 0, 1), Float32(angle))
 convert_attribute(r::AbstractVector, k::key"rotation") = to_rotation.(r)
-convert_attribute(r::AbstractVector{<: Quaternionf0}, k::key"rotation") = r
+convert_attribute(r::AbstractVector{<: Quaternionf}, k::key"rotation") = r
 
 
-convert_attribute(x, k::key"colorrange") = x==nothing ? nothing : Vec2f0(x)
+convert_attribute(x, k::key"colorrange") = x==nothing ? nothing : Vec2f(x)
 
 convert_attribute(x, k::key"textsize") = Float32(x)
 convert_attribute(x::AbstractVector, k::key"textsize") = convert_attribute.(x, k)
 convert_attribute(x::AbstractVector{T}, k::key"textsize") where T <: Number = el32convert(x)
-convert_attribute(x::AbstractVector{T}, k::key"textsize") where T <: VecTypes = elconvert(Vec2f0, x)
+convert_attribute(x::AbstractVector{T}, k::key"textsize") where T <: VecTypes = elconvert(Vec2f, x)
 convert_attribute(x, k::key"linewidth") = Float32(x)
 convert_attribute(x::AbstractVector, k::key"linewidth") = el32convert(x)
 
@@ -1036,11 +1036,11 @@ function convert_attribute(cs::Union{Tuple, Pair}, ::key"colormap", n::Int=2)
 end
 
 function convert_attribute(cs::Tuple{<: Union{Symbol, AbstractString}, Real}, ::key"colormap", n::Int=30)
-    return RGBAf0.(to_colormap(cs[1]), cs[2]) # We need to rework this to conform to the backend interface.
+    return RGBAf.(to_colormap(cs[1]), cs[2]) # We need to rework this to conform to the backend interface.
 end
 
 function convert_attribute(cs::NamedTuple{(:colormap, :alpha, :n), Tuple{Union{Symbol, AbstractString}, Real, Int}}, ::key"colormap")
-    return RGBAf0.(to_colormap(cs.colormap, cs.n), cs.alpha)
+    return RGBAf.(to_colormap(cs.colormap, cs.n), cs.alpha)
 end
 
 to_colormap(x, n::Integer) = convert_attribute(x, key"colormap"(), n)
@@ -1165,8 +1165,8 @@ struct FastPixel end
 
 to_spritemarker(x::FastPixel) = x
 to_spritemarker(x::Circle) = x
-to_spritemarker(::Type{<: Circle}) = Circle(Point2f0(0), 1f0)
-to_spritemarker(::Type{<: Rect}) = Rect(Vec2f0(0), Vec2f0(1))
+to_spritemarker(::Type{<: Circle}) = Circle(Point2f(0), 1f0)
+to_spritemarker(::Type{<: Rect}) = Rect(Vec2f(0), Vec2f(1))
 to_spritemarker(x::Rect) = x
 
 """
@@ -1220,7 +1220,7 @@ convert_attribute(value, ::key"isorange", ::key"volume") = Float32(value)
 
 function convert_attribute(value::Symbol, ::key"marker", ::key"meshscatter")
     if value == :Sphere
-        return normal_mesh(Sphere(Point3f0(0), 1f0))
+        return normal_mesh(Sphere(Point3f(0), 1f0))
     else
         error("Unsupported marker: $(value)")
     end

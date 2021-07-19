@@ -202,7 +202,7 @@ function Makie.plot!(
     # and barplots we need to draw
     # this is necessary because in Makie we want every recipe to be interactively updateable
     # and therefore need to connect the observable machinery to do so
-    linesegs = Node(Point2f0[])
+    linesegs = Node(Point2f[])
     bar_froms = Node(Float32[])
     bar_tos = Node(Float32[])
     colors = Node(Bool[])
@@ -220,8 +220,8 @@ function Makie.plot!(
 
         # then refill them with our updated values
         for (t, s) in zip(times, stockvalues)
-            push!(linesegs[], Point2f0(t, s.low))
-            push!(linesegs[], Point2f0(t, s.high))
+            push!(linesegs[], Point2f(t, s.low))
+            push!(linesegs[], Point2f(t, s.high))
             push!(bar_froms[], s.open)
             push!(bar_tos[], s.close)
         end
@@ -241,7 +241,7 @@ function Makie.plot!(
     # colored according to a 2-element colormap
     # we build this colormap out of our `downcolor` and `upcolor`
     # we give the observable element type `Any` so it will not error when we change
-    # a color from a symbol like :red to a different type like RGBf0(1, 0, 1)
+    # a color from a symbol like :red to a different type like RGBf(1, 0, 1)
     colormap = lift(Any, sc.downcolor, sc.upcolor) do dc, uc
         [dc, uc]
     end

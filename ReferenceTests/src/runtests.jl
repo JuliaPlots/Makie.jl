@@ -40,7 +40,7 @@ function compare_media(a, b; sigma=[1,1])
             @warn "images don't have the same size, difference will be Inf"
             return Inf
         end
-        conv(x) = convert(Matrix{RGBf0}, x)
+        conv(x) = convert(Matrix{RGBf}, x)
         return compare_media(conv(imga), conv(imgb), sigma=sigma)
     elseif ext in (".mp4", ".gif")
         aframes, bframes = get_frames(a, b)

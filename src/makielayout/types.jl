@@ -115,10 +115,10 @@ mutable struct LineAxis
     protrusion::Node{Float32}
     attributes::Attributes
     elements::Dict{Symbol, Any}
-    tickpositions::Node{Vector{Point2f0}}
+    tickpositions::Node{Vector{Point2f}}
     tickvalues::Node{Vector{Float32}}
     ticklabels::Node{Vector{String}}
-    minortickpositions::Node{Vector{Point2f0}}
+    minortickpositions::Node{Vector{Point2f}}
     minortickvalues::Node{Vector{Float32}}
 end
 
@@ -129,14 +129,14 @@ mutable struct RectangleZoom
     active::Observable{Bool}
     restrict_x::Bool
     restrict_y::Bool
-    from::Union{Nothing, Point2f0}
-    to::Union{Nothing, Point2f0}
-    rectnode::Observable{FRect2D}
+    from::Union{Nothing, Point2f}
+    to::Union{Nothing, Point2f}
+    rectnode::Observable{Rect2f}
 end
 
 function RectangleZoom(callback::Function; restrict_x=false, restrict_y=false)
     return RectangleZoom(callback, Observable(false), restrict_x, restrict_y,
-                         nothing, nothing, Observable(FRect2D(0, 0, 1, 1)))
+                         nothing, nothing, Observable(Rect2f(0, 0, 1, 1)))
 end
 
 struct ScrollZoom
@@ -170,8 +170,8 @@ end
     scene::Scene
     xaxislinks::Vector{Axis}
     yaxislinks::Vector{Axis}
-    targetlimits::Node{FRect2D}
-    finallimits::Node{FRect2D}
+    targetlimits::Node{Rect2f}
+    finallimits::Node{Rect2f}
     block_limit_linking::Node{Bool}
     mouseeventhandle::MouseEventHandle
     scrollevents::Observable{ScrollEvent}
@@ -255,7 +255,7 @@ end
 
 @Layoutable Axis3 begin
     scene::Scene
-    finallimits::Node{FRect3D}
+    finallimits::Node{Rect3f}
     mouseeventhandle::MouseEventHandle
     scrollevents::Observable{ScrollEvent}
     keysevents::Observable{KeysEvent}
