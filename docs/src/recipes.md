@@ -76,7 +76,7 @@ We use an example to show how this works:
 ```julia
 @recipe(MyPlot, x, y, z) do scene
     Theme(
-        plot_color => :red
+        plot_color = :red
     )
 end
 ```
@@ -116,7 +116,7 @@ plots `Myplot`:
 ```julia
 function default_theme(scene, ::Myplot)
     Theme(
-        plot_color => :red
+        plot_color = :red
     )
 end
 ```
@@ -125,14 +125,16 @@ As the second part of defining `MyPlot`, you should implement the actual
 plotting of the `MyPlot` object by specializing `plot!`:
 
 ```julia
-function plot!(myplot::MyPlot)
+function plot!(myplot::MyPlot{<:Tuple{<:Any,<:Any,<:Any}})
     # normal plotting code, building on any previously defined recipes
     # or atomic plotting operations, and adding to the combined `myplot`:
     lines!(myplot, rand(10), color = myplot[:plot_color])
-    plot!(myplot, myplot[:x], myplot[:y])
+    plot!(myplot, myplot[:x][], myplot[:y][])
     myplot
 end
 ```
+
+The full plot recipe for `MyPlot` can then be called via `myplot(rand(10),rand(10),rand(10))`.
 
 It's possible to add specializations here, depending on the argument _types_
 supplied to `myplot`. For example, to specialize the behavior of `myplot(a)`
