@@ -418,6 +418,7 @@ function translate_cam!(scene, cam, t)
 
     cam.eyeposition[] = eyepos + trans
     cam.lookat[] = lookat + trans
+    update_cam!(scene, cam)
     return
 end
 
@@ -480,13 +481,14 @@ function rotate_cam!(scene, cam::Camera3D, angles::VecTypes, from_mouse=false)
     else
         cam.lookat[] = eyepos + viewdir
     end
+    update_cam!(scene, cam)
     return
 end
 
-zoom!(scene::Scene, zoom_step) = zoom!(scene, cameracontrols(scene), false, false)
+zoom!(scene::Scene, zoom_step) = zoom!(scene, cameracontrols(scene), zoom_step, false, false)
 function zoom!(scene::Scene, cam::Camera3D, zoom_step, shift_lookat = false, cad = false)
     if cad
-        # move exeposition if mouse is not over the center
+        # move eyeposition if mouse is not over the center
         lookat = cam.lookat[]
         eyepos = cam.eyeposition[]
         up = cam.upvector[]         # +y
@@ -520,16 +522,15 @@ function zoom!(scene::Scene, cam::Camera3D, zoom_step, shift_lookat = false, cad
     end
 
     # apply zoom
-    cam.zoom_mult[] = cam.zoom_mult[] * zoom_step
-
+    cam.zoom_mult[] *= zoom_step
+    update_cam!(scene, cam)
     return
 end
 
 
 function update_cam!(scene::Scene, cam::Camera3D)
-    @extractvalue cam (lookat, eyeposition, upvector)
+    @extractvalue cam (lookat, eyeposition, upvector, near, far)
 
-    near = cam.near[]; far = cam.far[]
     aspect = Float32((/)(widths(scene.px_area[])...))
 
     if cam.attributes[:projectiontype][] == Perspective
@@ -537,8 +538,9 @@ function update_cam!(scene::Scene, cam::Camera3D)
         cam.fov[] = fov
         proj = perspectiveprojection(fov, aspect, near, far)
     else
-        w = 0.5f0 * (1f0 + aspect) * cam.zoom_mult[]
-        h = 0.5f0 * (1f0 + 1f0 / aspect) * cam.zoom_mult[]
+        distance = norm(lookat - eyeposition)
+        w = 0.5f0 * (1f0 + aspect) * cam.zoom_mult[] * distance
+        h = 0.5f0 * (1f0 + 1f0 / aspect) * cam.zoom_mult[] * distance
         proj = orthographicprojection(-w, w, -h, h, near, far)
     end
 
@@ -547,7 +549,7 @@ function update_cam!(scene::Scene, cam::Camera3D)
     scene.camera.projection[] = proj
     scene.camera.view[] = view
     scene.camera.projectionview[] = proj * view
-    scene.camera.eyeposition[] = cam.eyeposition[]
+    scene.camera.eyeposition[] = eyeposition
 end
 
 function update_cam!(scene::Scene, camera::Camera3D, area3d::Rect)
@@ -555,11 +557,11 @@ function update_cam!(scene::Scene, camera::Camera3D, area3d::Rect)
     bb = FRect3D(area3d)
     width = widths(bb)
     half_width = width/2f0
-    lower_corner = minimum(bb)
     middle = maximum(bb) - half_width
     old_dir = normalize(eyeposition .- lookat)
     camera.lookat[] = middle
-    neweyepos = middle .+ (1.2*norm(width) .* old_dir)
+    fact = (camera.attributes[:projectiontype][] == Perspective) ? 1.2 : .5
+    neweyepos = middle .+ (fact * norm(width) .* old_dir)
     camera.eyeposition[] = neweyepos
     camera.upvector[] = Vec3f0(0,0,1)
     if camera.attributes[:near][] === automatic

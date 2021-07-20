@@ -40,15 +40,15 @@ end
     dir_scaled = Vec3f0(
         dir[1] * scene.transformation.scale[][1],
         0.0,
-        dir[3] * scene.transformation.scale[][2],
+        dir[3] * scene.transformation.scale[][3],
     )
     cam.upvector[] = (0.0, 0.0, 1.0)
     cam.lookat[] = minimum(scene_limits(scene)) + dir_scaled
     cam.eyeposition[] = (cam.lookat[][1], cam.lookat[][2] + 6.3, cam.lookat[][3])
     cam.attributes[:projectiontype][] = Makie.Orthographic
-    cam.zoom_mult[] = 0.61f0
+    cam.zoom_mult[] = .097
     update_cam!(scene, cam)
-    # stop scene display from centering, which would overwrite the camera paramter we just set
+    # stop scene display from centering, which would overwrite the camera parameter we just set
     scene.center = false
     fig
 end

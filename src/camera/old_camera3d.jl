@@ -337,7 +337,6 @@ function update_cam!(scene::Scene, camera::OldCamera3D, area3d::Rect)
     bb = FRect3D(area3d)
     width = widths(bb)
     half_width = width/2f0
-    lower_corner = minimum(bb)
     middle = maximum(bb) - half_width
     old_dir = normalize(eyeposition .- lookat)
     camera.lookat[] = middle
