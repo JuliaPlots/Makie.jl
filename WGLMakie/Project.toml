@@ -1,6 +1,6 @@
-authors = ["SimonDanisch <sdanisch@gmail.com>"]
 name = "WGLMakie"
 uuid = "276b4fcb-3e11-5398-bf8b-a0c2d153d008"
+authors = ["SimonDanisch <sdanisch@gmail.com>"]
 version = "0.4.4"
 
 [deps]
@@ -21,7 +21,7 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Colors = "0.11, 0.12"
 FileIO = "1.1"
 FreeTypeAbstraction = "0.8, 0.9"
-GeometryBasics = "0.3"
+GeometryBasics = "0.3, 0.4"
 Hyperscript = "0.0.3, 0.0.4"
 ImageMagick = "1.1"
 JSServe = "1.2"
