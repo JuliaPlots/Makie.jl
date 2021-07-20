@@ -28,6 +28,13 @@ can be normalized by setting `normalization`. Possible values are:
    norm 1.
 *  `:none`: Do not normalize.
 
+The following attributes can move the histogram around,
+which comes in handy when placing multiple histograms into one plot:
+* offset = 0.0: adds an offset to every value
+* fillto = 0.0: defines where the bar starts
+* scale_to = nothing: allows to scale all values to a certain height
+* flip = false: flips all values
+
 Color can either be:
 * a vector of `bins` colors
 * a single color
@@ -42,6 +49,9 @@ $(ATTRIBUTES)
         normalization = :none,
         cycle = [:color => :patchcolor],
         color = theme(scene, :patchcolor),
+        offset = 0.0,
+        scale_to = nothing,
+        flip = false,
 
         bar_labels = nothing,
         flip_labels_at = Inf,
@@ -72,12 +82,19 @@ function Makie.plot!(plot::Hist)
         end
     end
 
-    points = lift(edges, plot.normalization) do edges, normalization
+    points = lift(edges, plot.normalization, plot.offset, plot.scale_to, plot.flip) do edges, normalization, offset, scale_to, flip
         h = StatsBase.fit(StatsBase.Histogram, values[], edges)
         h_norm = StatsBase.normalize(h, mode = normalization)
         centers = edges[1:end-1] .+ (diff(edges) ./ 2)
         weights = h_norm.weights
-        return Point2f0.(centers, weights)
+        if !isnothing(scale_to)
+            min, max = extrema(weights)
+            weights .= ((weights .- min) ./ (max - min)) .* scale_to
+        end
+        if flip
+            weights .= -weights
+        end
+        return Point2f0.(centers, weights .+ offset)
     end
 
     widths = lift(diff, edges)
